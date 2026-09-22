@@ -11,7 +11,14 @@ import "driver-vue/style.css";
 
 Each hint points at an element and describes it with the same popover you know from tours. The demo below also turns on the optional overlay, which spotlights the element while its hint is open:
 
-<!-- TODO(hints-demo): basic hints demo with overlay: true, overlayOpacity: 0.5, two hints (#hint-export, #hint-summary with beacon side left/center and popover side bottom) -->
+<HintsDemo
+  prefix="hint"
+  :config="{ overlay: true, overlayOpacity: 0.5 }"
+  :hints="[
+    { element: '#export', id: 'export', popover: { title: 'Export your data', description: 'Download this report as CSV or PDF.' } },
+    { element: '#summary', id: 'summary', beacon: { side: 'left', align: 'center' }, popover: { title: 'Auto-generated summary', description: 'This paragraph is written for you from the numbers of the quarter.', side: 'bottom' } },
+  ]"
+/>
 
 ```vue
 <script setup lang="ts">
@@ -35,7 +42,7 @@ const { hints, show } = useHints({
       beacon: { side: "left", align: "center" },
       popover: {
         title: "Auto-generated summary",
-        description: "This paragraph is written for you from the quarter's numbers.",
+        description: "This paragraph is written for you from the numbers of the quarter.",
         side: "bottom",
       },
     },

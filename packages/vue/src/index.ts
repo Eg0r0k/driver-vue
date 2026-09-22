@@ -1,7 +1,8 @@
 import "./style.css";
 
 export { createDriver, driver } from "./core/driver";
-export { generateStageSvgPathString, getPaddedStage } from "./core/stage";
+export { generateStageSvgPathString, getPaddedStage, getViewport } from "./core/stage";
+export type { StageOptions, Viewport } from "./core/stage";
 export { easeInOutQuad } from "./core/utils";
 
 export { useDriver } from "./composables/useDriver";

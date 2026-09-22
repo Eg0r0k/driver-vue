@@ -6,7 +6,14 @@ Everything about a hint can be customized: the beacon's color, size and animatio
 
 With `overlay: true` an open hint reads like a tour step: the element is spotlighted and stays interactive, the popover frames the element (the beacon steps aside while it is up), and the other beacons wait under the overlay. Clicking the dimmed page closes the hint.
 
-<!-- TODO(hints-demo): overlay demo -->
+<HintsDemo
+  prefix="hint-overlay"
+  :config="{ overlay: true, overlayOpacity: 0.5 }"
+  :hints="[
+    { element: '#export', popover: { title: 'Export', description: 'The page dims and the element is spotlighted while the hint is open.' } },
+    { element: '#search', beacon: { side: 'right', align: 'center' }, popover: { title: 'Search', description: 'Filter the report by any term.' } },
+  ]"
+/>
 
 ```ts
 const { hints, show } = useHints({
@@ -20,7 +27,13 @@ const { hints, show } = useHints({
 
 Beacons read two CSS variables. Set them globally on `.driver-hint`, or give individual beacons a `className` and scope the variables to it:
 
-<!-- TODO(hints-demo): styled beacons demo (className docs-hint-rose / docs-hint-large) -->
+<HintsDemo
+  prefix="hint-styled"
+  :hints="[
+    { element: '#export', beacon: { className: 'docs-hint-rose' }, popover: { title: 'A rose beacon', description: 'Styled through beacon.className and the CSS variables.' } },
+    { element: '#summary', beacon: { className: 'docs-hint-large', side: 'left', align: 'center' }, popover: { title: 'A large beacon', description: 'Only --driver-hint-size changed.' } },
+  ]"
+/>
 
 ```css
 /* All beacons */
@@ -51,7 +64,14 @@ useHints({
 
 Set `animate: false` on a hint (or on the instance-level `beacon` defaults) for a still dot without the pulse. Users who prefer reduced motion get the still dot automatically.
 
-<!-- TODO(hints-demo): static beacon demo -->
+<HintsDemo
+  prefix="hint-static"
+  :config="{ beacon: { animate: false } }"
+  :hints="[
+    { element: '#export', popover: { title: 'No pulse', description: 'A calm beacon for busy screens.' } },
+    { element: '#share', popover: { title: 'Still static', description: 'The instance-level default applies to every hint.' } },
+  ]"
+/>
 
 ```ts
 useHints({
@@ -65,7 +85,14 @@ useHints({
 
 The dismiss button says _Got it_ by default. Change it for all hints with `buttonText`, per hint through the popover, or hide it with `showButton: false` for hints you dismiss from code.
 
-<!-- TODO(hints-demo): button text demo -->
+<HintsDemo
+  prefix="hint-text"
+  :config="{ buttonText: 'Thanks, understood' }"
+  :hints="[
+    { element: '#export', popover: { title: 'Instance text', description: 'The dismiss button reads the instance buttonText.' } },
+    { element: '#share', popover: { title: 'Hint text', description: 'This hint overrides it.', buttonText: 'Got it, thanks' } },
+  ]"
+/>
 
 ```ts
 useHints({
@@ -83,7 +110,13 @@ useHints({
 
 Hint popovers are regular popovers (with an extra `driver-hint-popover` class and a larger arrow), so `popoverClass`, the CSS variables and the [popover styling](./styling-popover) techniques apply unchanged:
 
-<!-- TODO(hints-demo): themed popover demo (popoverClass driverjs-theme) -->
+<HintsDemo
+  prefix="hint-theme"
+  :config="{ popoverClass: 'driverjs-theme' }"
+  :hints="[
+    { element: '#export', popover: { title: 'Themed hint', description: 'Hint popovers are regular popovers, so every theme applies.' } },
+  ]"
+/>
 
 ```ts
 useHints({

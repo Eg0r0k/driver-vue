@@ -404,3 +404,12 @@ are kept in the engine. `useHints(config)` mirrors `useDriver`.
 - Floating UI's flip/shift replaces the upstream positioning algorithm; the
   rendered-side classes and arrow behaviour are preserved, exact pixel parity
   is not a goal.
+
+## 11. Deviations recorded during implementation
+
+- Popover positioning: Floating UI `flip` (bestFit) + `shift` replaces the upstream algorithm entirely. The upstream "no side fits → detach to bottom center" mode and the arrow-to-perpendicular-edge relocation were not reproduced; the popover always stays on a side inside the viewport and the arrow follows Floating UI's arrow middleware.
+- Stage animation: the cutout interpolates from the rect captured at the start of a transfer (upstream re-based on the previous frame, which distorted the easing). The first frame is applied synchronously so overlay, stage and popover appear together.
+- `resolveStepPopover` passes `padding = stagePadding` (expands the anchor) and `offset = popoverOffset`; the gap from the element edge equals upstream's `stagePadding + popoverOffset`.
+- Hints: the popover anchors to the beacon element registered by `<DriverHintBeacon>` (non-overlay mode) or to the element (overlay mode); the upstream "shift so the arrow hits the beacon center" hack is unnecessary with Floating UI's arrow middleware.
+- Overlay: in addition to `click`, the dimmed path swallows `pointerdown/mousedown/pointerup/mouseup`, matching upstream's capture-phase suppression.
+- Declarations: `postbuild.mjs` rewrites relative specifiers in the emitted `.d.ts` (`./x` → `./x.js`, `./X.vue` → `./X.vue.js`) so the package passes `attw` under node16 resolution.
