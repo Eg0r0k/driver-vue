@@ -1,6 +1,6 @@
 {
   "name": "driver-vue",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Vue 3 / Nuxt port of driver.js: product tours, highlights and hints rendered with your own Vue components",
   "license": "MIT",
   "type": "module",
@@ -36,7 +36,9 @@
   },
   "files": [
     "dist",
-    "!dist/**/*.map"
+    "!dist/**/*.map",
+    "LICENSE",
+    "README.md"
   ],
   "scripts": {
     "build": "vite build && pnpm build:types",
@@ -82,10 +84,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/USER/driver-vue.git",
+    "url": "git+https://github.com/Eg0r0k/driver-vue.git",
     "directory": "packages/vue"
   },
   "publishConfig": {
     "access": "public"
-  }
+  },
+  "homepage": "https://github.com/Eg0r0k/driver-vue#readme",
+  "bugs": {
+    "url": "https://github.com/Eg0r0k/driver-vue/issues"
+  },
+  "author": "Eg0r0k <egokakill@gmail.com>"
 }

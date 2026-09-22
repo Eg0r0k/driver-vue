@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { VPButton } from "vitepress/theme";
 import { injectDriver } from "driver-vue";
 
 const shared = injectDriver({ optional: true });
@@ -44,20 +45,23 @@ const run = () => {
 </script>
 
 <template>
-  <div class="action">
-    <button type="button" class="VPButton medium brand try-it" @click="run">▶ Try it</button>
-  </div>
-  <div class="action">
-    <a class="VPButton medium alt" href="/guide/installation">Get started</a>
-  </div>
-  <div class="action">
-    <a class="VPButton medium alt" href="/styling/custom-components">Your own components</a>
+  <div style="display: flex">
+    <div class="action">
+      <VPButton tag="button" theme="brand" text="Try it" @click="run" />
+    </div>
+    <div class="action">
+      <VPButton theme="alt" text="Get started" href="/guide/installation" />
+    </div>
+    <div class="action">
+      <VPButton theme="alt" text="Your own components" href="/styling/custom-components" />
+    </div>
   </div>
 </template>
 
 <style scoped>
-.try-it {
-  cursor: pointer;
-  font-family: inherit;
+.flex.flex-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 </style>

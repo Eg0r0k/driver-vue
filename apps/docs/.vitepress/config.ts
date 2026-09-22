@@ -88,7 +88,7 @@ export default defineConfig({
       },
     ],
 
-    socialLinks: [{ icon: "github", link: "https://github.com/nilbuild/driver.js" }],
+    socialLinks: [{ icon: "github", link: "https://github.com/Eg0r0k/driver-vue" }],
 
     footer: {
       message: "Released under the MIT License.",
