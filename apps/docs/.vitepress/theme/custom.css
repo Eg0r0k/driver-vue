@@ -3,10 +3,10 @@
 :root {
   /* A readable blue for links, badges and buttons; the indigo default was
      hard to read on the page. Dark mode lightens it below. */
-  --vp-c-brand-1: #1d4ed8;
-  --vp-c-brand-2: #1e40af;
-  --vp-c-brand-3: #1e3a8a;
-  --vp-c-brand-soft: rgba(29, 78, 216, 0.12);
+  --vp-c-brand-1: #3866e8;
+  --vp-c-brand-2: #2f57cc;
+  --vp-c-brand-3: #2547ad;
+  --vp-c-brand-soft: rgba(56, 102, 232, 0.14);
 
   /* The sandbox frame: a dashed accent border and faint diagonal stripes. */
   --docs-sandbox-line: rgba(79, 70, 229, 0.55);
@@ -354,4 +354,38 @@
 .dynamic-el strong {
   display: block;
   font-size: 14px;
+}
+
+/* Home hero: the logo on the right, large. */
+.VPHero .image-container {
+  transform: none;
+}
+
+@media (min-width: 640px) {
+  .VPHero .image-src {
+    max-width: 320px;
+    max-height: 320px;
+  }
+}
+
+@media (min-width: 960px) {
+  .VPHero .image-container {
+    width: 440px;
+    height: 440px;
+  }
+
+  .VPHero .image-src {
+    max-width: 400px;
+    max-height: 400px;
+  }
+
+  .VPHero .image-bg {
+    width: 400px;
+    height: 400px;
+  }
+}
+
+.VPHero .image-src {
+  border-radius: 22%;
+  box-shadow: 0 24px 60px rgba(56, 102, 232, 0.35);
 }

@@ -12,10 +12,16 @@ export default defineConfig({
   cleanUrls: true,
   ignoreDeadLinks: [/^https?:\/\/localhost/],
 
-  head: [["link", { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" }]],
+  head: [
+    ["link", { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" }],
+    ["link", { rel: "icon", type: "image/png", sizes: "32x32", href: "/favicon-32.png" }],
+    ["link", { rel: "apple-touch-icon", sizes: "180x180", href: "/apple-touch-icon.png" }],
+    ["meta", { name: "theme-color", content: "#3866e8" }],
+    ["meta", { property: "og:image", content: "/logo-512.png" }],
+  ],
 
   themeConfig: {
-    logo: "/favicon.svg",
+    logo: "/logo.svg",
     siteTitle: "driver-vue",
     search: { provider: "local" },
 

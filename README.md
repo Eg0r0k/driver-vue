@@ -1,3 +1,5 @@
+<p align="center"><img src="./logo.svg" width="120" alt="driver-vue" /></p>
+
 # driver-vue monorepo
 
 Vue 3 / Nuxt 4 port of [driver.js](https://github.com/nilbuild/driver.js) whose popover, overlay, highlight and hint beacons are Vue components you can replace, slot into and style.

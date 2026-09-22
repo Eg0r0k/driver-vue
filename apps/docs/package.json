@@ -6,9 +6,10 @@
     "dev": "vitepress dev",
     "build": "pnpm api && vitepress build",
     "preview": "vitepress preview",
-    "api": "pnpm api:typedoc && pnpm api:components",
+    "api": "pnpm icons && pnpm api:typedoc && pnpm api:components",
     "api:typedoc": "typedoc --options typedoc.json",
-    "api:components": "node scripts/component-meta.mjs"
+    "api:components": "node scripts/component-meta.mjs",
+    "icons": "node scripts/icons.mjs"
   },
   "dependencies": {
     "driver-vue": "workspace:*",

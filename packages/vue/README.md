@@ -1,3 +1,5 @@
+<p align="center"><img src="https://raw.githubusercontent.com/USER/driver-vue/master/logo.svg" width="120" alt="driver-vue" /></p>
+
 # driver-vue
 
 A Vue 3 / Nuxt 4 port of [driver.js](https://github.com/nilbuild/driver.js): product tours, feature highlights and hints, with the popover, the overlay, the highlight and the beacons rendered by **your own Vue components**.
