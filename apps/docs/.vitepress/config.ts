@@ -21,7 +21,7 @@ export default defineConfig({
 
     nav: [
       { text: "Guide", link: "/guide/installation", activeMatch: "/guide/" },
-      { text: "Styling", link: "/styling/styling-popover", activeMatch: "/styling/" },
+      { text: "Components", link: "/styling/custom-components", activeMatch: "/styling/" },
       { text: "Examples", link: "/examples/simple-highlight", activeMatch: "/examples/" },
       { text: "API", link: "/api/components", activeMatch: "/api/" },
     ],
@@ -33,20 +33,25 @@ export default defineConfig({
           { text: "Installation", link: "/guide/installation" },
           { text: "Basic Usage", link: "/guide/basic-usage" },
           { text: "Configuration", link: "/guide/configuration" },
-          { text: "Theming", link: "/guide/theming" },
           { text: "Migrating from driver.js", link: "/guide/migrating-from-driverjs" },
           { text: "Nuxt", link: "/guide/nuxt" },
         ],
       },
       {
-        text: "Styling",
+        text: "Your own components",
+        items: [
+          { text: "Custom Components", link: "/styling/custom-components" },
+          { text: "Headless", link: "/styling/headless" },
+          { text: "Highlight Animation", link: "/styling/highlight-animation" },
+        ],
+      },
+      {
+        text: "Styling the defaults",
         items: [
           { text: "Styling Popover", link: "/styling/styling-popover" },
           { text: "Styling Overlay", link: "/styling/styling-overlay" },
-          { text: "Highlight Animation", link: "/styling/highlight-animation" },
-          { text: "Custom Components", link: "/styling/custom-components" },
-          { text: "Headless", link: "/styling/headless" },
           { text: "Styling Hints", link: "/styling/styling-hints" },
+          { text: "Theming", link: "/guide/theming" },
         ],
       },
       {
@@ -59,6 +64,7 @@ export default defineConfig({
           { text: "Interactive Tour", link: "/examples/interactive-tour" },
           { text: "Multi-Page Tour", link: "/examples/multi-page-tour" },
           { text: "Popover Position", link: "/examples/popover-position" },
+          { text: "Smooth Scroll", link: "/examples/smooth-scroll" },
           { text: "Tour Progress", link: "/examples/tour-progress" },
           { text: "Popover Buttons", link: "/examples/buttons" },
           { text: "Confirm on Exit", link: "/examples/confirm-on-exit" },

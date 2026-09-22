@@ -25,8 +25,11 @@ const { drive, driver } = useDriver({
 
 <template>
   <div class="demo">
-    <DemoBox prefix="theme" />
-    <button type="button" class="demo-run" @click="drive()">Run with the dark theme</button>
+    <DemoBox prefix="theme">
+      <template #footer>
+        <button type="button" class="demo-run" @click="drive()">Run with the dark theme</button>
+      </template>
+    </DemoBox>
     <ClientOnly>
       <DriverTour :driver="driver" />
     </ClientOnly>

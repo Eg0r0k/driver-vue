@@ -40,10 +40,13 @@ const toggle = () => {
 
 <template>
   <div class="demo">
-    <DemoBox :prefix="prefix" />
-    <button type="button" class="demo-run" @click="toggle">
-      {{ isVisible ? "Hide hints" : buttonText }}
-    </button>
+    <DemoBox :prefix="prefix">
+      <template #footer>
+        <button type="button" class="demo-run" @click="toggle">
+          {{ isVisible ? "Hide hints" : buttonText }}
+        </button>
+      </template>
+    </DemoBox>
     <ClientOnly>
       <DriverHints :hints="hints" />
     </ClientOnly>

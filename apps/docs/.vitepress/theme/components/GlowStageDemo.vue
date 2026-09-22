@@ -2,20 +2,20 @@
 import { onMounted, onUnmounted } from "vue";
 import { useDriver, DriverTour } from "driver-vue";
 
-// A bouncy easing for the stage slide, plus a glowing `.driver-stage` styled
+// A gentle easing for the stage slide, plus a glowing `.driver-stage` styled
 // in custom.css under `.docs-glow`, plus a corner badge from the `#stage` slot.
-const easeOutBack = (t: number) => 1 + 2.7 * Math.pow(t - 1, 3) + 1.7 * Math.pow(t - 1, 2);
+const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
 
 const { drive, driver } = useDriver({
-  duration: 700,
-  easing: easeOutBack,
+  duration: 500,
+  easing: easeOutCubic,
   stageRadius: 12,
   showProgress: true,
   steps: [
     { element: "#glow-title", popover: { title: "Glowing stage", description: "The cutout carries a pulsing glow." } },
     {
       element: "#glow-search",
-      popover: { title: "Custom easing", description: "The slide overshoots a little (ease-out-back)." },
+      popover: { title: "Custom easing", description: "The cutout glides in and settles (easeOutCubic, 500ms)." },
     },
     {
       element: "#glow-export",
@@ -42,8 +42,11 @@ onUnmounted(() => toggleClass(false));
 
 <template>
   <div class="demo">
-    <DemoBox prefix="glow" />
-    <button type="button" class="demo-run" @click="drive()">Run with a glowing stage</button>
+    <DemoBox prefix="glow">
+      <template #footer>
+        <button type="button" class="demo-run" @click="drive()">Run with a glowing stage</button>
+      </template>
+    </DemoBox>
     <ClientOnly>
       <DriverTour :driver="driver">
         <template #stage="{ index, total }">

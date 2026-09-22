@@ -21,6 +21,7 @@ import EventLogDemo from "./components/EventLogDemo.vue";
 import ConfirmExitDemo from "./components/ConfirmExitDemo.vue";
 import HintsDemo from "./components/HintsDemo.vue";
 import ComposableDemo from "./components/ComposableDemo.vue";
+import MultiPageTourDemo from "./components/MultiPageTourDemo.vue";
 
 const theme: Theme = {
   extends: DefaultTheme,
@@ -46,6 +47,7 @@ const theme: Theme = {
     app.component("ConfirmExitDemo", ConfirmExitDemo);
     app.component("ComposableDemo", ComposableDemo);
     app.component("HintsDemo", HintsDemo);
+    app.component("MultiPageTourDemo", MultiPageTourDemo);
   },
 };
 

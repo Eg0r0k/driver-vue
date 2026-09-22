@@ -44,8 +44,10 @@ const { drive, driver } = useDriver({
           <button type="button" class="demo-button secondary" @click="modalOpen = false">Cancel</button>
         </div>
       </div>
+      <div class="demo-box-footer">
+        <button type="button" class="demo-run" @click="drive()">Run the waiting tour</button>
+      </div>
     </div>
-    <button type="button" class="demo-run" @click="drive()">Run the waiting tour</button>
     <ClientOnly>
       <DriverTour :driver="driver" />
     </ClientOnly>

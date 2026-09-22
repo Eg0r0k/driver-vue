@@ -1,13 +1,31 @@
 <script setup lang="ts">
 import { useDriver, DriverTour } from "driver-vue";
 
+/**
+ * The element is created inside the demo box, in normal flow, right after the
+ * summary paragraph, and it stays until the tour is destroyed, so stepping
+ * backwards and forwards keeps showing it.
+ */
 const mountDynamicElement = () => {
-  const el = (document.querySelector(".dynamic-el") || document.createElement("div")) as HTMLElement;
+  if (document.querySelector(".dynamic-el")) {
+    return;
+  }
+
+  const summary = document.getElementById("async-summary");
+  if (!summary) {
+    return;
+  }
+
+  const el = document.createElement("div");
   el.className = "dynamic-el";
-  el.textContent = "This is a new element";
-  el.style.top = `${Math.random() * 300 + 60}px`;
-  el.style.left = `${Math.random() * 300 + 60}px`;
-  document.body.appendChild(el);
+
+  const heading = document.createElement("strong");
+  heading.textContent = "Created on the fly ✨";
+  const text = document.createElement("span");
+  text.textContent = "This element did not exist when the tour started.";
+
+  el.append(heading, text);
+  summary.after(el);
 };
 
 const removeDynamicElement = () => {
@@ -16,6 +34,7 @@ const removeDynamicElement = () => {
 
 const { drive, driver } = useDriver({
   showProgress: true,
+  // The element belongs to the tour, so it is cleaned up when the tour ends.
   onDestroyed: removeDynamicElement,
   steps: [
     {
@@ -33,13 +52,8 @@ const { drive, driver } = useDriver({
       element: ".dynamic-el",
       popover: {
         title: "Async element",
-        description: "This element was created on demand and is removed when we move away.",
-        onPrevClick: () => {
-          removeDynamicElement();
-          driver.movePrevious();
-        },
+        description: "Created on demand, inside the box. It stays for the rest of the tour, so Previous works too.",
       },
-      onDeselected: removeDynamicElement,
     },
     { popover: { title: "Last step", description: "This is the last step." } },
   ],
@@ -48,8 +62,11 @@ const { drive, driver } = useDriver({
 
 <template>
   <div class="demo">
-    <DemoBox prefix="async" />
-    <button type="button" class="demo-run" @click="drive()">Run the async tour</button>
+    <DemoBox prefix="async">
+      <template #footer>
+        <button type="button" class="demo-run" @click="drive()">Run the async tour</button>
+      </template>
+    </DemoBox>
     <ClientOnly>
       <DriverTour :driver="driver" />
     </ClientOnly>

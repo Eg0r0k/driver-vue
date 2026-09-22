@@ -5,6 +5,17 @@
   --vp-c-brand-2: #4338ca;
   --vp-c-brand-3: #3730a3;
   --vp-c-brand-soft: rgba(79, 70, 229, 0.14);
+
+  /* The sandbox frame: a dashed accent border and faint diagonal stripes. */
+  --docs-sandbox-line: rgba(79, 70, 229, 0.55);
+  --docs-sandbox-stripe: rgba(79, 70, 229, 0.04);
+  --docs-sandbox-badge: #4f46e5;
+}
+
+.dark {
+  --docs-sandbox-line: rgba(129, 140, 248, 0.6);
+  --docs-sandbox-stripe: rgba(129, 140, 248, 0.05);
+  --docs-sandbox-badge: #4338ca;
 }
 
 .demo {
@@ -16,14 +27,48 @@
   margin: 0 0 8px;
 }
 
+/* Every demo target lives in here. It is styled to look like a sandbox and
+   not like documentation: dashed accent border, striped tint, corner badge. */
 .demo-box {
-  border: 1px solid var(--vp-c-divider);
-  border-radius: 8px;
-  padding: 16px;
-  background: var(--vp-c-bg-soft);
+  position: relative;
+  border: 2px dashed var(--docs-sandbox-line);
+  border-radius: 10px;
+  padding: 34px 16px 16px;
+  background-color: var(--vp-c-bg-soft);
+  background-image: repeating-linear-gradient(45deg, var(--docs-sandbox-stripe) 0 8px, rgba(0, 0, 0, 0) 8px 16px);
   display: flex;
   flex-direction: column;
   gap: 12px;
+}
+
+.demo-box::before {
+  content: "Demo sandbox · the tour targets these elements";
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  max-width: calc(100% + 4px);
+  padding: 3px 8px;
+  border-radius: 8px 0 8px 0;
+  background: var(--docs-sandbox-badge);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.5;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+/* <Demo> wraps its sample content in the frame, and that content is often a
+   <DemoBox>. The inner frame collapses so there is only ever one. */
+.demo-box .demo-box {
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  background: none;
+}
+
+.demo-box .demo-box::before {
+  content: none;
 }
 
 .demo-box h4 {
@@ -32,6 +77,74 @@
 
 .demo-box p {
   margin: 0;
+}
+
+.demo-box-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-top: 4px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--docs-sandbox-line);
+}
+
+.demo-box-footer .demo-run {
+  margin-top: 0;
+}
+
+/* The fake app inside the sandbox. */
+.demo-app-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.demo-avatar {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--vp-c-brand-soft);
+  color: var(--vp-c-brand-1);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.demo-app-sub {
+  font-size: 12px;
+  color: var(--vp-c-text-3);
+}
+
+.demo-kpis {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.demo-kpi {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 10px;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 8px;
+  background: var(--vp-c-bg);
+}
+
+.demo-kpi span {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--vp-c-text-3);
+}
+
+.demo-kpi strong {
+  font-size: 18px;
+  color: var(--vp-c-text-2);
 }
 
 .demo-row {
@@ -92,6 +205,21 @@
   min-height: 40px;
   max-height: 120px;
   overflow: auto;
+}
+
+/* Filler that pushes the second box of the Smooth Scroll example a screen
+   down, so the scrolling between steps is actually visible. */
+.smooth-spacer {
+  display: grid;
+  place-items: center;
+  height: 120vh;
+  margin: 24px 0;
+  padding: 16px;
+  border-radius: 10px;
+  background: var(--vp-c-bg-soft);
+  color: var(--vp-c-text-3);
+  font-size: 14px;
+  text-align: center;
 }
 
 /* The classic driver.js yellow theme, used by several examples. Works
@@ -202,13 +330,19 @@
   opacity: 0;
 }
 
+/* The card the Async Tour demo creates on the fly, inside the sandbox box and
+   in normal flow (see AsyncTourDemo.vue). */
 .dynamic-el {
   display: block;
-  padding: 20px;
-  background: #000;
-  color: #fff;
-  font-size: 14px;
-  position: fixed;
+  padding: 12px 14px;
+  border: 1px dashed var(--vp-c-brand-1);
   border-radius: 8px;
-  z-index: 1;
+  background: var(--vp-c-brand-soft);
+  color: var(--vp-c-text-1);
+  font-size: 13px;
+}
+
+.dynamic-el strong {
+  display: block;
+  font-size: 14px;
 }

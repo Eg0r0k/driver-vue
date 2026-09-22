@@ -46,6 +46,45 @@ const { drive } = useDriver({
 
 `useDriver` merges the plugin's `defaults` under your config, destroys the tour when the component unmounts, and returns the driver plus reactive refs (`isActive`, `activeIndex`, `isFirstStep`, ...). It re-applies the config when you pass a ref or a getter.
 
+## Render it with your own component
+
+That tour used the default popover. You are not stuck with it: the popover is a Vue component and its body is a slot, so `#popover` on `<DriverTour>` replaces the markup with yours — your card, your design system's buttons, your icons, your translations. The positioning, the arrow, the overlay and the keyboard control stay driver-vue's.
+
+<CustomPopoverDemo />
+
+```vue
+<DriverTour>
+  <template #popover="{ popover, index, total, isFirst, isLast, next, prev, close }">
+    <MyCard>
+      <MyIconButton icon="x" @click="close" />
+      <h3>{{ popover.title }}</h3>
+      <p>{{ popover.description }}</p>
+      <MyProgress :value="index + 1" :max="total" />
+      <MyButton variant="ghost" :disabled="isFirst" @click="prev">Back</MyButton>
+      <MyButton @click="next">{{ isLast ? "Finish" : "Continue" }}</MyButton>
+    </MyCard>
+  </template>
+</DriverTour>
+```
+
+The slot props are the resolved step (`popover`), its position in the tour (`index`, `total`, `isFirst`, `isLast`) and the three actions (`next`, `prev`, `close`) that run your hooks and the default behaviour.
+
+From there it scales in both directions: single parts have their own slots (`#title`, `#next`, `#progress`, ...), a step can name its own component with `popover.component`, `components.popover` swaps the body for the whole app, and `<DriverTour>` can be left out entirely so you render the tour from its reactive state. See [Custom Components](../styling/custom-components) and [Headless](../styling/headless).
+
+### Or restyle the default one
+
+If the stock popover suits you, every color, radius, font and spacing in it is a CSS custom property, and the class names are driver.js's:
+
+```css
+.driver-popover {
+  --driver-popover-bg: #18181b;
+  --driver-popover-color: #f4f4f5;
+  --driver-popover-btn-bg: #4f46e5;
+}
+```
+
+`popoverClass` scopes the variables to one tour or one step. The full list is in [Theming](./theming).
+
 ## Which driver does `<DriverTour />` render?
 
 `<DriverTour>` renders the driver you pass as `:driver`. Without the prop it looks up the nearest provided driver:
@@ -138,4 +177,4 @@ const { hints, show } = useHints({
 </template>
 ```
 
-Find every option in [Configuration](./configuration), and the many ways to restyle the tour under [Styling](../styling/styling-popover).
+Find every option in [Configuration](./configuration), the ways to render the tour yourself under [Custom Components](../styling/custom-components), and the CSS route under [Styling Popover](../styling/styling-popover).

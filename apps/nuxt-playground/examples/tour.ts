@@ -41,11 +41,32 @@ export const tourGroup: ExampleGroup = {
       title: "Asynchronous Tour",
       description: "Control the tour flow and create elements on the fly via onNextClick.",
       run: ctx => {
+        // Inserted into the stage's normal flow, right after the buttons row,
+        // so the new element is visible where the reader is already looking.
+        // It lives until the tour is destroyed, so Previous finds it too.
+        const createCard = (): HTMLElement => {
+          const existing = document.querySelector<HTMLElement>(".dynamic-el");
+          if (existing) {
+            return existing;
+          }
+
+          const card = document.createElement("div");
+          card.className = "dynamic-el";
+          card.textContent = "Created on the fly ✨ — this card did not exist when the tour started";
+          document.querySelector(".buttons")?.insertAdjacentElement("afterend", card);
+          ctx.log("Created", card);
+
+          return card;
+        };
+
         const driverObj = ctx.configure({
           animate: true,
           overlayOpacity: 0.3,
           showProgress: true,
           progressText: "{{current}} / {{total}}",
+          onDestroyed: () => {
+            document.querySelector(".dynamic-el")?.remove();
+          },
           steps: [
             {
               element: ".page-header",
@@ -64,33 +85,17 @@ export const tourGroup: ExampleGroup = {
                 side: "left",
                 align: "start",
                 onNextClick: () => {
-                  const newDiv = document.querySelector<HTMLDivElement>(".dynamic-el") || document.createElement("div");
-
-                  newDiv.innerHTML = "This is a new Element";
-                  newDiv.style.display = "block";
-                  newDiv.style.padding = "20px";
-                  newDiv.style.backgroundColor = "black";
-                  newDiv.style.color = "white";
-                  newDiv.style.fontSize = "14px";
-                  newDiv.style.position = "fixed";
-                  newDiv.style.top = `${Math.random() * (500 - 30) + 30}px`;
-                  newDiv.style.left = `${Math.random() * (500 - 30) + 30}px`;
-                  newDiv.className = "dynamic-el";
-
-                  document.body.appendChild(newDiv);
-
+                  createCard();
                   driverObj.moveNext();
                 },
               },
             },
             {
               element: ".dynamic-el",
-              onDeselected: element => {
-                element?.parentElement?.removeChild(element);
-              },
               popover: {
                 title: "Dynamic Elements",
-                description: "This element was created right before we moved here.",
+                description:
+                  "This card was created right before we moved here. It stays until the tour ends, so Previous finds it as well.",
               },
             },
             {

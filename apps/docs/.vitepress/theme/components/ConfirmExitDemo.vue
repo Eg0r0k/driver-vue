@@ -29,8 +29,11 @@ const { drive, driver } = useDriver({
 
 <template>
   <div class="demo">
-    <DemoBox prefix="confirm" />
-    <button type="button" class="demo-run" @click="drive()">Run with confirmation</button>
+    <DemoBox prefix="confirm">
+      <template #footer>
+        <button type="button" class="demo-run" @click="drive()">Run with confirmation</button>
+      </template>
+    </DemoBox>
     <ClientOnly>
       <DriverTour :driver="driver" />
     </ClientOnly>

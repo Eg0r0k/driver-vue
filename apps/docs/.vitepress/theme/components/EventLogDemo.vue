@@ -37,9 +37,12 @@ const { drive, driver } = useDriver({
 
 <template>
   <div class="demo">
-    <DemoBox prefix="events" />
-    <pre id="events-log" class="demo-log">{{ log.length ? log.join("\n") : "No events yet." }}</pre>
-    <button type="button" class="demo-run" @click="drive()">Show example</button>
+    <DemoBox prefix="events">
+      <pre id="events-log" class="demo-log">{{ log.length ? log.join("\n") : "No events yet." }}</pre>
+      <template #footer>
+        <button type="button" class="demo-run" @click="drive()">Show example</button>
+      </template>
+    </DemoBox>
     <ClientOnly>
       <DriverTour :driver="driver" />
     </ClientOnly>

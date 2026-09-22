@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { groups } from "~/examples";
+import { multiPageSteps } from "~/examples/multi-page";
 
 /**
  * Sidebar of example groups, the page, the log panel and every <DriverTour>:
@@ -7,18 +8,28 @@ import { groups } from "~/examples";
  */
 const { extras, notice } = useExampleRunner();
 
+// The multi-page tour is driven from here: the layout outlives every route,
+// so its route watcher can continue the tour on the next page.
+useMultiPageTour({ steps: multiPageSteps });
+
 const route = useRoute();
 
 const pages = [
   { to: "/", title: "Overview" },
-  ...groups.map(group => ({ to: `/${group.slug}`, title: group.title })),
+  { to: "/styling", title: "Your own components (slots)" },
   { to: "/animation", title: "Highlight box animation" },
-  { to: "/styling", title: "Vue: slots & components" },
+  ...groups.map(group => ({ to: `/${group.slug}`, title: group.title })),
   { to: "/hints", title: "Hints" },
-  { to: "/multi-page/one", title: "Multi-page tour" },
+  { to: "/multi-page/dashboard", title: "Multi-page tour" },
 ];
 
-const isActive = (to: string) => (to === "/" ? route.path === "/" : route.path.startsWith(to));
+const isActive = (to: string) => {
+  if (to === "/") {
+    return route.path === "/";
+  }
+
+  return to.startsWith("/multi-page") ? route.path.startsWith("/multi-page") : route.path.startsWith(to);
+};
 </script>
 
 <template>
@@ -35,6 +46,7 @@ const isActive = (to: string) => (to === "/" ? route.path === "/" : route.path.s
     </nav>
 
     <main class="content">
+      <TourProgress />
       <slot />
     </main>
 

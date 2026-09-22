@@ -38,13 +38,25 @@ const panels = (stage: { x: number; y: number; width: number; height: number }, 
 
 <template>
   <div class="demo">
-    <DemoBox prefix="ovl" />
-    <button type="button" class="demo-run" @click="drive()">Run with a frosted overlay</button>
+    <DemoBox prefix="ovl">
+      <template #footer>
+        <button type="button" class="demo-run" @click="drive()">Run with a frosted overlay</button>
+      </template>
+    </DemoBox>
     <ClientOnly>
       <DriverTour :driver="driver">
         <template #overlay="{ stage, padding, zIndex, onClick }">
+          <!-- The panels carry `driver-interactive` so the tour's page-wide
+               `pointer-events: none` cannot swallow the overlay click. The
+               root stays inert, so clicks inside the cutout still reach the
+               highlighted element. -->
           <div class="frost" :style="{ zIndex }" @click="onClick">
-            <div v-for="(style, i) in panels(stage, padding)" :key="i" class="frost-panel" :style="style" />
+            <div
+              v-for="(style, i) in panels(stage, padding)"
+              :key="i"
+              class="frost-panel driver-interactive"
+              :style="style"
+            />
           </div>
         </template>
       </DriverTour>

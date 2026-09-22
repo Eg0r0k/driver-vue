@@ -272,6 +272,22 @@ body {
   cursor: pointer;
 }
 
+/* The card the "Asynchronous Tour" example creates from `onNextClick`. It is
+   inserted after the buttons row and removed when the tour is destroyed. */
+.dynamic-el {
+  margin: 0 0 1rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid #c7d2fe;
+  border-left: 4px solid #4f46e5;
+  border-radius: 10px;
+  background: #eef2ff;
+  color: #3730a3;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.5;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+}
+
 .feature-list,
 #hooks-list {
   margin: 1.25rem 0.6rem;
@@ -329,6 +345,263 @@ body {
 #demo-svg {
   display: block;
   margin: 1rem auto;
+}
+
+/* ---------------------------------------------------------------------------
+   Multi-page tour: the mock app screens and the progress bar in the layout
+   --------------------------------------------------------------------------- */
+
+.tour-bar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding: 0.7rem 1rem;
+  border: 1px solid #c7d2fe;
+  border-radius: 10px;
+  background: #eef2ff;
+}
+
+.tour-bar-label {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #3730a3;
+  white-space: nowrap;
+}
+
+.tour-bar-track {
+  flex: 1;
+  height: 6px;
+  min-width: 80px;
+  border-radius: 999px;
+  background: #c7d2fe;
+  overflow: hidden;
+}
+
+.tour-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: #4f46e5;
+  transition: width 200ms ease;
+}
+
+.tour-bar-stop {
+  padding: 0.3rem 0.8rem;
+  border: 1px solid #a5b4fc;
+  border-radius: 6px;
+  background: #fff;
+  color: #3730a3;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.tour-bar-stop:hover {
+  background: #e0e7ff;
+}
+
+.mp-nav {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.6rem 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.mp-brand {
+  font-weight: 700;
+  color: #111827;
+}
+
+.mp-nav-links {
+  display: flex;
+  flex: 1;
+  gap: 0.25rem;
+}
+
+.mp-nav-link {
+  padding: 0.35rem 0.7rem;
+  border-radius: 6px;
+  color: #4b5563;
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.mp-nav-link:hover {
+  background: #f3f4f6;
+}
+
+.mp-nav-current {
+  background: #eef2ff;
+  color: #4338ca;
+  font-weight: 600;
+}
+
+.mp-screen {
+  padding: 1.5rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.mp-head {
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.9rem;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.mp-head h2 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.mp-head p {
+  margin: 0.25rem 0 0;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.mp-subhead {
+  margin: 1.5rem 0 0.5rem;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #6b7280;
+}
+
+.mp-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.75rem;
+}
+
+.mp-stat {
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #f9fafb;
+}
+
+.mp-stat-label {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.mp-stat-value {
+  font-size: 22px;
+  color: #111827;
+}
+
+.mp-stat-delta {
+  font-size: 12px;
+  color: #059669;
+}
+
+.mp-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 14px;
+}
+
+.mp-list li {
+  padding: 0.55rem 0;
+  border-bottom: 1px solid #f3f4f6;
+  color: #4b5563;
+}
+
+.mp-list li:last-child {
+  border-bottom: 0;
+}
+
+.mp-form {
+  display: grid;
+  gap: 1rem;
+  max-width: 380px;
+}
+
+.mp-field {
+  display: grid;
+  gap: 0.3rem;
+  font-size: 13px;
+  color: #374151;
+}
+
+.mp-field input,
+.mp-field select {
+  padding: 0.45rem 0.6rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font: inherit;
+  background: #fff;
+}
+
+.mp-check {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 13px;
+  color: #374151;
+}
+
+.mp-form .demo-button {
+  justify-self: start;
+}
+
+.mp-profile {
+  display: flex;
+  gap: 1rem;
+  padding: 1.1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #f9fafb;
+}
+
+.mp-avatar {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: #4f46e5;
+  color: #fff;
+  font-weight: 700;
+}
+
+.mp-profile-body {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.mp-profile-body strong {
+  font-size: 16px;
+}
+
+.mp-muted {
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.mp-details {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.2rem 1rem;
+  margin: 0.75rem 0 0;
+  font-size: 13px;
+}
+
+.mp-details dt {
+  color: #6b7280;
+}
+
+.mp-details dd {
+  margin: 0;
+  color: #111827;
 }
 
 @media (max-width: 1100px) {

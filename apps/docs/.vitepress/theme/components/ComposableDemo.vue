@@ -20,21 +20,31 @@ const { drive, moveNext, movePrevious, destroy, isActive, activeIndex, isFirstSt
 
 <template>
   <div class="demo">
-    <DemoBox prefix="comp" />
-    <div class="demo-row comp-controls" style="margin-top: 12px">
-      <button type="button" class="demo-button" @click="drive()">Start</button>
-      <button type="button" class="demo-button secondary" :disabled="!isActive || isFirstStep" @click="movePrevious()">
-        Previous
-      </button>
-      <button type="button" class="demo-button secondary" :disabled="!isActive" @click="moveNext()">
-        {{ isLastStep ? "Finish" : "Next" }}
-      </button>
-      <button type="button" class="demo-button secondary" :disabled="!isActive" @click="destroy()">Stop</button>
-      <span style="font-size: 13px">
-        active: <code>{{ isActive }}</code
-        >, index: <code>{{ activeIndex ?? "–" }}</code>
-      </span>
-    </div>
+    <DemoBox prefix="comp">
+      <template #footer>
+        <!-- `driver-interactive` keeps these controls clickable while the tour
+             dims the page; the z-index lift puts them above the overlay. -->
+        <div class="demo-row comp-controls driver-interactive">
+          <button type="button" class="demo-button" @click="drive()">Start</button>
+          <button
+            type="button"
+            class="demo-button secondary"
+            :disabled="!isActive || isFirstStep"
+            @click="movePrevious()"
+          >
+            Previous
+          </button>
+          <button type="button" class="demo-button secondary" :disabled="!isActive" @click="moveNext()">
+            {{ isLastStep ? "Finish" : "Next" }}
+          </button>
+          <button type="button" class="demo-button secondary" :disabled="!isActive" @click="destroy()">Stop</button>
+          <span style="font-size: 13px">
+            active: <code>{{ isActive }}</code
+            >, index: <code>{{ activeIndex ?? "–" }}</code>
+          </span>
+        </div>
+      </template>
+    </DemoBox>
     <ClientOnly>
       <DriverTour :driver="driver" />
     </ClientOnly>
@@ -42,15 +52,10 @@ const { drive, moveNext, movePrevious, destroy, isActive, activeIndex, isFirstSt
 </template>
 
 <style>
-/* The controls stay usable while the tour dims the page: lift them above the
-   overlay and re-enable pointer events, which the tour disables page-wide. */
+/* `driver-interactive` (shipped by driver-vue/style.css) restores the pointer
+   events; the controls still have to be lifted above the overlay to be seen. */
 .driver-active .comp-controls {
   position: relative;
-  z-index: 10003;
-}
-
-.driver-active .comp-controls,
-.driver-active .comp-controls * {
-  pointer-events: auto;
+  z-index: calc(var(--driver-z-index, 10000) + 2);
 }
 </style>

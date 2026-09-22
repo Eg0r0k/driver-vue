@@ -53,10 +53,15 @@ const run = () => {
 <template>
   <div :id="id" :class="['demo', { 'demo-inline': inline }]">
     <p v-if="title" class="demo-heading">{{ title }}</p>
+    <!-- Sample content lives in the same dashed sandbox frame as <DemoBox>,
+         with the Run button in the frame's footer so it reads as one widget. -->
     <div v-if="box && $slots.default" class="demo-box">
       <slot />
+      <div class="demo-box-footer">
+        <button type="button" class="demo-run" @click="run">{{ buttonText }}</button>
+      </div>
     </div>
-    <button type="button" :class="inline ? 'demo-button' : 'demo-run'" @click="run">
+    <button v-else type="button" :class="inline ? 'demo-button' : 'demo-run'" @click="run">
       {{ buttonText }}
     </button>
   </div>

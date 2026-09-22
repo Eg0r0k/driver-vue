@@ -12,13 +12,29 @@ The highlight has three moving parts, each customizable on its own:
 
 `duration` (ms) is the length of the slide and, through the `--driver-animation-duration` variable set on `<body>`, of the default fades. `easing` is any function from normalized time to normalized progress; driver.js's ease-in-out quad is the default.
 
+The demo above uses a plain ease-out cubic: the cutout leaves quickly and settles into the next element without bouncing.
+
 ```ts
-const easeOutBack = (t: number) => 1 + 2.7 * Math.pow(t - 1, 3) + 1.7 * Math.pow(t - 1, 2);
+const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
 
 useDriver({
-  duration: 700,
-  easing: easeOutBack,
+  duration: 500,
+  easing: easeOutCubic,
 });
+```
+
+Anything of the shape `(t: number) => number` with `f(0) === 0` and `f(1) === 1` works, so the usual curves are one-liners:
+
+```ts
+const easeInOutQuad = (t: number) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2); // the default
+const easeOutQuint = (t: number) => 1 - Math.pow(1 - t, 5);
+const linear = (t: number) => t;
+```
+
+Easings may also overshoot — return values above `1` before settling — for a springy arrival. It is a strong effect: the cutout visibly passes the element and comes back, so keep the duration short and reserve it for playful tours.
+
+```ts
+const easeOutBack = (t: number) => 1 + 2.7 * Math.pow(t - 1, 3) + 1.7 * Math.pow(t - 1, 2);
 ```
 
 `animate: false` disables the slide and the fades; the popover and the cutout then jump between steps.

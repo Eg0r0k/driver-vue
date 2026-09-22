@@ -43,8 +43,11 @@ const { drive, driver } = useDriver({
 
 <template>
   <div class="demo">
-    <DemoBox prefix="btn" />
-    <button type="button" class="demo-run" @click="drive()">Run with a custom button</button>
+    <DemoBox prefix="btn">
+      <template #footer>
+        <button type="button" class="demo-run" @click="drive()">Run with a custom button</button>
+      </template>
+    </DemoBox>
     <ClientOnly>
       <DriverTour :driver="driver" />
     </ClientOnly>
