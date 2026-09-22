@@ -47,6 +47,9 @@ export type Popover = {
 
   popoverClass?: string;
 
+  /** driver-vue addition: render the arrow pointing at the element. (default: true) */
+  showArrow?: boolean;
+
   // Button texts
   progressText?: string;
   doneBtnText?: string;
@@ -129,6 +132,8 @@ export type Config = {
   // Popover specific configuration
   popoverClass?: string;
   popoverOffset?: number;
+  /** driver-vue addition: render the popover arrow. (default: true) */
+  showArrow?: boolean;
   showButtons?: AllowedButtons[];
   disableButtons?: AllowedButtons[];
   showProgress?: boolean;
@@ -209,6 +214,7 @@ export type PopoverRenderModel = {
   doneButton: boolean;
 
   popoverClass: string;
+  showArrow: boolean;
 
   side: Side;
   align: Alignment;

@@ -136,6 +136,7 @@ export const resolveStepPopover = (ctx: Context, element: Element, step: DriveSt
     doneButton: isDoneStep,
 
     popoverClass: popover.popoverClass || ctx.getConfig("popoverClass") || "",
+    showArrow: popover.showArrow ?? ctx.getConfig("showArrow") ?? true,
 
     side: popover.side || "bottom",
     align: popover.align || "start",

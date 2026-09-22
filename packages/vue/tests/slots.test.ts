@@ -92,6 +92,35 @@ describe("popover slots", () => {
   });
 });
 
+describe("popover arrow", () => {
+  it("can be turned off globally and per step", async () => {
+    const d = createDriver({
+      animate: false,
+      showArrow: false,
+      steps: [
+        { element: "#intro", popover: { title: "No arrow" } },
+        { element: "#card-1", popover: { title: "Arrow back", showArrow: true } },
+      ],
+    });
+    await d.drive();
+    expect(document.querySelector(".driver-popover-arrow")).toBeNull();
+
+    await d.moveNext();
+    expect(document.querySelector(".driver-popover-arrow")).not.toBeNull();
+  });
+
+  it("can be replaced through the arrow slot", async () => {
+    const d = createDriver(
+      { animate: false, steps: SAMPLE_STEPS },
+      { arrow: (props: TourSlotProps) => h("i", { class: "my-arrow", "data-side": props.arrowSide }) }
+    );
+    await d.drive();
+
+    expect(document.querySelector(".driver-popover-arrow")).toBeNull();
+    expect(popoverEl()?.querySelector(".my-arrow")?.getAttribute("data-side")).toMatch(/top|bottom|left|right/);
+  });
+});
+
 describe("custom popover components", () => {
   const StepPopover = defineComponent({
     props: { popover: { type: Object, required: true }, next: Function, accent: String, index: Number },

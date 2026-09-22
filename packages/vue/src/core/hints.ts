@@ -31,6 +31,8 @@ export type HintPopover = {
   side?: Side;
   align?: Alignment;
   popoverClass?: string;
+  /** driver-vue addition: render the arrow pointing at the beacon/element. (default: true) */
+  showArrow?: boolean;
 
   // The dismiss button. Hidden with `showButton: false`, leaving a popover
   // that is only dismissed programmatically.
@@ -76,6 +78,8 @@ export type HintsConfig = {
   buttonText?: string;
   popoverClass?: string;
   popoverOffset?: number;
+  /** driver-vue addition: render the popover arrow for every hint. (default: true) */
+  showArrow?: boolean;
 
   // Dim the page while a hint is open, with the hint's element cut out like a
   // tour step. The popover then anchors to the element, the open hint's beacon
@@ -392,6 +396,7 @@ export const createHints = (config: HintsConfig = {}): Hints => {
       doneButton: false,
 
       popoverClass: hintPopover.popoverClass || currentConfig.popoverClass || "",
+      showArrow: hintPopover.showArrow ?? currentConfig.showArrow ?? true,
 
       side: hintPopover.side || "bottom",
       align: hintPopover.align || "start",

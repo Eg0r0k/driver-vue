@@ -109,6 +109,40 @@ Because the defaults are variables, a dark theme is just another set of values:
 }
 ```
 
+## The arrow
+
+The arrow is a CSS triangle (`.driver-popover-arrow`) whose visible side is set by `driver-popover-arrow-side-top|right|bottom|left`; the offset along the edge is inline. Three levels:
+
+```ts
+// Off, globally or per step
+useDriver({ showArrow: false });
+{ element: "#x", popover: { title: "No arrow", showArrow: false } }
+```
+
+```css
+/* Restyled: size and colour are variables, the rest is plain CSS */
+.driver-popover {
+  --driver-popover-arrow-size: 8px;
+  --driver-popover-arrow-color: #111827;
+}
+.driver-popover-arrow-side-bottom {
+  filter: drop-shadow(0 -1px 0 #e5e7eb);
+}
+```
+
+```vue
+<!-- Replaced: your own element, positioned by the slot props -->
+<DriverTour>
+  <template #arrow="{ arrowSide, arrowStyles }">
+    <svg v-if="arrowSide !== 'over'" class="my-arrow" :data-side="arrowSide" :style="arrowStyles" viewBox="0 0 16 8">
+      <path d="M0 8 L8 0 L16 8" />
+    </svg>
+  </template>
+</DriverTour>
+```
+
+`arrowStyles` carries the `left` or `top` offset along the popover's edge; `arrowSide` says which edge (named like the popover side: `bottom` means the arrow sits on the popover's top edge and points up). Hints take the same `showArrow` in `HintsConfig` and per hint in `popover`.
+
 ## Modifying the DOM with a hook
 
 `onPopoverRender` runs once the popover is in the DOM, with references to its parts. Here it adds a "Go to first" button, as in the driver.js docs:

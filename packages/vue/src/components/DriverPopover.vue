@@ -233,7 +233,7 @@ defineExpose({
       :data-side="side"
       :data-align="align"
     >
-      <slot name="arrow" v-bind="slotProps">
+      <slot v-if="model.showArrow" name="arrow" v-bind="slotProps">
         <div ref="arrowEl" :class="arrowClass" :style="arrowStyles" />
       </slot>
 
