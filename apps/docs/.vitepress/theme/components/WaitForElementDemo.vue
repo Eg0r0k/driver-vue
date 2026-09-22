@@ -1,0 +1,53 @@
+<script setup lang="ts">
+import { ref } from "vue";
+import { useDriver, DriverTour } from "driver-vue";
+
+// Stands in for an app rendering a modal on demand: clicking the highlighted
+// button shows the "modal" ~800ms later, while the tour is already waiting.
+const modalOpen = ref(false);
+
+function openModal() {
+  window.setTimeout(() => (modalOpen.value = true), 800);
+}
+
+const { drive } = useDriver({
+  showProgress: true,
+  onDestroyed: () => (modalOpen.value = false),
+  steps: [
+    {
+      element: "#wait-open",
+      advanceOnClick: true,
+      popover: {
+        title: "Open the modal",
+        description: "Click this button. The modal renders about a second later; the tour waits for it.",
+        showButtons: ["close"],
+      },
+    },
+    {
+      element: "#wait-confirm",
+      waitForElement: 5000,
+      popover: { title: "Worth the wait", description: "This step appeared once the modal rendered." },
+      onDeselected: () => (modalOpen.value = false),
+    },
+  ],
+});
+</script>
+
+<template>
+  <div class="demo">
+    <div class="demo-box">
+      <button id="wait-open" type="button" class="demo-button" @click="openModal">Open modal</button>
+      <div v-if="modalOpen" class="demo-card">
+        <p>Delete this report?</p>
+        <div class="demo-row" style="margin-top: 8px">
+          <button id="wait-confirm" type="button" class="demo-button" @click="modalOpen = false">Confirm</button>
+          <button type="button" class="demo-button secondary" @click="modalOpen = false">Cancel</button>
+        </div>
+      </div>
+    </div>
+    <button type="button" class="demo-run" @click="drive()">Run the waiting tour</button>
+    <ClientOnly>
+      <DriverTour />
+    </ClientOnly>
+  </div>
+</template>

@@ -4,7 +4,9 @@
   "description": "Vue 3 / Nuxt port of driver.js: product tours, highlights and hints rendered with your own Vue components",
   "license": "MIT",
   "type": "module",
-  "sideEffects": ["**/*.css"],
+  "sideEffects": [
+    "**/*.css"
+  ],
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
@@ -32,7 +34,10 @@
     "./style.css": "./dist/style.css",
     "./package.json": "./package.json"
   },
-  "files": ["dist", "!dist/**/*.map"],
+  "files": [
+    "dist",
+    "!dist/**/*.map"
+  ],
   "scripts": {
     "build": "vite build && pnpm build:types",
     "build:types": "vue-tsc -p tsconfig.build.json && node scripts/postbuild.mjs",
@@ -41,7 +46,7 @@
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
     "typecheck": "vue-tsc --noEmit -p tsconfig.json",
-    "lint:package": "publint && attw --pack . --profile esm-only --ignore-rules cjs-resolves-to-esm"
+    "lint:package": "publint && attw --pack . --profile esm-only --ignore-rules cjs-resolves-to-esm --exclude-entrypoints ./style.css ./package.json"
   },
   "peerDependencies": {
     "vue": ">=3.5.0"
@@ -61,5 +66,18 @@
     "vue": "^3.5.43",
     "vue-tsc": "^3.3.11"
   },
-  "keywords": ["driver.js", "vue", "nuxt", "tour", "product tour", "onboarding", "highlight", "popover", "hints"]
+  "keywords": [
+    "driver.js",
+    "vue",
+    "nuxt",
+    "tour",
+    "product tour",
+    "onboarding",
+    "highlight",
+    "popover",
+    "hints"
+  ],
+  "engines": {
+    "node": ">=20"
+  }
 }

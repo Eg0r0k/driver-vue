@@ -1,0 +1,176 @@
+import { createDriver, flush, nextFrame, popoverTitle, useDriverHarness } from "./utils";
+
+useDriverHarness();
+
+async function tick(ms = 10): Promise<void> {
+  await new Promise(resolve => setTimeout(resolve, ms));
+  await flush();
+}
+
+function appendElement(id: string): void {
+  const element = document.createElement("div");
+  element.id = id;
+  document.body.appendChild(element);
+}
+
+describe("waitForElement", () => {
+  it("stays on the current step until the next element appears", async () => {
+    const d = createDriver({
+      animate: false,
+      steps: [
+        { element: "#intro", popover: { title: "Step 1" } },
+        { element: "#late", waitForElement: 500, popover: { title: "Step 2" } },
+      ],
+    });
+    await d.drive();
+    await d.moveNext();
+
+    expect(d.getActiveIndex()).toBe(0);
+    expect(popoverTitle()).toBe("Step 1");
+
+    appendElement("late");
+    await tick();
+
+    expect(d.getActiveIndex()).toBe(1);
+    expect(popoverTitle()).toBe("Step 2");
+    expect(d.getActiveElement()?.id).toBe("late");
+  });
+
+  it("waits for the first step's element on the initial drive", async () => {
+    const d = createDriver({
+      animate: false,
+      steps: [{ element: "#late", waitForElement: 500, popover: { title: "Step 1" } }],
+    });
+    await d.drive();
+    expect(popoverTitle()).toBeUndefined();
+
+    appendElement("late");
+    await tick();
+
+    expect(d.getActiveIndex()).toBe(0);
+    expect(popoverTitle()).toBe("Step 1");
+  });
+
+  it("applies the driver-level waitForElement to every step", async () => {
+    const d = createDriver({
+      animate: false,
+      waitForElement: 500,
+      steps: [
+        { element: "#intro", popover: { title: "Step 1" } },
+        { element: "#late", popover: { title: "Step 2" } },
+      ],
+    });
+    await d.drive();
+    await d.moveNext();
+    expect(d.getActiveIndex()).toBe(0);
+
+    appendElement("late");
+    await tick();
+    expect(d.getActiveIndex()).toBe(1);
+  });
+
+  it("falls back to the centered popover when the wait times out", async () => {
+    const d = createDriver({
+      animate: false,
+      steps: [
+        { element: "#intro", popover: { title: "Step 1" } },
+        { element: "#never", waitForElement: 40, popover: { title: "Step 2" } },
+      ],
+    });
+    await d.drive();
+    await d.moveNext();
+    expect(popoverTitle()).toBe("Step 1");
+
+    await tick(80);
+
+    expect(d.getActiveIndex()).toBe(1);
+    expect(popoverTitle()).toBe("Step 2");
+    expect(d.getActiveElement()?.id).toBe("driver-dummy-element");
+  });
+
+  it("skips the step when the wait times out and skipMissingElement is set", async () => {
+    const d = createDriver({
+      animate: false,
+      skipMissingElement: true,
+      steps: [
+        { element: "#intro", popover: { title: "Step 1" } },
+        { element: "#never", waitForElement: 40, popover: { title: "Step 2" } },
+        { element: "#card-1", popover: { title: "Step 3" } },
+      ],
+    });
+    await d.drive();
+    await d.moveNext();
+    expect(popoverTitle()).toBe("Step 1");
+
+    await tick(80);
+
+    expect(d.getActiveIndex()).toBe(2);
+    expect(popoverTitle()).toBe("Step 3");
+  });
+
+  it("cancels a pending wait when the tour is destroyed", async () => {
+    const d = createDriver({
+      animate: false,
+      steps: [
+        { element: "#intro", popover: { title: "Step 1" } },
+        { element: "#late", waitForElement: 500, popover: { title: "Step 2" } },
+      ],
+    });
+    await d.drive();
+    await d.moveNext();
+    await d.destroy();
+
+    appendElement("late");
+    await tick();
+
+    expect(d.isActive()).toBe(false);
+    expect(popoverTitle()).toBeUndefined();
+  });
+
+  it("cancels a pending wait when navigating elsewhere", async () => {
+    const d = createDriver({
+      animate: false,
+      steps: [
+        { element: "#intro", popover: { title: "Step 1" } },
+        { element: "#late", waitForElement: 500, popover: { title: "Step 2" } },
+        { element: "#card-1", popover: { title: "Step 3" } },
+      ],
+    });
+    await d.drive();
+    await d.moveNext();
+    await d.moveTo(2);
+    expect(popoverTitle()).toBe("Step 3");
+
+    appendElement("late");
+    await tick();
+
+    expect(d.getActiveIndex()).toBe(2);
+    expect(popoverTitle()).toBe("Step 3");
+  });
+
+  it("advances through a click-driven step into a waiting step", async () => {
+    document.querySelector("#card-1")?.addEventListener("click", () => {
+      setTimeout(() => appendElement("modal"), 20);
+    });
+
+    const d = createDriver({
+      animate: false,
+      steps: [
+        { element: "#card-1", advanceOnClick: true, popover: { title: "Step 1" } },
+        { element: "#modal", waitForElement: 500, popover: { title: "Step 2" } },
+      ],
+    });
+    await d.drive();
+    await nextFrame();
+
+    document.querySelector("#card-1")?.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true }));
+    expect(d.getActiveIndex()).toBe(0);
+    expect(popoverTitle()).toBe("Step 1");
+
+    await tick(60);
+
+    expect(d.getActiveIndex()).toBe(1);
+    expect(popoverTitle()).toBe("Step 2");
+    expect(d.getActiveElement()?.id).toBe("modal");
+  });
+});

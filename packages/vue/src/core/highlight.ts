@@ -175,10 +175,12 @@ function transferHighlight(ctx: Context, toElement: Element, toStep: DriveStep) 
 
   ctx.setState("__transitionCallback", animate);
 
-  // The first frame runs synchronously so the stage (and, without animation,
-  // the final position) is available right away; the loop continues on rAF.
+  // The first frame runs synchronously so the overlay and the stage render
+  // together with the popover; the loop continues on rAF.
   if (isAnimatedTransfer) {
     transitionStage(ctx, 0, duration, fromRect, toElement);
+  } else {
+    trackActiveElement(ctx, toElement);
   }
   window.requestAnimationFrame(animate);
 

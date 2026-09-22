@@ -394,6 +394,7 @@ describe("overlay", () => {
 
     // Clicks land on the dimmed path (the svg lets pointer events through).
     await click(overlayPath());
+    await settle();
 
     expect(popoverEl()).toBeNull();
     expect(overlayEl()).toBeNull();

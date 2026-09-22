@@ -63,10 +63,15 @@ const pathStyle = computed(() => ({
   opacity: props.opacity,
 }));
 
-function onPathClick(event: MouseEvent) {
-  // Driver's own UI never leaks clicks to the page underneath.
+// Driver's own UI never leaks pointer events to the page underneath: the
+// dimmed path swallows the whole press sequence, and only the click is acted on.
+function swallow(event: Event) {
   event.preventDefault();
   event.stopPropagation();
+}
+
+function onPathClick(event: MouseEvent) {
+  swallow(event);
   emit("click", event);
 }
 </script>
@@ -79,6 +84,15 @@ function onPathClick(event: MouseEvent) {
     preserveAspectRatio="xMinYMin slice"
     :style="svgStyle"
   >
-    <path class="driver-overlay-path" :d="path" :style="pathStyle" @click="onPathClick" />
+    <path
+      class="driver-overlay-path"
+      :d="path"
+      :style="pathStyle"
+      @pointerdown="swallow"
+      @mousedown="swallow"
+      @pointerup="swallow"
+      @mouseup="swallow"
+      @click="onPathClick"
+    />
   </svg>
 </template>

@@ -33,17 +33,18 @@ export type TestDriver = Omit<Driver, AsyncMethods> & {
 };
 
 let active: Driver | undefined;
-let app: App | undefined;
-let host: HTMLElement | undefined;
+const mounted: { app: App; host: HTMLElement }[] = [];
 
+/** Mounts a <DriverTour> for the driver; torn down by the harness. */
 export function mountTour(driver: Driver, slots?: Record<string, any>): App {
-  host = document.createElement("div");
-  host.id = "driver-test-host";
+  const host = document.createElement("div");
+  host.className = "driver-test-host";
   document.body.appendChild(host);
 
-  app = createApp({ render: () => h(DriverTour, { driver }, slots) });
+  const app = createApp({ render: () => h(DriverTour, { driver }, slots) });
   app.config.warnHandler = () => {};
   app.mount(host);
+  mounted.push({ app, host });
 
   return app;
 }
@@ -84,10 +85,11 @@ export function useDriverHarness(): void {
     active?.destroy();
     active = undefined;
     await nextTick();
-    app?.unmount();
-    app = undefined;
-    host?.remove();
-    host = undefined;
+    while (mounted.length) {
+      const { app, host } = mounted.pop()!;
+      app.unmount();
+      host.remove();
+    }
     document.body.innerHTML = "";
     document.body.className = "";
   });

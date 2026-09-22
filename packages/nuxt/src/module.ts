@@ -27,9 +27,9 @@ const COMPOSABLES = ["useDriver", "createDriver", "driver", "useDriverPosition",
 
 const COMPONENTS = ["Tour", "Popover", "Overlay", "Stage"];
 
-// TODO(hints): once `driver-vue/hints` ships, also register the hints entry:
-//   addImports for `useHints` and `createHints` from "driver-vue/hints"
-//   addComponent for `DriverHints` (export "DriverHints" from "driver-vue/hints")
+const HINT_COMPOSABLES = ["useHints", "createHints", "hints"];
+
+const HINT_COMPONENTS = ["Hints", "HintBeacon"];
 
 export default defineNuxtModule<ModuleOptions>({
   meta: {
@@ -63,6 +63,7 @@ export default defineNuxtModule<ModuleOptions>({
     addPlugin(resolver.resolve("./runtime/plugin"));
 
     addImports(COMPOSABLES.map(name => ({ name, from: "driver-vue" })));
+    addImports(HINT_COMPOSABLES.map(name => ({ name, from: "driver-vue/hints" })));
 
     if (options.components !== false) {
       const prefix = options.prefix ?? "Driver";
@@ -71,6 +72,13 @@ export default defineNuxtModule<ModuleOptions>({
           name: `${prefix}${name}`,
           export: `Driver${name}`,
           filePath: "driver-vue",
+        });
+      }
+      for (const name of HINT_COMPONENTS) {
+        addComponent({
+          name: `${prefix}${name}`,
+          export: `Driver${name}`,
+          filePath: "driver-vue/hints",
         });
       }
     }

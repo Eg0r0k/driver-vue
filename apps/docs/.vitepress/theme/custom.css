@@ -1,0 +1,214 @@
+/* Docs-only styles: demo boxes and the themes used by the styling examples. */
+
+:root {
+  --vp-c-brand-1: #4f46e5;
+  --vp-c-brand-2: #4338ca;
+  --vp-c-brand-3: #3730a3;
+  --vp-c-brand-soft: rgba(79, 70, 229, 0.14);
+}
+
+.demo {
+  margin: 16px 0 24px;
+}
+
+.demo-heading {
+  font-weight: 600;
+  margin: 0 0 8px;
+}
+
+.demo-box {
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 8px;
+  padding: 16px;
+  background: var(--vp-c-bg-soft);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.demo-box h4 {
+  margin: 0;
+}
+
+.demo-box p {
+  margin: 0;
+}
+
+.demo-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.demo-button,
+.demo-run {
+  appearance: none;
+  border: 1px solid var(--vp-c-brand-1);
+  background: var(--vp-c-brand-1);
+  color: #fff;
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  line-height: 1.4;
+}
+
+.demo-button.secondary {
+  background: transparent;
+  color: var(--vp-c-brand-1);
+}
+
+.demo-run {
+  width: 100%;
+  margin-top: 12px;
+}
+
+.demo-input {
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 6px;
+  padding: 8px 10px;
+  width: 100%;
+  background: var(--vp-c-bg);
+  color: var(--vp-c-text-1);
+  font: inherit;
+}
+
+.demo-card {
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 8px;
+  padding: 12px;
+  background: var(--vp-c-bg);
+}
+
+.demo-log {
+  font-family: var(--vp-font-family-mono);
+  font-size: 12px;
+  margin: 0;
+  padding: 8px;
+  background: var(--vp-c-bg);
+  border-radius: 6px;
+  min-height: 40px;
+  max-height: 120px;
+  overflow: auto;
+}
+
+/* The classic driver.js yellow theme, used by several examples. Works
+   unchanged in driver-vue because the class names are the same. */
+.driver-popover.driverjs-theme {
+  --driver-popover-bg: #fde047;
+  --driver-popover-color: #000;
+  --driver-popover-title-size: 20px;
+  --driver-popover-progress-color: #000;
+  --driver-popover-close-color: #9b9b9b;
+  --driver-popover-close-hover-color: #000;
+  --driver-popover-btn-bg: #000;
+  --driver-popover-btn-hover-bg: #000;
+  --driver-popover-btn-color: #fff;
+  --driver-popover-btn-border: 2px solid #000;
+  --driver-popover-btn-radius: 6px;
+  --driver-popover-btn-font-size: 14px;
+}
+
+.driver-popover.driverjs-theme .driver-popover-footer-btn {
+  flex: 1;
+  text-align: center;
+  padding: 5px 8px;
+}
+
+.driver-popover.driverjs-theme .driver-popover-navigation-btns {
+  justify-content: space-between;
+  gap: 3px;
+}
+
+/* Dark theme via variables only (see ThemeDemo). */
+.driver-popover.docs-dark-theme {
+  --driver-popover-bg: #18181b;
+  --driver-popover-color: #f4f4f5;
+  --driver-popover-radius: 12px;
+  --driver-popover-padding: 20px;
+  --driver-popover-shadow: 0 20px 40px rgba(0, 0, 0, 0.45);
+  --driver-popover-progress-color: #a1a1aa;
+  --driver-popover-close-color: #71717a;
+  --driver-popover-close-hover-color: #fff;
+  --driver-popover-btn-bg: #4f46e5;
+  --driver-popover-btn-hover-bg: #4338ca;
+  --driver-popover-btn-color: #fff;
+  --driver-popover-btn-border: 1px solid transparent;
+  --driver-popover-btn-radius: 8px;
+  --driver-popover-btn-font-size: 13px;
+  --driver-popover-font-family: ui-sans-serif, system-ui, sans-serif;
+}
+
+.driver-popover.docs-dark-theme .driver-popover-footer-btn {
+  padding: 6px 12px;
+}
+
+/* Hint beacon variants (see Styling Hints). */
+.docs-hint-rose {
+  --driver-hint-color: #e11d48;
+}
+
+.docs-hint-large {
+  --driver-hint-color: #059669;
+  --driver-hint-size: 32px;
+}
+
+/* Glow stage (see Highlight Animation). */
+.docs-glow .driver-stage {
+  box-shadow:
+    0 0 0 2px rgba(99, 102, 241, 0.9),
+    0 0 24px 6px rgba(99, 102, 241, 0.55);
+  animation: docs-stage-pulse 1.6s ease-in-out infinite;
+}
+
+.docs-glow .driver-stage[data-transitioning] {
+  animation: none;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.4);
+}
+
+@keyframes docs-stage-pulse {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 2px rgba(99, 102, 241, 0.9),
+      0 0 24px 6px rgba(99, 102, 241, 0.55);
+  }
+  50% {
+    box-shadow:
+      0 0 0 4px rgba(99, 102, 241, 0.6),
+      0 0 36px 12px rgba(99, 102, 241, 0.25);
+  }
+}
+
+/* Slide-in popover transition (see Highlight Animation). */
+.docs-slide .driver-popover-enter-active {
+  transition:
+    opacity 300ms ease-out,
+    transform 300ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.docs-slide .driver-popover-enter-from {
+  opacity: 0;
+  transform: translateY(12px) scale(0.96);
+}
+
+.docs-slide .driver-overlay-enter-active {
+  transition: opacity 600ms ease;
+}
+
+.docs-slide .driver-overlay-enter-from {
+  opacity: 0;
+}
+
+.dynamic-el {
+  display: block;
+  padding: 20px;
+  background: #000;
+  color: #fff;
+  font-size: 14px;
+  position: fixed;
+  border-radius: 8px;
+  z-index: 1;
+}

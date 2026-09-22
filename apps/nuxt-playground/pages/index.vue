@@ -14,6 +14,14 @@ const shared = useDriver({ steps }, { shared: true });
 // A second, local driver rendered by the <DriverTour> below with a custom
 // popover component through the #popover slot.
 const local = useDriver({ steps, animate: false, allowClose: true });
+
+// Hints: beacons pinned to elements, rendered by <DriverHints> below.
+const productHints = useHints({
+  hints: [
+    { element: "#features", id: "features", popover: { title: "Features", description: "Click a beacon to learn more." } },
+    { element: "#cta", id: "cta", beacon: { side: "left", align: "center" }, popover: { title: "Actions" } },
+  ],
+});
 </script>
 
 <template>
@@ -35,7 +43,12 @@ const local = useDriver({ steps, animate: false, allowClose: true });
     <section id="cta" class="actions">
       <button type="button" @click="shared.drive()">Start shared tour</button>
       <button type="button" @click="local.drive()">Start custom-popover tour</button>
+      <button type="button" @click="productHints.isVisible.value ? productHints.hide() : productHints.show()">
+        Toggle hints
+      </button>
     </section>
+
+    <DriverHints :hints="productHints.hints" />
 
     <DriverTour :driver="local.driver">
       <template #popover="props">
