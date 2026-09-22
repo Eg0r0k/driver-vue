@@ -1,21 +1,30 @@
 /* Docs-only styles: demo boxes and the themes used by the styling examples. */
 
 :root {
-  --vp-c-brand-1: #4f46e5;
-  --vp-c-brand-2: #4338ca;
-  --vp-c-brand-3: #3730a3;
-  --vp-c-brand-soft: rgba(79, 70, 229, 0.14);
+  /* A readable blue for links, badges and buttons; the indigo default was
+     hard to read on the page. Dark mode lightens it below. */
+  --vp-c-brand-1: #1d4ed8;
+  --vp-c-brand-2: #1e40af;
+  --vp-c-brand-3: #1e3a8a;
+  --vp-c-brand-soft: rgba(29, 78, 216, 0.12);
 
   /* The sandbox frame: a dashed accent border and faint diagonal stripes. */
   --docs-sandbox-line: rgba(79, 70, 229, 0.55);
   --docs-sandbox-stripe: rgba(79, 70, 229, 0.04);
-  --docs-sandbox-badge: #4f46e5;
+  --docs-sandbox-badge: var(--vp-c-brand-1);
+}
+
+.dark {
+  --vp-c-brand-1: #60a5fa;
+  --vp-c-brand-2: #3b82f6;
+  --vp-c-brand-3: #2563eb;
+  --vp-c-brand-soft: rgba(96, 165, 250, 0.16);
 }
 
 .dark {
   --docs-sandbox-line: rgba(129, 140, 248, 0.6);
   --docs-sandbox-stripe: rgba(129, 140, 248, 0.05);
-  --docs-sandbox-badge: #4338ca;
+  --docs-sandbox-badge: var(--vp-c-brand-1);
 }
 
 .demo {
@@ -260,8 +269,8 @@
   --driver-popover-progress-color: #a1a1aa;
   --driver-popover-close-color: #71717a;
   --driver-popover-close-hover-color: #fff;
-  --driver-popover-btn-bg: #4f46e5;
-  --driver-popover-btn-hover-bg: #4338ca;
+  --driver-popover-btn-bg: var(--vp-c-brand-1);
+  --driver-popover-btn-hover-bg: var(--vp-c-brand-2);
   --driver-popover-btn-color: #fff;
   --driver-popover-btn-border: 1px solid transparent;
   --driver-popover-btn-radius: 8px;

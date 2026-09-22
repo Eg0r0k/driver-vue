@@ -62,7 +62,7 @@ onUnmounted(() => toggleClass(false));
   position: absolute;
   top: -12px;
   left: -12px;
-  background: #4f46e5;
+  background: var(--vp-c-brand-1);
   color: #fff;
   font:
     600 11px/1 ui-sans-serif,

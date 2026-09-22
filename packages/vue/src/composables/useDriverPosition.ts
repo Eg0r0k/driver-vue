@@ -1,4 +1,4 @@
-import { computed, toValue, type CSSProperties, type MaybeRefOrGetter, type Ref } from "vue";
+import { computed, shallowRef, toValue, watch, type CSSProperties, type MaybeRefOrGetter, type Ref } from "vue";
 import {
   arrow,
   autoUpdate,
@@ -204,19 +204,26 @@ export const useDriverPosition = (options: UseDriverPositionOptions): UseDriverP
     return floating.floatingStyles.value as CSSProperties;
   });
 
-  // The reference and popover boxes as of the last positioning; read through
-  // x/y so they refresh with every update.
-  const boxes = computed<{ element: Box; popover: Box } | undefined>(() => {
-    void floating.x.value;
-    void floating.y.value;
-    const value = toValue(options.reference);
-    const el = options.floating.value;
-    if (isCentered.value || !value || !el || !floating.isPositioned.value) {
-      return undefined;
-    }
+  // The reference and popover boxes as of the last positioning. Measured
+  // after the DOM has been updated with the new coordinates (post-flush), so
+  // the arrow is decided against where the popover actually is, not where it
+  // was on the previous update.
+  const boxes = shallowRef<{ element: Box; popover: Box } | undefined>();
 
-    return { element: expand(toRect(value), padding.value), popover: el.getBoundingClientRect() };
-  });
+  watch(
+    [() => floating.x.value, () => floating.y.value, floating.isPositioned, isCentered],
+    () => {
+      const value = toValue(options.reference);
+      const el = options.floating.value;
+      if (isCentered.value || !value || !el || !floating.isPositioned.value) {
+        boxes.value = undefined;
+        return;
+      }
+
+      boxes.value = { element: expand(toRect(value), padding.value), popover: el.getBoundingClientRect() };
+    },
+    { flush: "post" }
+  );
 
   const arrowSide = computed<Side | "over">(() => {
     if (isCentered.value) {

@@ -104,7 +104,7 @@ const { drive, driver } = useDriver({
 .cp-bar span {
   display: block;
   height: 100%;
-  background: #4f46e5;
+  background: var(--vp-c-brand-1);
   transition: width 300ms ease;
 }
 

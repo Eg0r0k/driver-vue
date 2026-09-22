@@ -132,7 +132,7 @@ const cutout = computed(() => {
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: #6366f1;
+  color: var(--vp-c-brand-1);
 }
 
 .hl-arrow {
