@@ -141,9 +141,9 @@ export function resolveStepPopover(ctx: Context, element: Element, step: DriveSt
 
     side: popover.side || "bottom",
     align: popover.align || "start",
-    // The popover clears the highlight cutout (stagePadding) plus the
-    // configured gap between the two.
-    offset: stagePadding + (ctx.getConfig("popoverOffset") || 0),
+    // The anchor rect is expanded by the stage padding (so the popover clears
+    // the cutout) and the configured gap is kept between the two.
+    offset: ctx.getConfig("popoverOffset") || 0,
     padding: stagePadding,
     // Without a real element the tour highlights a dummy element at the center
     // of the screen, and the popover is centered over it like a modal.
