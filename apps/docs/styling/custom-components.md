@@ -96,17 +96,27 @@ type TourSlotProps = {
 
 Replace just one part and keep the rest of the default popover. Available: `#arrow`, `#close`, `#title`, `#description`, `#footer`, `#progress`, `#prev`, `#next`. They receive the same props.
 
-<Demo
-  id="parts-demo"
-  button-text="Run the default popover (see the code for slots)"
-  :config="{ showProgress: true }"
-  :steps="[
-    { element: '#parts-title', popover: { title: 'Default parts', description: 'This demo runs the shared driver without slots; the snippet shows how to replace a part.' } },
-    { element: '#parts-export', popover: { title: 'Another step', description: 'The layout of the default popover is unchanged.', side: 'right' } },
-  ]"
->
-  <DemoBox prefix="parts" />
-</Demo>
+<PartSlotsDemo />
+
+The demo above replaces three parts; this is the shape of it:
+
+```vue
+<DriverTour :driver="driver">
+  <template #title="{ popover }">
+    <header class="driver-popover-title">🧭 {{ popover.title }}</header>
+  </template>
+
+  <template #progress="{ index, total }">
+    <ProgressDots :current="index + 1" :total="total" />
+  </template>
+
+  <template #next="{ next, isLast }">
+    <MyButton size="sm" @click="next">{{ isLast ? "Finish" : "Next" }}</MyButton>
+  </template>
+</DriverTour>
+```
+
+More parts, with i18n and markdown:
 
 ```vue
 <DriverTour>

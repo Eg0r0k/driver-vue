@@ -20,6 +20,7 @@ import CustomButtonDemo from "./components/CustomButtonDemo.vue";
 import EventLogDemo from "./components/EventLogDemo.vue";
 import ConfirmExitDemo from "./components/ConfirmExitDemo.vue";
 import HintsDemo from "./components/HintsDemo.vue";
+import PartSlotsDemo from "./components/PartSlotsDemo.vue";
 import ComposableDemo from "./components/ComposableDemo.vue";
 import MultiPageTourDemo from "./components/MultiPageTourDemo.vue";
 
@@ -47,6 +48,7 @@ const theme: Theme = {
     app.component("ConfirmExitDemo", ConfirmExitDemo);
     app.component("ComposableDemo", ComposableDemo);
     app.component("HintsDemo", HintsDemo);
+    app.component("PartSlotsDemo", PartSlotsDemo);
     app.component("MultiPageTourDemo", MultiPageTourDemo);
   },
 };

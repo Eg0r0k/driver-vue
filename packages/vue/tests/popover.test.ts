@@ -1,5 +1,6 @@
 import type { Alignment, Side } from "../src/types";
 import {
+  pressKey,
   click,
   createDriver,
   flush,
@@ -249,6 +250,36 @@ describe("popover rendering", () => {
     expect(popover.footer).toBeNull();
     expect(popover.closeButton).toBeNull();
     expect(popover.description).not.toBeNull();
+  });
+});
+
+describe("hiding every button", () => {
+  it("shows no buttons in a tour when showButtons is an empty list", async () => {
+    const d = createDriver({ animate: false, showButtons: [], steps: SAMPLE_STEPS });
+    await d.drive();
+
+    expect(navButton("next")).toBeNull();
+    expect(navButton("prev")).toBeNull();
+    expect(navButton("close")).toBeNull();
+    expect(document.querySelector(".driver-popover-footer")).toBeNull();
+    // The tour still runs and the keyboard still navigates.
+    await pressKey("ArrowRight");
+    expect(d.getActiveIndex()).toBe(1);
+  });
+
+  it("honours an empty step-level showButtons in a tour", async () => {
+    const d = createDriver({
+      animate: false,
+      steps: [
+        { element: "#intro", popover: { title: "Bare", showButtons: [] } },
+        { element: "#card-1", popover: { title: "Buttons" } },
+      ],
+    });
+    await d.drive();
+    expect(navButton("next")).toBeNull();
+
+    await d.moveNext();
+    expect(navButton("next")).not.toBeNull();
   });
 });
 

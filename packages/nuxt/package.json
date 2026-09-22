@@ -12,7 +12,9 @@
   },
   "main": "./dist/module.mjs",
   "types": "./dist/types.d.mts",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "nuxt-module-build build",
     "dev:prepare": "nuxt-module-build build --stub && nuxi prepare ../../apps/nuxt-playground",
@@ -33,5 +35,20 @@
     "vue": "^3.5.43",
     "vue-tsc": "^3.3.11"
   },
-  "keywords": ["nuxt", "nuxt-module", "driver.js", "tour", "onboarding", "hints"]
+  "keywords": [
+    "nuxt",
+    "nuxt-module",
+    "driver.js",
+    "tour",
+    "onboarding",
+    "hints"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/USER/driver-vue.git",
+    "directory": "packages/nuxt"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
 }

@@ -13,7 +13,12 @@
     "play:nuxt": "pnpm --filter nuxt-playground dev",
     "format": "prettier . --write",
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
+    "lint:fix": "eslint . --fix",
+    "prepare": "husky",
+    "changeset": "changeset",
+    "version-packages": "changeset version && pnpm install --lockfile-only && prettier --write \"**/CHANGELOG.md\"",
+    "release": "pnpm build && pnpm test:run && pnpm lint:package && changeset publish",
+    "commitlint": "commitlint --edit"
   },
   "devDependencies": {
     "prettier": "^3.8.4",
@@ -27,6 +32,20 @@
     "eslint-plugin-prefer-arrow-functions": "^3.10.2",
     "globals": "^17.12.0",
     "vue-tsc": "^3.3.11",
-    "vue": "^3.5.43"
+    "vue": "^3.5.43",
+    "@changesets/cli": "^3.0.3",
+    "@commitlint/cli": "^21.2.3",
+    "@commitlint/config-conventional": "^21.2.3",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.5.1"
+  },
+  "lint-staged": {
+    "*.{ts,vue,mjs,js}": [
+      "eslint --fix --no-warn-ignored",
+      "prettier --write"
+    ],
+    "*.{css,json,yml,yaml}": [
+      "prettier --write"
+    ]
   }
 }

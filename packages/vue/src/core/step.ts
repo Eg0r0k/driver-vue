@@ -83,13 +83,15 @@ export const resolveTourStep = (ctx: Context, stepIndex: number, defaults: TourS
     .replace("{{current}}", `${stepIndex + 1}`)
     .replace("{{total}}", `${steps.length}`);
 
-  const configuredButtons = popover.showButtons || ctx.getConfig("showButtons");
+  // Unset means every button; an empty list means none (driver.js treated
+  // `[]` on a tour step as "all", which made hiding the buttons impossible).
+  const configuredButtons = popover.showButtons ?? ctx.getConfig("showButtons");
   const calculatedButtons: AllowedButtons[] = [
     "next",
     "previous",
     ...(allowsClosing ? ["close" as AllowedButtons] : []),
   ].filter(b => {
-    return !configuredButtons?.length || configuredButtons.includes(b as AllowedButtons);
+    return !configuredButtons || configuredButtons.includes(b as AllowedButtons);
   }) as AllowedButtons[];
 
   const onNextClick = popover.onNextClick || ctx.getConfig("onNextClick");
@@ -125,7 +127,7 @@ export const resolveStepPopover = (ctx: Context, element: Element, step: DriveSt
     title: popover.title,
     description: popover.description,
 
-    showButtons: popover.showButtons || ctx.getConfig("showButtons")!,
+    showButtons: popover.showButtons ?? ctx.getConfig("showButtons")!,
     disableButtons: popover.disableButtons || ctx.getConfig("disableButtons")! || [],
     showProgress: popover.showProgress || ctx.getConfig("showProgress") || false,
 

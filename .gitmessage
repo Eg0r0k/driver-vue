@@ -1,0 +1,17 @@
+
+
+# <type>(<scope>): <subject>          (≤ 100 chars, imperative, lower-case, no period)
+#
+# <body>                              (what and why, not how; wrap at 120)
+#
+# <footer>                            BREAKING CHANGE: ..., Closes #123
+#
+# type:   feat | fix | perf | refactor | docs | test | build | ci | chore | style | revert
+# scope:  vue | nuxt | core | hints | position | components | docs | playground | release | deps | lint
+#
+# Examples:
+#   feat(components): showArrow option on config, step and hints
+#   fix(hints): beacons follow the page scroll natively
+#   docs(playground): multi-page tour with useMultiPageTour
+#
+# A user-facing change to a package also needs a changeset:  pnpm changeset
