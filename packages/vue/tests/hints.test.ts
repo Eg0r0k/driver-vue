@@ -355,6 +355,27 @@ describe("beacon positioning", () => {
 });
 
 describe("popover anchoring", () => {
+  it("does not scroll the page when a hint opens", async () => {
+    const scrollIntoView = vi.fn();
+    const originalScroll = Element.prototype.scrollIntoView;
+    Element.prototype.scrollIntoView = scrollIntoView;
+    const focus = vi.spyOn(HTMLElement.prototype, "focus");
+    try {
+      const productHints = createHints({ hints: SAMPLE_HINTS });
+      await productHints.show();
+      await productHints.open("intro");
+
+      expect(popoverEl()).not.toBeNull();
+      expect(scrollIntoView).not.toHaveBeenCalled();
+      // Focus moves to the dismiss button without scrolling.
+      const withScroll = focus.mock.calls.filter(([options]) => !(options as FocusOptions)?.preventScroll);
+      expect(withScroll).toHaveLength(0);
+    } finally {
+      Element.prototype.scrollIntoView = originalScroll;
+      focus.mockRestore();
+    }
+  });
+
   it("anchors the popover to the beacon and renders the hint arrow", async () => {
     const productHints = createHints({ hints: SAMPLE_HINTS });
     await productHints.show();

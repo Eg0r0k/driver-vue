@@ -60,7 +60,7 @@ defineSlots<{
 const wrapper = useTemplateRef<HTMLElement>("wrapper");
 const arrowEl = useTemplateRef<HTMLElement>("arrowEl");
 
-const { floatingStyles, arrowStyles, side, align, update, isPositioned } = useDriverPosition({
+const { floatingStyles, arrowStyles, side, arrowSide, align, update, isPositioned } = useDriverPosition({
   reference: () => props.anchor,
   floating: wrapper,
   arrow: arrowEl,
@@ -95,13 +95,14 @@ const wrapperStyle = computed(() => ({
 
 const arrowClass = computed(() => [
   "driver-popover-arrow",
-  side.value === "over" ? "driver-popover-arrow-none" : `driver-popover-arrow-side-${side.value}`,
+  arrowSide.value === "over" ? "driver-popover-arrow-none" : `driver-popover-arrow-side-${arrowSide.value}`,
 ]);
 
 const slotProps = computed<PopoverSlotProps & Record<string, unknown>>(() => ({
   ...props.scope,
   popover: props.model,
   side: side.value,
+  arrowSide: arrowSide.value,
   align: align.value,
   arrowStyles: arrowStyles.value,
   next: props.model.onNextClick,
@@ -158,7 +159,9 @@ const focusFirst = () => {
   // anchor-less popovers) never yields a focusable element anyway.
   const anchor = props.anchor instanceof Element ? [props.anchor] : [];
   const focusable = getFocusableElements([root, ...anchor]);
-  focusable[0]?.focus();
+  // preventScroll: the element (tour) or the beacon (hint) is already in
+  // view; focusing must not scroll the page on its own.
+  focusable[0]?.focus({ preventScroll: true });
 };
 
 const repositionOnImagesLoad = () => {
@@ -196,7 +199,11 @@ watch(isPositioned, async positioned => {
   }
 
   await nextTick();
-  bringInView(wrapper.value, props.model.smoothScroll);
+  // A hint's popover hangs off a beacon the user just clicked; the page must
+  // not move under them. A tour step may need the popover scrolled into view.
+  if (props.mode === "tour") {
+    bringInView(wrapper.value, props.model.smoothScroll);
+  }
 });
 
 watch(

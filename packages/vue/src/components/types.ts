@@ -7,6 +7,8 @@ export type PopoverSlotProps = {
   popover: PopoverRenderModel;
   /** The rendered side after flipping, "over" when centered. */
   side: Side | "over";
+  /** The popover edge the arrow sits on (see `useDriverPosition`); apply as `driver-popover-arrow-side-*`. */
+  arrowSide: Side | "over";
   /** The rendered alignment. */
   align: Alignment;
   /** Inline styles that put the arrow on target; apply to a custom arrow. */

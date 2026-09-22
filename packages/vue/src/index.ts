@@ -7,7 +7,13 @@ export { easeInOutQuad } from "./core/utils";
 
 export { useDriver } from "./composables/useDriver";
 export type { UseDriverOptions, UseDriverReturn } from "./composables/useDriver";
-export { useDriverPosition, ARROW_CORNER_INSET, VIEWPORT_PADDING } from "./composables/useDriverPosition";
+export {
+  useDriverPosition,
+  resolveArrowSide,
+  arrowOffsetAlong,
+  ARROW_CORNER_INSET,
+  VIEWPORT_PADDING,
+} from "./composables/useDriverPosition";
 export type { UseDriverPositionOptions, UseDriverPositionReturn } from "./composables/useDriverPosition";
 
 export {
