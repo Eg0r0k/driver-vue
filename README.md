@@ -91,3 +91,7 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md) for the workflow, commit format and rel
 ## License
 
 [MIT](./LICENSE). driver.js is © Kamran Ahmed, MIT.
+
+<p align="center">
+  <img src="./footer.jpg" alt="" />
+</p>
