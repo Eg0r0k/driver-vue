@@ -46,6 +46,16 @@ const { drive } = useDriver({
 
 `useDriver` merges the plugin's `defaults` under your config, destroys the tour when the component unmounts, and returns the driver plus reactive refs (`isActive`, `activeIndex`, `isFirstStep`, ...). It re-applies the config when you pass a ref or a getter.
 
+## Which driver does `<DriverTour />` render?
+
+`<DriverTour>` renders the driver you pass as `:driver`. Without the prop it looks up the nearest provided driver:
+
+1. the driver of a `useDriver()` call in an ancestor component (`useDriver` provides its driver to its subtree, so a `<DriverTour />` in the same component renders it),
+2. a driver shared with `provideDriver()`,
+3. the app-wide driver installed by `DriverPlugin` (`useDriver(config, { shared: true })` drives that one).
+
+When in doubt, pass `:driver="driver"` explicitly; a `<DriverTour />` placed in a layout with the plugin installed renders the shared instance.
+
 ## Highlighting a single element
 
 Pass one step to `highlight` to spotlight an element without a tour. By default the popover shows no buttons.

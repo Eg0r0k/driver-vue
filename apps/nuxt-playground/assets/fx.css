@@ -1,0 +1,260 @@
+/* Highlight box effects for the animation page. Everything here styles the
+   library's own hooks: `.driver-stage` (an empty box tracking the cutout,
+   given a class through `stageClass`), the overlay root (`overlayClass`),
+   the popover (`popoverClass`) and the Vue <Transition> classes. */
+
+/* ---- Stage box effects (stageClass) --------------------------------------- */
+
+.fx-outline {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+.fx-glow {
+  box-shadow:
+    0 0 0 3px rgba(99, 102, 241, 0.9),
+    0 0 24px 6px rgba(99, 102, 241, 0.55);
+  animation: fx-glow-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes fx-glow-pulse {
+  50% {
+    box-shadow:
+      0 0 0 3px rgba(99, 102, 241, 0.6),
+      0 0 44px 14px rgba(99, 102, 241, 0.3);
+  }
+}
+
+/* Four corner brackets drawn with background gradients. */
+.fx-corners {
+  --c: #fff;
+  --l: 18px;
+  --w: 3px;
+  background:
+    linear-gradient(var(--c), var(--c)) top left / var(--l) var(--w) no-repeat,
+    linear-gradient(var(--c), var(--c)) top left / var(--w) var(--l) no-repeat,
+    linear-gradient(var(--c), var(--c)) top right / var(--l) var(--w) no-repeat,
+    linear-gradient(var(--c), var(--c)) top right / var(--w) var(--l) no-repeat,
+    linear-gradient(var(--c), var(--c)) bottom left / var(--l) var(--w) no-repeat,
+    linear-gradient(var(--c), var(--c)) bottom left / var(--w) var(--l) no-repeat,
+    linear-gradient(var(--c), var(--c)) bottom right / var(--l) var(--w) no-repeat,
+    linear-gradient(var(--c), var(--c)) bottom right / var(--w) var(--l) no-repeat;
+  animation: fx-corners-in 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes fx-corners-in {
+  from {
+    --l: 40px;
+    opacity: 0;
+  }
+}
+
+/* A ring that expands and fades once the box has arrived: while the engine
+   animates the stage the box carries `data-transitioning`; when the attribute
+   goes away the animation starts. */
+.fx-ripple::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 2px solid rgba(99, 102, 241, 0.9);
+  animation: fx-ripple 900ms ease-out forwards;
+}
+
+.fx-ripple[data-transitioning]::after {
+  animation: none;
+  opacity: 0;
+}
+
+@keyframes fx-ripple {
+  from {
+    inset: 0;
+    opacity: 1;
+  }
+  to {
+    inset: -22px;
+    opacity: 0;
+  }
+}
+
+/* A rotating rainbow border: a conic gradient masked down to the border ring. */
+@property --fx-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+.fx-rainbow {
+  padding: 3px;
+  background: conic-gradient(from var(--fx-angle), #f472b6, #facc15, #4ade80, #38bdf8, #a78bfa, #f472b6);
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: fx-rotate 2.5s linear infinite;
+}
+
+@keyframes fx-rotate {
+  to {
+    --fx-angle: 360deg;
+  }
+}
+
+/* Marching ants: an SVG rect rendered through the `stage` slot. */
+.fx-ants-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.fx-ants-svg rect {
+  fill: none;
+  stroke: #fff;
+  stroke-width: 2;
+  stroke-dasharray: 8 6;
+  animation: fx-ants 900ms linear infinite;
+}
+
+@keyframes fx-ants {
+  to {
+    stroke-dashoffset: -28;
+  }
+}
+
+/* ---- CSS-driven movement (box overlay + animate: false) ------------------- */
+
+/* With `animate: false` the engine no longer interpolates the box; the box
+   overlay's cutout and `.driver-stage` glide with a CSS transition, whose
+   timing function is the `--driver-animation-easing` variable. A class on the
+   overlay (overlayClass) and on the stage (stageClass) sets it per tour. */
+.fx-spring {
+  --driver-animation-easing: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.fx-smooth {
+  --driver-animation-easing: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.fx-steps {
+  --driver-animation-easing: steps(6, end);
+}
+
+/* ---- Custom overlay: blurred backdrop with an even-odd clip-path ----------- */
+
+.fx-blur-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: rgba(15, 23, 42, 0.35);
+  backdrop-filter: blur(6px) saturate(1.2);
+  -webkit-backdrop-filter: blur(6px) saturate(1.2);
+  pointer-events: auto;
+  transition: clip-path var(--driver-animation-duration) var(--driver-animation-easing);
+}
+
+/* ---- Popover enter effects (popoverClass + Vue transition classes) --------- */
+
+.driver-popover.fx-pop-scale.driver-popover-enter-active {
+  transition:
+    opacity 250ms ease-out,
+    scale 350ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.driver-popover.fx-pop-scale.driver-popover-enter-from {
+  opacity: 0;
+  scale: 0.85;
+}
+
+.driver-popover.fx-pop-slide.driver-popover-enter-active {
+  transition:
+    opacity 300ms ease-out,
+    translate 350ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.driver-popover.fx-pop-slide.driver-popover-enter-from {
+  opacity: 0;
+  translate: 0 14px;
+}
+
+.driver-popover.fx-pop-flip.driver-popover-enter-active {
+  transition:
+    opacity 300ms ease-out,
+    rotate 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  transform-origin: top center;
+}
+
+.driver-popover.fx-pop-flip.driver-popover-enter-from {
+  opacity: 0;
+  rotate: x -60deg;
+}
+
+/* ---- Page bits ------------------------------------------------------------- */
+
+.fx-controls {
+  display: grid;
+  gap: 1rem;
+  padding: 1.25rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.fx-controls h2 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.fx-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.fx-field {
+  display: grid;
+  gap: 0.35rem;
+  font-size: 13px;
+}
+
+.fx-field select,
+.fx-field input[type="number"] {
+  padding: 0.4rem 0.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font: inherit;
+}
+
+.fx-field input[type="range"] {
+  width: 100%;
+}
+
+.fx-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  align-items: center;
+}
+
+.fx-hint {
+  margin: 0;
+  font-size: 13px;
+  color: #4b5563;
+  line-height: 1.5;
+}
+
+.fx-code {
+  margin: 0;
+  padding: 0.85rem 1rem;
+  border-radius: 8px;
+  background: #0f172a;
+  color: #e2e8f0;
+  font-size: 12px;
+  line-height: 1.6;
+  overflow: auto;
+}

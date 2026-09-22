@@ -53,6 +53,18 @@ The overlay is wrapped in a `<Transition name="driver-overlay">`; the default fa
 }
 ```
 
+## The box overlay
+
+`DriverBoxOverlay` swaps the SVG for a box with a large `box-shadow`. It looks the same but the cutout is a real element, which lets CSS animate it (see [Highlight animation](./highlight-animation#moving-the-box-with-css-instead-of-javascript)):
+
+```ts
+import { DriverBoxOverlay } from "driver-vue";
+
+useDriver({ components: { overlay: DriverBoxOverlay }, steps });
+```
+
+`overlayClass` adds a class to whichever overlay is rendered.
+
 ## Replacing the overlay
 
 The `#overlay` slot of `<DriverTour>` receives the (interpolated) stage rect, the padding and radius, the color, the opacity, the `zIndex`, a `transitioning` flag and an `onClick` handler that runs `overlayClickBehavior`. Anything you render there replaces the SVG. This demo builds a frosted-glass backdrop from four blurred panels:

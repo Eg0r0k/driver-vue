@@ -98,6 +98,56 @@ Because the popover is positioned with `left` / `top`, `transform` is free for y
 
 As in driver.js, the popover of the first step shows immediately; on later steps of an animated tour it appears halfway through the slide, so it fades in while the cutout is still settling. The engine drives this through `driver.state.popover`, which is `undefined` while hidden. If you need the popover to appear only after the slide, watch `driver.state.transitioning` in a custom popover and delay your own enter animation.
 
+## Per-tour classes: `stageClass` and `overlayClass`
+
+Effects are usually global CSS on `.driver-stage`. To vary them per tour, `stageClass` adds classes to the stage box and `overlayClass` to the overlay root:
+
+```ts
+useDriver({ stageClass: "fx-glow", overlayClass: "fx-spring", steps });
+```
+
+```css
+.driver-stage.fx-glow {
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.9), 0 0 24px 6px rgba(99, 102, 241, 0.55);
+  animation: glow-pulse 1.6s ease-in-out infinite;
+}
+```
+
+The stage box also carries `data-transitioning` while the engine slides it, so an "arrival" animation can start when the attribute disappears:
+
+```css
+.driver-stage::after { content: ""; position: absolute; inset: 0; border-radius: inherit; border: 2px solid #6366f1; animation: ripple 900ms ease-out forwards; }
+.driver-stage[data-transitioning]::after { animation: none; opacity: 0; }
+@keyframes ripple { to { inset: -22px; opacity: 0; } }
+```
+
+## Moving the box with CSS instead of JavaScript
+
+The default overlay is an SVG path, which only the engine can animate. `DriverBoxOverlay` is an alternative overlay whose cutout is a plain element with a huge `box-shadow`. Combine it with `animate: false`: the engine stops interpolating, the rect jumps to the next element, and CSS transitions carry both the cutout and `.driver-stage` there, with whatever timing function you like (springs, steps, anything `cubic-bezier` can express):
+
+```ts
+import { DriverBoxOverlay } from "driver-vue";
+
+useDriver({
+  animate: false,
+  duration: 600,
+  overlayClass: "spring",
+  stageClass: "spring",
+  components: { overlay: DriverBoxOverlay },
+  steps,
+});
+```
+
+```css
+.spring {
+  --driver-animation-easing: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+```
+
+Both the cutout (`.driver-box-overlay-cutout`) and the stage box read `--driver-animation-duration` (set by the engine from `duration`) and `--driver-animation-easing`. With `animate: true` the box overlay is driven by the engine like the SVG, and the CSS transition is disabled.
+
+The Nuxt playground's "Highlight box animation" page combines all of the above with live controls.
+
 ## Replacing the stage animation entirely
 
-The slide is computed by the engine and written to `driver.state.stage` every frame. A custom overlay (the `#overlay` slot) receives that rect and can render it however it likes, including with CSS transitions instead of the frame-by-frame values: set `animate: false` so the rect jumps, and add `transition: all 400ms` to your own cutout element.
+The slide is computed by the engine and written to `driver.state.stage` every frame. A custom overlay (the `#overlay` slot) receives that rect and can render it however it likes, including with CSS transitions instead of the frame-by-frame values: set `animate: false` so the rect jumps, and add `transition: all 400ms` to your own cutout element. A `clip-path: polygon(evenodd, ...)` on a full-screen `backdrop-filter: blur()` layer makes a frosted overlay whose cutout stays sharp and clickable, and `clip-path` transitions too.

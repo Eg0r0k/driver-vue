@@ -28,6 +28,12 @@ const COMPONENTS = [
       "The dimmed page with the stage cut out: a full-screen SVG whose single evenodd path is the dim minus the rounded cutout. Only the path receives pointer events.",
   },
   {
+    name: "DriverBoxOverlay",
+    file: "src/components/DriverBoxOverlay.vue",
+    intro:
+      "An alternative overlay: a box at the stage rect whose huge `box-shadow` dims the page. With `animate: false` the cutout moves with a CSS transition, so the highlight box can be animated with any timing function.",
+  },
+  {
     name: "DriverStage",
     file: "src/components/DriverStage.vue",
     intro:
