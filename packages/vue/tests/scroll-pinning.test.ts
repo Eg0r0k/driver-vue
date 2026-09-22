@@ -54,7 +54,9 @@ describe("resolveArrowSide", () => {
   });
 
   it("keeps the side when the popover has not been laid out", () => {
-    expect(resolveArrowSide("left", { top: -50, bottom: -30, left: 0, right: 0 }, { top: 0, bottom: 0, left: 0, right: 0 })).toBe("left");
+    expect(
+      resolveArrowSide("left", { top: -50, bottom: -30, left: 0, right: 0 }, { top: 0, bottom: 0, left: 0, right: 0 })
+    ).toBe("left");
   });
 });
 

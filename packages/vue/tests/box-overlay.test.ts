@@ -62,7 +62,12 @@ describe("DriverBoxOverlay", () => {
 
 describe("stageClass and overlayClass", () => {
   it("adds the configured classes to the stage box and the overlay root", async () => {
-    const d = createDriver({ animate: false, steps: SAMPLE_STEPS, stageClass: "fx-glow fx-spring", overlayClass: "fx-spring" });
+    const d = createDriver({
+      animate: false,
+      steps: SAMPLE_STEPS,
+      stageClass: "fx-glow fx-spring",
+      overlayClass: "fx-spring",
+    });
     await d.drive();
 
     expect(stageEl()?.classList.contains("fx-glow")).toBe(true);
