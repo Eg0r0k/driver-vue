@@ -1,0 +1,37 @@
+{
+  "name": "nuxt-driver-vue",
+  "version": "0.1.0",
+  "description": "Nuxt module for driver-vue: product tours, highlights and hints with your own Vue components",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/types.d.mts",
+      "import": "./dist/module.mjs"
+    }
+  },
+  "main": "./dist/module.mjs",
+  "types": "./dist/types.d.mts",
+  "files": ["dist"],
+  "scripts": {
+    "build": "nuxt-module-build build",
+    "dev:prepare": "nuxt-module-build build --stub && nuxi prepare ../../apps/nuxt-playground",
+    "typecheck": "vue-tsc --noEmit -p tsconfig.json",
+    "lint:package": "publint"
+  },
+  "dependencies": {
+    "@nuxt/kit": "^4.5.2",
+    "driver-vue": "workspace:*"
+  },
+  "devDependencies": {
+    "@nuxt/cli": "^3.37.0",
+    "@nuxt/module-builder": "^1.0.3",
+    "@nuxt/schema": "^4.5.2",
+    "nuxt": "^4.5.2",
+    "publint": "^0.3.21",
+    "typescript": "~5.9.3",
+    "vue": "^3.5.43",
+    "vue-tsc": "^3.3.11"
+  },
+  "keywords": ["nuxt", "nuxt-module", "driver.js", "tour", "onboarding", "hints"]
+}

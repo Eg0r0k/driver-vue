@@ -1,0 +1,24 @@
+{
+  "name": "driver-vue-docs",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vitepress dev",
+    "build": "pnpm api && vitepress build",
+    "preview": "vitepress preview",
+    "api": "pnpm api:typedoc && pnpm api:components",
+    "api:typedoc": "typedoc --options typedoc.json",
+    "api:components": "node scripts/component-meta.mjs"
+  },
+  "dependencies": {
+    "driver-vue": "workspace:*",
+    "vue": "^3.5.43"
+  },
+  "devDependencies": {
+    "typedoc": "^0.28.20",
+    "typedoc-plugin-markdown": "^4.13.1",
+    "typescript": "~5.9.3",
+    "vitepress": "^1.6.4",
+    "vue-component-meta": "^3.3.11"
+  }
+}

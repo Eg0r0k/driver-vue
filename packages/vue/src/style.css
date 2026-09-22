@@ -1,0 +1,405 @@
+/* driver-vue default styles. Every value that driver.js hard-coded is a custom
+   property here, so a theme is a handful of variables; the class names are the
+   same as driver.js, so existing driver.js themes keep working. */
+
+:root {
+  --driver-z-index: 10000;
+  --driver-animation-duration: 400ms;
+  --driver-animation-easing: ease-in-out;
+
+  --driver-popover-bg: #fff;
+  --driver-popover-color: #2d2d2d;
+  --driver-popover-radius: 5px;
+  --driver-popover-padding: 15px;
+  --driver-popover-shadow: 0 1px 10px #0006;
+  --driver-popover-min-width: 250px;
+  --driver-popover-max-width: 300px;
+  --driver-popover-font-family:
+    "Helvetica Neue", Inter, ui-sans-serif, "Apple Color Emoji", Helvetica, Arial, sans-serif;
+  --driver-popover-title-size: 19px;
+  --driver-popover-title-weight: 700;
+  --driver-popover-description-size: 14px;
+  --driver-popover-progress-color: #727272;
+  --driver-popover-close-color: #d2d2d2;
+  --driver-popover-close-hover-color: #2d2d2d;
+
+  --driver-popover-btn-bg: #fff;
+  --driver-popover-btn-hover-bg: #f7f7f7;
+  --driver-popover-btn-color: #2d2d2d;
+  --driver-popover-btn-border: 1px solid #ccc;
+  --driver-popover-btn-radius: 3px;
+  --driver-popover-btn-font-size: 12px;
+
+  --driver-popover-arrow-size: 5px;
+  --driver-popover-arrow-color: var(--driver-popover-bg);
+
+  --driver-hint-size: 24px;
+  --driver-hint-color: #818cf8;
+  --driver-hint-animation-duration: 2s;
+}
+
+/* ---------------------------------------------------------------------------
+   Page state while a tour runs
+   --------------------------------------------------------------------------- */
+
+.driver-active .driver-overlay {
+  pointer-events: none;
+}
+
+.driver-active.driver-no-scroll {
+  overflow: hidden;
+}
+
+.driver-active * {
+  pointer-events: none;
+}
+
+.driver-active .driver-active-element,
+.driver-active .driver-active-element *,
+.driver-popover,
+.driver-popover * {
+  pointer-events: auto;
+}
+
+/* Disable the scrolling of a scrollable parent that holds an active element */
+.driver-active-element-parent-no-scroll {
+  overflow: hidden !important;
+}
+
+.driver-no-interaction,
+.driver-no-interaction * {
+  pointer-events: none !important;
+}
+
+/* ---------------------------------------------------------------------------
+   Overlay
+   --------------------------------------------------------------------------- */
+
+.driver-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: var(--driver-z-index);
+  fill-rule: evenodd;
+  clip-rule: evenodd;
+  stroke-linejoin: round;
+  stroke-miterlimit: 2;
+}
+
+.driver-overlay-path {
+  pointer-events: auto;
+  cursor: auto;
+}
+
+/* ---------------------------------------------------------------------------
+   Stage: an unstyled box tracking the cutout, for decorations
+   --------------------------------------------------------------------------- */
+
+.driver-stage {
+  position: fixed;
+  box-sizing: border-box;
+  pointer-events: none;
+}
+
+/* ---------------------------------------------------------------------------
+   Transitions (Vue <Transition> classes); override to change the animation
+   --------------------------------------------------------------------------- */
+
+.driver-fade .driver-overlay-enter-active,
+.driver-fade .driver-popover-enter-active {
+  transition: opacity var(--driver-animation-duration) var(--driver-animation-easing);
+}
+
+.driver-fade .driver-overlay-leave-active,
+.driver-fade .driver-popover-leave-active {
+  transition: opacity calc(var(--driver-animation-duration) / 2) var(--driver-animation-easing);
+}
+
+.driver-fade .driver-overlay-enter-from,
+.driver-fade .driver-overlay-leave-to,
+.driver-fade .driver-popover-enter-from,
+.driver-fade .driver-popover-leave-to {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .driver-overlay-enter-active,
+  .driver-overlay-leave-active,
+  .driver-popover-enter-active,
+  .driver-popover-leave-active {
+    transition: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Popover
+   --------------------------------------------------------------------------- */
+
+.driver-popover {
+  all: unset;
+  font-family: var(--driver-popover-font-family);
+  box-sizing: border-box;
+  color: var(--driver-popover-color);
+  margin: 0;
+  padding: var(--driver-popover-padding);
+  border-radius: var(--driver-popover-radius);
+  min-width: var(--driver-popover-min-width);
+  max-width: var(--driver-popover-max-width);
+  box-shadow: var(--driver-popover-shadow);
+  z-index: calc(var(--driver-z-index) + 2);
+  position: fixed;
+  top: 0;
+  left: 0;
+  background-color: var(--driver-popover-bg);
+}
+
+.driver-popover-title {
+  font-size: var(--driver-popover-title-size);
+  font-weight: var(--driver-popover-title-weight);
+  display: block;
+  position: relative;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.driver-popover-close-btn {
+  all: unset;
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 32px;
+  height: 28px;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--driver-popover-close-color);
+  z-index: 1;
+  text-align: center;
+  transition: color 200ms;
+}
+
+.driver-popover-close-btn:hover,
+.driver-popover-close-btn:focus {
+  color: var(--driver-popover-close-hover-color);
+}
+
+.driver-popover-title + .driver-popover-description {
+  margin-top: 5px;
+}
+
+.driver-popover-description {
+  margin-bottom: 0;
+  font-size: var(--driver-popover-description-size);
+  line-height: 1.5;
+  font-weight: 400;
+}
+
+.driver-popover-footer {
+  margin-top: 15px;
+  text-align: right;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.driver-popover-progress-text {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--driver-popover-progress-color);
+}
+
+.driver-popover-footer-btn {
+  all: unset;
+  display: inline-block;
+  box-sizing: border-box;
+  padding: 3px 7px;
+  text-decoration: none;
+  background-color: var(--driver-popover-btn-bg);
+  color: var(--driver-popover-btn-color);
+  font-size: var(--driver-popover-btn-font-size);
+  cursor: pointer;
+  outline: 0;
+  line-height: 1.3;
+  border: var(--driver-popover-btn-border);
+  border-radius: var(--driver-popover-btn-radius);
+}
+
+.driver-popover-footer .driver-popover-btn-disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.driver-popover-footer-btn:hover,
+.driver-popover-footer-btn:focus {
+  background-color: var(--driver-popover-btn-hover-bg);
+}
+
+.driver-popover-navigation-btns {
+  display: flex;
+  flex-grow: 1;
+  justify-content: flex-end;
+}
+
+.driver-popover-navigation-btns button + button {
+  margin-left: 4px;
+}
+
+/* Arrow: a CSS triangle whose visible side is set by the side class. The
+   offset along the edge is set inline so the tip points at the element. */
+.driver-popover-arrow {
+  content: "";
+  position: absolute;
+  border: var(--driver-popover-arrow-size) solid var(--driver-popover-arrow-color);
+}
+
+/* Popover on the left of the element: arrow on the popover's right edge. */
+.driver-popover-arrow-side-left {
+  left: 100%;
+  border-right-color: transparent;
+  border-bottom-color: transparent;
+  border-top-color: transparent;
+}
+
+.driver-popover-arrow-side-right {
+  right: 100%;
+  border-left-color: transparent;
+  border-bottom-color: transparent;
+  border-top-color: transparent;
+}
+
+.driver-popover-arrow-side-top {
+  top: 100%;
+  border-right-color: transparent;
+  border-bottom-color: transparent;
+  border-left-color: transparent;
+}
+
+.driver-popover-arrow-side-bottom {
+  bottom: 100%;
+  border-left-color: transparent;
+  border-top-color: transparent;
+  border-right-color: transparent;
+}
+
+.driver-popover-arrow-side-over,
+.driver-popover-arrow-none {
+  display: none;
+}
+
+/* ---------------------------------------------------------------------------
+   Hints
+   --------------------------------------------------------------------------- */
+
+.driver-hint {
+  all: unset;
+  box-sizing: border-box;
+  position: fixed;
+  display: block;
+  width: var(--driver-hint-size);
+  height: var(--driver-hint-size);
+  cursor: pointer;
+  /* Below the overlay, so other beacons dim with the page while a hint is open. */
+  z-index: calc(var(--driver-z-index) - 4);
+  /* Centered on the anchor point that the script sets inline. */
+  transform: translate(-50%, -50%);
+}
+
+/* The open hint's beacon rises above the overlay, next to its popover. */
+.driver-hint[aria-expanded="true"] {
+  z-index: calc(var(--driver-z-index) - 2);
+}
+
+.driver-hint-hidden {
+  display: none;
+}
+
+.driver-hint-dot,
+.driver-hint-pulse {
+  position: absolute;
+  border-radius: 50%;
+  background-color: var(--driver-hint-color);
+}
+
+.driver-hint-dot {
+  inset: 25%;
+}
+
+.driver-hint-pulse {
+  inset: 0;
+  opacity: 0.6;
+  /* Scales past the button box; without this the invisible ring would
+     extend the click target and swallow clicks meant for the page. */
+  pointer-events: none;
+  animation: driver-hint-pulse var(--driver-hint-animation-duration) ease-out infinite;
+}
+
+@keyframes driver-hint-pulse {
+  0% {
+    transform: scale(0.5);
+    opacity: 0.6;
+  }
+
+  70% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+.driver-hint-no-animation .driver-hint-pulse {
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .driver-hint-pulse {
+    animation: none;
+  }
+}
+
+/* A larger arrow than the tour's, proportionate to the beacon. */
+.driver-hint-popover {
+  --driver-popover-arrow-size: 7px;
+}
+
+/* box-shadow stops at the popover's box, leaving the protruding arrow flat.
+   A drop-shadow filter follows the rendered silhouette instead. */
+.driver-hint-popover.driver-popover {
+  box-shadow: none;
+  filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.25)) drop-shadow(0 4px 12px rgba(0, 0, 0, 0.2));
+}
+
+/* The opt-in dim with the hint's element cut out. */
+.driver-hint-overlay {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: calc(var(--driver-z-index) - 3);
+  pointer-events: none;
+  fill-rule: evenodd;
+}
+
+.driver-hint-overlay-enter-active {
+  transition: opacity 200ms ease-out;
+}
+
+.driver-hint-overlay-enter-from {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .driver-hint-overlay-enter-active {
+    transition: none;
+  }
+}
+
+/* The tour marks the body while it runs; beacons step aside until it ends. */
+.driver-active .driver-hint {
+  display: none;
+}
