@@ -2,15 +2,12 @@
 import { defineComponent, h } from "vue";
 import { useDriver, DriverTour, type TourSlotProps } from "driver-vue";
 
-// A popover body as a Vue component. It receives the same props as the
-// `#popover` slot (TourSlotProps) plus anything from `popover.props`.
 const VideoStep = defineComponent({
   props: {
     popover: { type: Object, required: true },
     next: { type: Function, required: true },
     close: { type: Function, required: true },
     isLast: Boolean,
-    // From `popover.props`:
     emoji: { type: String, default: "🎬" },
   },
   setup: props => () =>

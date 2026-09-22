@@ -2,25 +2,15 @@ import { shallowReactive } from "vue";
 import type { Alignment, PopoverDOM, PopoverRenderModel, Side, StageRect } from "../types";
 import { isBrowser, resolveElement } from "./utils";
 
-// The hints module: beacons pinned to elements that open a popover on click.
-// Ported from driver.js hints.ts; the engine keeps the reactive HintsState and
-// <DriverHints> renders beacons, overlay and popover from it.
-
-// The cutout around the active hint's element, mirroring the tour's defaults.
 export const HINT_OVERLAY_PADDING = 10;
 export const HINT_OVERLAY_RADIUS = 5;
 
 export type HintBeacon = {
-  // Which edge of the element the beacon sits on, and where along that edge.
-  // Together they give the twelve anchor points of the element's box.
   side?: Side;
   align?: Alignment;
   animate?: boolean;
   className?: string;
 
-  // Nudge the beacon in pixels from its computed anchor point. Positive
-  // offsetX moves it right, negative left; positive offsetY moves it down,
-  // negative up. Handy for fine-tuning placement on large or irregular targets.
   offsetX?: number;
   offsetY?: number;
 };
@@ -34,14 +24,9 @@ export type HintPopover = {
   /** driver-vue addition: render the arrow pointing at the beacon/element. (default: true) */
   showArrow?: boolean;
 
-  // The dismiss button. Hidden with `showButton: false`, leaving a popover
-  // that is only dismissed programmatically.
   showButton?: boolean;
   buttonText?: string;
 
-  // Runs instead of dismissing when the button is clicked, like a tour's
-  // onNextClick takes over the default advance. Call dismiss() yourself to
-  // also remove the hint.
   onButtonClick?: HintHook;
 
   onPopoverRender?: (popover: PopoverDOM, opts: { hint: DriverHint; hints: Hints }) => void;
@@ -57,8 +42,6 @@ export type HintHook = (element: Element, hint: DriverHint, opts: { config: Hint
 export type DriverHint = {
   element: string | Element | (() => Element);
 
-  // Stable identity for open/dismiss/restore and for persisting dismissals.
-  // Defaults to the hint's index in the array.
   id?: string;
 
   beacon?: HintBeacon;
@@ -73,7 +56,6 @@ export type DriverHint = {
 export type HintsConfig = {
   hints?: DriverHint[];
 
-  // Defaults for every hint; a hint's own values win.
   beacon?: HintBeacon;
   buttonText?: string;
   popoverClass?: string;
@@ -81,10 +63,6 @@ export type HintsConfig = {
   /** driver-vue addition: render the popover arrow for every hint. (default: true) */
   showArrow?: boolean;
 
-  // Dim the page while a hint is open, with the hint's element cut out like a
-  // tour step. The popover then anchors to the element, the open hint's beacon
-  // steps aside, and the other beacons wait under the dim; clicking the dimmed
-  // page closes the hint.
   overlay?: boolean;
   overlayColor?: string;
   overlayOpacity?: number;
@@ -192,8 +170,6 @@ export const createHints = (config: HintsConfig = {}): Hints => {
 
   const beaconConfig = (hint: DriverHint): HintBeacon => ({ ...currentConfig.beacon, ...hint.beacon });
 
-  // The beacon is centered on its anchor point by CSS, so this only has to
-  // find the point itself.
   const positionBeacon = (entry: MountedHint) => {
     const { side = "top", align = "end", offsetX = 0, offsetY = 0 } = beaconConfig(entry.hint);
     const rect = entry.element.getBoundingClientRect();
@@ -215,8 +191,6 @@ export const createHints = (config: HintsConfig = {}): Hints => {
     entry.pageY = entry.y + window.scrollY;
   };
 
-  // Hide the beacon when its element scrolls out of view (or out of a
-  // scrollable container), so it never floats over unrelated UI.
   const observeVisibility = (entry: MountedHint) => {
     if (typeof IntersectionObserver === "undefined") {
       return;
@@ -235,9 +209,6 @@ export const createHints = (config: HintsConfig = {}): Hints => {
   };
 
   const mountHint = (hint: DriverHint, id: string) => {
-    // A hint without an anchor has nothing to point at. It is skipped rather
-    // than centered like a tour's element-less popover, and picked up on the
-    // next show() if the element appears later.
     const element = resolveElement(hint.element);
     if (!element) {
       return;
@@ -302,8 +273,6 @@ export const createHints = (config: HintsConfig = {}): Hints => {
       }
 
       const target = event.target as Node;
-      // Clicks on the popover keep it open; clicks on a beacon are already
-      // handled by the beacon itself (which toggles or swaps the popover).
       if (popoverDom?.wrapper.contains(target) || [...beacons.values()].some(beacon => beacon.contains(target))) {
         return;
       }
@@ -316,16 +285,11 @@ export const createHints = (config: HintsConfig = {}): Hints => {
         return;
       }
 
-      // Escape came from the keyboard, so send focus back where it started.
       const beacon = beacons.get(state.activeId);
       close();
       beacon?.focus();
     };
 
-    // Capture, so scrolling inside a nested container repositions the beacons
-    // too; those events never reach the window during the bubble phase. The
-    // refresh runs in the event itself so it lands in the same frame; the
-    // page scroll needs no repositioning at all (the beacons are absolute).
     window.addEventListener("scroll", refresh, true);
     window.addEventListener("resize", requireRefresh);
     document.addEventListener("click", onDocumentClick);
@@ -338,10 +302,6 @@ export const createHints = (config: HintsConfig = {}): Hints => {
       () => window.removeEventListener("keyup", onKeyup),
     ];
 
-    // A tour takes over the screen, so an open hint steps aside. The tour
-    // marks the body while it runs, which lets this work with any driver
-    // instance without the two knowing about each other. The beacons
-    // themselves are hidden by CSS off the same marker.
     if (typeof MutationObserver === "undefined") {
       return;
     }
@@ -364,8 +324,6 @@ export const createHints = (config: HintsConfig = {}): Hints => {
     return { x: rect.x, y: rect.y, width: rect.width, height: rect.height };
   };
 
-  // With the overlay, the popover anchors to the element like a tour step;
-  // without it, to the beacon.
   const popoverAnchor = (entry: MountedHint): Element | StageRect => {
     if (currentConfig.overlay) {
       return entry.element;
@@ -385,8 +343,6 @@ export const createHints = (config: HintsConfig = {}): Hints => {
       title: hintPopover.title,
       description: hintPopover.description,
 
-      // A hint is a single self-contained callout: one dismiss button, no
-      // navigation, no progress, and no separate close button.
       showButtons: showButton ? ["next"] : [],
       disableButtons: [],
       showProgress: false,
@@ -401,8 +357,6 @@ export const createHints = (config: HintsConfig = {}): Hints => {
       side: hintPopover.side || "bottom",
       align: hintPopover.align || "start",
       offset: currentConfig.popoverOffset ?? 10,
-      // Overlay mode reads like a tour step: the popover clears the cutout
-      // ring and lines up with its edge.
       padding: currentConfig.overlay ? HINT_OVERLAY_PADDING : 0,
       centered: false,
       smoothScroll: false,
@@ -410,7 +364,6 @@ export const createHints = (config: HintsConfig = {}): Hints => {
       component: hintPopover.component,
       componentProps: hintPopover.props,
 
-      // Resolved at click time so a hook set after render is still picked up.
       onNextClick: () => {
         const onButtonClick = hintPopover.onButtonClick || currentConfig.onButtonClick;
         if (onButtonClick) {
@@ -447,7 +400,6 @@ export const createHints = (config: HintsConfig = {}): Hints => {
       return;
     }
 
-    // Only one hint is open at a time; opening another swaps it out.
     close();
 
     state.activeId = entry.id;
@@ -507,7 +459,6 @@ export const createHints = (config: HintsConfig = {}): Hints => {
     mountHint(list[index], key);
   };
 
-  // Bring back every dismissed hint at once; the bulk counterpart to restore().
   const restoreAll = () => {
     dismissed.clear();
     if (state.isVisible) {
@@ -517,8 +468,6 @@ export const createHints = (config: HintsConfig = {}): Hints => {
 
   const refresh = () => {
     state.mounted.forEach(positionBeacon);
-    // Components re-measure on every refresh (the beacons' origin, the
-    // popover position), not only while a popover is open.
     state.refreshTick++;
 
     const active = state.activeId ? find(state.activeId) : undefined;
@@ -543,8 +492,6 @@ export const createHints = (config: HintsConfig = {}): Hints => {
       bindListeners();
     }
 
-    // mountHints() skips what is already on the page, so calling show() again
-    // picks up hints whose elements have appeared since.
     mountHints();
     refresh();
   };
@@ -602,8 +549,6 @@ export const createHints = (config: HintsConfig = {}): Hints => {
     __internal: {
       registerBeacon: (id, element) => {
         beacons.set(id, element);
-        // The popover of a hint opened before its beacon mounted anchors to a
-        // point; switch it to the real beacon now.
         if (state.activeId === id && !currentConfig.overlay && state.popover) {
           state.popoverAnchor = element;
         }

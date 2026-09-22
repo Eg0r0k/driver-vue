@@ -65,10 +65,6 @@ const onKeyup = (ctx: Context, e: KeyboardEvent) => {
   }
 };
 
-// The popover's own buttons stop propagation, so anything reaching this
-// bubble-phase listener is a click on the page itself (or on free content
-// inside the popover, which is never inside the active element). Bubble also
-// means the app's own handlers have already run.
 const onDocumentClick = (ctx: Context, e: MouseEvent) => {
   const activeElement = ctx.getState("__activeElement");
   const target = e.target as Element | null;
@@ -80,7 +76,6 @@ const onDocumentClick = (ctx: Context, e: MouseEvent) => {
 };
 
 export const initEvents = (ctx: Context) => {
-  // Stashed in state so destroyEvents can detach these exact references.
   const onWindowKeyup = (e: KeyboardEvent) => onKeyup(ctx, e);
   const onWindowKeydown = (e: KeyboardEvent) => trapFocus(ctx, e);
   const onWindowResize = () => requireRefresh(ctx);

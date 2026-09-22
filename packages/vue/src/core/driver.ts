@@ -199,8 +199,6 @@ export const createDriver = (options: Config = {}): Driver => {
     cancel();
   };
 
-  // Re-resolves the step's element on every DOM mutation rather than polling;
-  // this also covers function elements, since they query the mutated DOM.
   const waitForStepElement = (step: DriveStep, timeout: number, onSettled: () => void) => {
     const settle = () => {
       observer.disconnect();
@@ -243,8 +241,6 @@ export const createDriver = (options: Config = {}): Driver => {
 
     const currentStep = steps[stepIndex];
 
-    // The current step stays highlighted while waiting; a timeout falls
-    // through to the usual missing-element handling below.
     const waitTimeout = currentStep.waitForElement ?? ctx.getConfig("waitForElement") ?? 0;
     if (!hasWaitedForElement && waitTimeout > 0 && currentStep.element && !resolveElement(currentStep.element)) {
       waitForStepElement(currentStep, waitTimeout, () => drive(stepIndex, true));
@@ -296,9 +292,6 @@ export const createDriver = (options: Config = {}): Driver => {
     const activeOnDestroyed = ctx.getState("__activeOnDestroyed");
 
     const onDestroyStarted = ctx.getConfig("onDestroyStarted");
-    // `onDestroyStarted` is used to confirm the exit of tour. If we trigger
-    // the hook for when user calls `destroy`, driver will get into infinite loop
-    // not causing tour to be destroyed.
     if (withOnDestroyStartedHook && onDestroyStarted) {
       const isActiveDummyElement = !activeElement || isDummyElement(activeElement);
       onDestroyStarted(isActiveDummyElement ? undefined : activeElement, activeStep!, ctx.getHookOpts());
@@ -321,7 +314,6 @@ export const createDriver = (options: Config = {}): Driver => {
 
     const stateBeforeDestroy = ctx.getState();
 
-    // Clearing the state unmounts the overlay, the stage and the popover.
     ctx.resetState();
 
     if (activeElement && activeStep) {
@@ -341,8 +333,6 @@ export const createDriver = (options: Config = {}): Driver => {
   };
 
   const reportPopoverDom = (dom: PopoverDOM) => {
-    // Commit the popover to state before the user hook runs; the hook's
-    // opts.state.popover has always pointed at the freshly rendered popover.
     ctx.setState("popover", dom);
 
     const activeStep = ctx.getState("activeStep");

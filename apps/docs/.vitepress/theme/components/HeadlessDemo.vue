@@ -62,11 +62,6 @@ const cutout = computed(() => {
     </DemoBox>
 
     <Teleport to="body">
-      <!-- A box-shadow overlay: the cutout is a fixed div with a huge shadow.
-           A box-shadow cannot catch clicks, so the click layer is a separate
-           full-screen div under it. Both it and the card carry
-           `driver-interactive`, or the tour's page-wide
-           `pointer-events: none` would swallow every click. -->
       <template v-if="isActive && stage">
         <div class="hl-click-layer driver-interactive" @click="driver.destroy()" />
         <div class="hl-cutout" :style="cutout" />

@@ -34,7 +34,6 @@ const removeDynamicElement = () => {
 
 const { drive, driver } = useDriver({
   showProgress: true,
-  // The element belongs to the tour, so it is cleaned up when the tour ends.
   onDestroyed: removeDynamicElement,
   steps: [
     {

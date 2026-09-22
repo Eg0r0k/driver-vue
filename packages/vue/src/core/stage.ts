@@ -1,9 +1,5 @@
 import type { StageRect } from "../types";
 
-// Pure geometry of the stage, the cutout in the full-screen dim that keeps
-// the highlighted element visible. Shared by the tour and hints overlays,
-// each passing its own padding and radius.
-
 export type StageOptions = {
   padding: number;
   radius: number;
@@ -30,7 +26,6 @@ export const getPaddedStage = (stage: StageRect, padding: number): StageRect => 
   height: stage.height + padding * 2,
 });
 
-// The full-screen dim with a rounded cutout, as a single evenodd path.
 export const generateStageSvgPathString = (
   stage: StageRect,
   options: StageOptions,
@@ -45,7 +40,6 @@ export const generateStageSvgPathString = (
   const stageWidth = stage.width + stagePadding * 2;
   const stageHeight = stage.height + stagePadding * 2;
 
-  // prevent glitches when stage is too small for radius
   const limitedRadius = Math.min(stageRadius, stageWidth / 2, stageHeight / 2);
 
   const normalizedRadius = Math.floor(Math.max(limitedRadius, 0));

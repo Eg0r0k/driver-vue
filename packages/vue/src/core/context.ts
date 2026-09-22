@@ -2,15 +2,6 @@ import { shallowReactive } from "vue";
 import type { Config, Driver, DriverState, GetConfig, GetState, HookOpts, SetState, State } from "../types";
 import { easeInOutQuad } from "./utils";
 
-// Per-instance config, state and emitter, threaded through the helpers so
-// nothing falls back to shared module-level state.
-//
-// The engine works on the plain driver.js `State` (public keys plus the `__`
-// internals). Every public key it writes is mirrored into `state`, a
-// shallowReactive `DriverState`, which is what the components render from.
-// Vue-only fields (stage, transitioning, popover model, refreshTick) live in
-// the reactive state only and are written directly by the engine.
-
 export const createDefaultConfig = (): Config => ({
   animate: true,
   duration: 400,
@@ -68,7 +59,6 @@ export const createInitialState = (): DriverState => ({
   refreshTick: 0,
 });
 
-// Plain state keys whose writes are mirrored into the reactive state.
 const MIRRORED: { [K in keyof State]?: keyof DriverState } = {
   isInitialized: "isActive",
   activeIndex: "activeIndex",

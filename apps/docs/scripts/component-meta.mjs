@@ -1,6 +1,3 @@
-// Generates apps/docs/api/components.md from the components' props, events,
-// slots and exposed members, using vue-component-meta on the library's
-// tsconfig so the tables always match the source.
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { createChecker } from "vue-component-meta";

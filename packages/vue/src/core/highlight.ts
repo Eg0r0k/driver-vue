@@ -34,10 +34,6 @@ const rectOf = (element: Element): StageRect => {
 export const highlight = (ctx: Context, step: DriveStep) => {
   let elemObj = resolveElement(step.element);
 
-  // If the element is not found, we mount a 1px div
-  // at the center of the screen to highlight and show
-  // the popover on top of that. This is to show a
-  // modal-like highlight.
   if (!elemObj) {
     elemObj = mountDummyElement();
   }
@@ -45,7 +41,6 @@ export const highlight = (ctx: Context, step: DriveStep) => {
   transferHighlight(ctx, elemObj, step);
 };
 
-// The stage snaps to the element's current box and the components re-measure.
 export const trackActiveElement = (ctx: Context, element: Element) => {
   if (!element) {
     return;
@@ -68,8 +63,6 @@ export const refreshActiveHighlight = (ctx: Context) => {
   ctx.state.refreshTick++;
 };
 
-// One frame of the stage animation: the cutout eases from where it was when
-// the transfer started to the target element's box.
 const transitionStage = (ctx: Context, elapsed: number, duration: number, from: StageRect, to: Element) => {
   const easing = ctx.getConfig("easing") || easeInOutQuad;
   const progress = easing(Math.min(Math.max(elapsed / duration, 0), 1));
@@ -95,9 +88,6 @@ const transferHighlight = (ctx: Context, toElement: Element, toStep: DriveStep) 
   const fromStep = ctx.getState("__activeStep");
   const fromElement = ctx.getState("__activeElement") || toElement;
 
-  // If it's the first time we're highlighting an element, we show
-  // the popover immediately. Otherwise, we wait for the animation
-  // to finish before showing the popover.
   const isFirstHighlight = !fromElement || fromElement === toElement;
   const isToDummyElement = isDummyElement(toElement);
   const isFromDummyElement = isDummyElement(fromElement);
@@ -127,8 +117,6 @@ const transferHighlight = (ctx: Context, toElement: Element, toStep: DriveStep) 
   ctx.setState("activeStep", toStep);
   ctx.setState("activeElement", toElement);
 
-  // Where the cutout starts from: the last known stage (mid-animation
-  // included) or, on the very first highlight, the element itself.
   const fromRect = ctx.getState("__activeStagePosition") || rectOf(fromElement);
   const isAnimatedTransfer = !!isAnimatedTour && !isFirstHighlight;
 
@@ -137,9 +125,6 @@ const transferHighlight = (ctx: Context, toElement: Element, toStep: DriveStep) 
   const animate = () => {
     const transitionCallback = ctx.getState("__transitionCallback");
 
-    // This makes sure that the repeated calls to transferHighlight
-    // don't interfere with each other. Only the last call will be
-    // executed.
     if (transitionCallback !== animate) {
       return;
     }
@@ -175,8 +160,6 @@ const transferHighlight = (ctx: Context, toElement: Element, toStep: DriveStep) 
 
   ctx.setState("__transitionCallback", animate);
 
-  // The first frame runs synchronously so the overlay and the stage render
-  // together with the popover; the loop continues on rAF.
   if (isAnimatedTransfer) {
     transitionStage(ctx, 0, duration, fromRect, toElement);
   } else {

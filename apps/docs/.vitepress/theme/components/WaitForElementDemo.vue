@@ -2,8 +2,6 @@
 import { ref } from "vue";
 import { useDriver, DriverTour } from "driver-vue";
 
-// Stands in for an app rendering a modal on demand: clicking the highlighted
-// button shows the "modal" ~800ms later, while the tour is already waiting.
 const modalOpen = ref(false);
 
 const openModal = () => {

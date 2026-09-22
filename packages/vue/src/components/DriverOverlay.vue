@@ -69,8 +69,6 @@ const pathStyle = computed(() => ({
   opacity: props.opacity,
 }));
 
-// Driver's own UI never leaks pointer events to the page underneath: the
-// dimmed path swallows the whole press sequence, and only the click is acted on.
 const swallow = (event: Event) => {
   event.preventDefault();
   event.stopPropagation();

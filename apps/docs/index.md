@@ -8,13 +8,7 @@ hero:
     alt: driver-vue
   text: Product tours you render with your own Vue components
   tagline: A port of driver.js whose popover, overlay, stage and hint beacons are Vue components. Same API, same class names, your markup.
-  actions:
-    - theme: alt
-      text: Get started
-      link: /guide/installation
-    - theme: alt
-      text: Your own components
-      link: /styling/custom-components
+  actions: []
 
 features:
   - title: Your components, not ours

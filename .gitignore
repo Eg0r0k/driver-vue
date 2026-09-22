@@ -12,3 +12,16 @@ apps/docs/.vitepress/dist
 apps/docs/.vitepress/cache
 apps/docs/api/reference
 apps/docs/api/components.md
+
+# AI agent artefacts (specs, plans, instructions, indexes)
+/docs/
+AGENTS.md
+CLAUDE.md
+.claude/
+.cursor/
+.cursorrules
+.windsurf/
+.windsurfrules
+.codegraph/
+.aider*
+copilot-instructions.md

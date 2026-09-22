@@ -1,9 +1,5 @@
 import type { Component } from "vue";
 
-// Public types. The names and members of Config, DriveStep, Popover, Driver,
-// State and the hook types match driver.js 1.8 so that a tour written for
-// driver.js can be passed to driver-vue unchanged. Additions are marked.
-
 export type Side = "top" | "right" | "bottom" | "left";
 export type Alignment = "start" | "center" | "end";
 export type AllowedButtons = "next" | "previous" | "close";
@@ -50,16 +46,13 @@ export type Popover = {
   /** driver-vue addition: render the arrow pointing at the element. (default: true) */
   showArrow?: boolean;
 
-  // Button texts
   progressText?: string;
   doneBtnText?: string;
   nextBtnText?: string;
   prevBtnText?: string;
 
-  // Called after the popover is rendered
   onPopoverRender?: (popover: PopoverDOM, opts: HookOpts) => void;
 
-  // Button callbacks
   onNextClick?: DriverHook;
   onPrevClick?: DriverHook;
   onCloseClick?: DriverHook;
@@ -112,24 +105,14 @@ export type Config = {
 
   disableActiveInteraction?: boolean;
 
-  // Advance the tour when the highlighted element is clicked, through the same
-  // hook resolution as the next button. The element's own click behaviour
-  // still runs; nothing is prevented. (default: false)
   advanceOnClick?: boolean;
 
-  // Skip a step whose target element is specified but missing from the DOM.
-  // Element-less steps are intentional centered steps and never skipped. (default: false)
   skipMissingElement?: boolean;
 
-  // Wait up to this many milliseconds for a step's missing element to appear
-  // before falling back to the usual missing-element behaviour (centered
-  // popover, or a skip when skipMissingElement is set). The current step
-  // stays highlighted while waiting. (default: 0, off)
   waitForElement?: number;
 
   allowKeyboardControl?: boolean;
 
-  // Popover specific configuration
   popoverClass?: string;
   popoverOffset?: number;
   /** driver-vue addition: render the popover arrow. (default: true) */
@@ -138,23 +121,19 @@ export type Config = {
   disableButtons?: AllowedButtons[];
   showProgress?: boolean;
 
-  // Button texts
   progressText?: string;
   nextBtnText?: string;
   prevBtnText?: string;
   doneBtnText?: string;
 
-  // Called after the popover is rendered
   onPopoverRender?: (popover: PopoverDOM, opts: HookOpts) => void;
 
-  // State based callbacks, called upon state changes
   onHighlightStarted?: DriverHook;
   onHighlighted?: DriverHook;
   onDeselected?: DriverHook;
   onDestroyStarted?: DriverHook;
   onDestroyed?: DriverHook;
 
-  // Event based callbacks, called upon events
   onNextClick?: DriverHook;
   onPrevClick?: DriverHook;
   onCloseClick?: DriverHook;
@@ -275,9 +254,6 @@ export type State = {
 
   popover?: PopoverDOM;
 
-  // actual values considering the animation
-  // and delays. These are used to determine
-  // the positions etc.
   __previousElement?: Element;
   __activeElement?: Element;
   __previousStep?: DriveStep;

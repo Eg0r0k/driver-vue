@@ -16,8 +16,6 @@ const driver = injectDriver();
 const router = useRouter();
 const route = useRoute();
 
-// Set while the tour itself navigates, so the destroy that comes with the
-// hand-off is not mistaken for the reader leaving the tour.
 let navigating = false;
 
 const normalize = (path: string) => path.replace(/(index)?\.html$/, "").replace(/\/$/, "");
@@ -32,7 +30,7 @@ const save = () => {
       localStorage.removeItem(STORAGE_KEY);
     }
   } catch {
-    // Private mode, no storage: the tour still works within the session.
+    return;
   }
 };
 
@@ -53,8 +51,6 @@ const goTo = (index: number) => {
   tourState.value = { active: true, index };
   save();
 
-  // Same page: an ordinary move. Another page: remember where to resume,
-  // tear the tour down and navigate; the next page drives it on mount.
   if (normalize(step.page) === currentPage.value) {
     if (index > from) {
       driver.value.moveNext();
@@ -95,7 +91,6 @@ const resume = async () => {
     return;
   }
 
-  // Let the page render its elements before the driver looks for them.
   await nextTick();
   driver.value.setConfig(config.value);
   driver.value.drive(tourState.value.index);
@@ -115,9 +110,6 @@ const start = () => {
 };
 
 onMounted(() => {
-  // VitePress unmounts the page content on navigation, so every page picks the
-  // tour up here. In an app the tour lives in the layout and a watch on the
-  // route does this instead.
   navigating = false;
 
   const saved = localStorage.getItem(STORAGE_KEY);
@@ -125,8 +117,6 @@ onMounted(() => {
     tourState.value = { active: true, index: Number(saved) };
   }
 
-  // The reader navigated by hand in the middle of the tour: end it instead of
-  // leaving an overlay highlighting elements that are no longer here.
   const step = currentStep.value;
   if (tourState.value.active && step && normalize(step.page) !== currentPage.value) {
     finish();
@@ -137,8 +127,6 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
-  // Leaving the two example pages by hand ends the tour; a hand-off between
-  // them sets `navigating` first, so that one survives.
   if (!navigating) {
     finish();
   }
@@ -158,8 +146,6 @@ onUnmounted(() => {
       <a v-else :href="PAGE_ONE">← Back to page one</a>
     </p>
 
-    <!-- The progress indicator a layout would render: it reads the shared
-         state, so it survives the navigation the tour makes. -->
     <Teleport to="body">
       <div v-if="tourState.active" class="mp-progress driver-interactive">
         <span>Tour · step {{ tourState.index + 1 }} of {{ steps.length }} · {{ currentStep?.label }}</span>

@@ -42,7 +42,6 @@ if (typeof process !== "undefined" && process.env?.NODE_ENV !== "production" && 
   console.warn("[driver-vue] <DriverTour> has no driver: pass the `driver` prop or install DriverPlugin.");
 }
 
-// Nothing renders on the server or before hydration; the tour is client-only.
 const mounted = ref(false);
 onMounted(() => {
   mounted.value = true;
@@ -50,7 +49,6 @@ onMounted(() => {
 
 const state = computed(() => driver.value?.state);
 
-// Config is not reactive; it is read again whenever the tour (re)activates.
 const config = computed(() => {
   void state.value?.isActive;
   return driver.value?.getConfig() ?? {};
@@ -128,15 +126,11 @@ const onPopoverRender = (dom: PopoverDOM) => {
 };
 
 const onPopoverUnrender = (dom: PopoverDOM) => {
-  // Only clear what is still the reported popover; a newer one may already be up.
   if (driver.value?.getState("popover") === dom) {
     driver.value.__internal.clearPopoverDom();
   }
 };
 
-// Popover part slots that were actually provided are forwarded to the
-// popover; the rest keep the popover's default content. `popover` is
-// forwarded separately as the popover's default slot.
 const slots = useSlots();
 const popoverSlots = ["arrow", "close", "title", "description", "footer", "progress", "prev", "next"] as const;
 const forwardedSlots = computed(() => popoverSlots.filter(name => !!slots[name]));

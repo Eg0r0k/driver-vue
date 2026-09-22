@@ -22,8 +22,6 @@ const { drive, moveNext, movePrevious, destroy, isActive, activeIndex, isFirstSt
   <div class="demo">
     <DemoBox prefix="comp">
       <template #footer>
-        <!-- `driver-interactive` keeps these controls clickable while the tour
-             dims the page; the z-index lift puts them above the overlay. -->
         <div class="demo-row comp-controls driver-interactive">
           <button type="button" class="demo-button" @click="drive()">Start</button>
           <button
@@ -52,8 +50,6 @@ const { drive, moveNext, movePrevious, destroy, isActive, activeIndex, isFirstSt
 </template>
 
 <style>
-/* `driver-interactive` (shipped by driver-vue/style.css) restores the pointer
-   events; the controls still have to be lifted above the overlay to be seen. */
 .driver-active .comp-controls {
   position: relative;
   z-index: calc(var(--driver-z-index, 10000) + 2);

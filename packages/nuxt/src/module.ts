@@ -47,7 +47,6 @@ export default defineNuxtModule<ModuleOptions>({
   setup: (options, nuxt) => {
     const resolver = createResolver(import.meta.url);
 
-    // Runtime config from nuxt.config wins over the module option, key by key.
     const existing = (nuxt.options.runtimeConfig.public.driver ?? {}) as Partial<ModulePublicRuntimeConfig["driver"]>;
     nuxt.options.runtimeConfig.public.driver = {
       ...existing,

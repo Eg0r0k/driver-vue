@@ -1,10 +1,6 @@
 <script setup lang="ts">
 import { injectDriver } from "driver-vue";
 
-/**
- * The hero's "Try it" action: runs a short tour over the home page itself
- * using the shared driver, styled like the default theme's brand button.
- */
 const shared = injectDriver({ optional: true });
 
 const run = () => {
@@ -50,6 +46,12 @@ const run = () => {
 <template>
   <div class="action">
     <button type="button" class="VPButton medium brand try-it" @click="run">▶ Try it</button>
+  </div>
+  <div class="action">
+    <a class="VPButton medium alt" href="/guide/installation">Get started</a>
+  </div>
+  <div class="action">
+    <a class="VPButton medium alt" href="/styling/custom-components">Your own components</a>
   </div>
 </template>
 

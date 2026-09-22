@@ -11,8 +11,6 @@ import {
 } from "@floating-ui/vue";
 import type { Alignment, Side, StageRect } from "../types";
 
-// Keep the arrow this far from the popover's corners so it never collides with
-// the rounded corners (driver.js ARROW_CORNER_INSET).
 export const ARROW_CORNER_INSET = 15;
 
 /** The viewport padding the popover keeps clear of the edges. */
@@ -78,13 +76,7 @@ const toPlacement = (side: Side, align: Alignment): Placement => (align === "cen
 
 type Box = { top: number; bottom: number; left: number; right: number };
 
-// Decides which popover edge the arrow sits on. Normally this is the rendered
-// side, but when the element scrolls clear of the popover along that side's
-// axis (e.g. a left-placed popover whose element has scrolled above it), the
-// arrow moves to the perpendicular edge so it keeps pointing at the element
-// instead of sliding into a corner and pointing into empty space. (driver.js)
 export const resolveArrowSide = (side: Side, element: Box, popover: Box): Side => {
-  // Nothing measured yet (no layout): keep the arrow on the placement side.
   if (popover.bottom - popover.top <= 0 || popover.right - popover.left <= 0) {
     return side;
   }
@@ -106,8 +98,6 @@ export const resolveArrowSide = (side: Side, element: Box, popover: Box): Side =
   return element.right <= popover.left ? "right" : "left";
 };
 
-// The offset of the arrow along an edge so its tip aims at the center of the
-// overlap between the element and the popover, clamped clear of the corners.
 export const arrowOffsetAlong = (
   elementStart: number,
   elementEnd: number,
@@ -145,8 +135,6 @@ export const useDriverPosition = (options: UseDriverPositionOptions): UseDriverP
   const padding = computed(() => toValue(options.padding) ?? 0);
   const isCentered = computed(() => !!toValue(options.centered));
 
-  // A virtual element that reads the live rect of the reference on every
-  // update; `contextElement` lets autoUpdate follow ancestor scroll/resize.
   const reference = computed<VirtualElement | null>(() => {
     const value = toValue(options.reference);
     if (!value || isCentered.value) {
@@ -170,9 +158,6 @@ export const useDriverPosition = (options: UseDriverPositionOptions): UseDriverP
   const middleware = computed(() => [
     offset(toValue(options.offset) ?? 0),
     flip({ padding: VIEWPORT_PADDING }),
-    // Both axes: when the element scrolls out of the viewport the popover
-    // stays pinned inside it (at the edge nearest the element), as driver.js
-    // does, instead of following the element off-screen.
     shift({ padding: VIEWPORT_PADDING, crossAxis: true }),
     ...(options.arrow ? [arrow({ element: options.arrow, padding: ARROW_CORNER_INSET })] : []),
   ]);
@@ -204,10 +189,6 @@ export const useDriverPosition = (options: UseDriverPositionOptions): UseDriverP
     return floating.floatingStyles.value as CSSProperties;
   });
 
-  // The reference and popover boxes as of the last positioning. Measured
-  // after the DOM has been updated with the new coordinates (post-flush), so
-  // the arrow is decided against where the popover actually is, not where it
-  // was on the previous update.
   const boxes = shallowRef<{ element: Box; popover: Box } | undefined>();
 
   watch(
@@ -244,8 +225,6 @@ export const useDriverPosition = (options: UseDriverPositionOptions): UseDriverP
       return {};
     }
 
-    // The arrow sits on the popover's edge facing the reference; the CSS
-    // side class puts it on the right edge, only the offset along it is inline.
     if (arrowSide.value === rendered.value.side || !boxes.value) {
       return {
         left: data.x != null ? `${data.x}px` : "",
@@ -253,7 +232,6 @@ export const useDriverPosition = (options: UseDriverPositionOptions): UseDriverP
       };
     }
 
-    // Relocated to the perpendicular edge: aim along that edge ourselves.
     const { element, popover } = boxes.value;
     const size = options.arrow?.value?.getBoundingClientRect().width || 10;
     if (arrowSide.value === "top" || arrowSide.value === "bottom") {

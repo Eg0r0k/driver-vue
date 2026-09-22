@@ -1,7 +1,3 @@
-/* driver-vue default styles. Every value that driver.js hard-coded is a custom
-   property here, so a theme is a handful of variables; the class names are the
-   same as driver.js, so existing driver.js themes keep working. */
-
 :root {
   --driver-z-index: 10000;
   --driver-animation-duration: 400ms;
@@ -61,7 +57,6 @@
   pointer-events: auto;
 }
 
-/* Disable the scrolling of a scrollable parent that holds an active element */
 .driver-active-element-parent-no-scroll {
   overflow: hidden !important;
 }
@@ -71,10 +66,6 @@
   pointer-events: none !important;
 }
 
-/* Opt-in for your own UI rendered outside the popover while a tour runs
-   (headless cards, custom overlays, page controls): the tour disables pointer
-   events page-wide, this turns them back on. Give the element a z-index above
-   the overlay (`--driver-z-index` + 2) as well. */
 .driver-active .driver-interactive,
 .driver-active .driver-interactive * {
   pointer-events: auto;
@@ -102,9 +93,6 @@
   cursor: auto;
 }
 
-/* Box overlay (DriverBoxOverlay): a full-screen click catcher whose cutout
-   child dims the page through its box-shadow. The cutout is a real element,
-   so its movement can be a CSS transition when the engine is not animating. */
 .driver-box-overlay {
   position: fixed;
   inset: 0;
@@ -126,9 +114,6 @@
   transition-timing-function: var(--driver-animation-easing);
 }
 
-/* The page must stay interactive inside the cutout, so the overlay itself
-   only catches clicks on the dimmed part: pointer events pass through the
-   root and land on the shadow-painting cutout's surroundings. */
 .driver-active .driver-box-overlay {
   pointer-events: none;
 }
@@ -150,8 +135,6 @@
   pointer-events: none;
 }
 
-/* With the engine animation off, the stage box glides between elements on
-   its own, using the same duration/easing variables as everything else. */
 .driver-simple .driver-stage {
   transition-property: left, top, width, height, border-radius;
   transition-duration: var(--driver-animation-duration);
@@ -301,15 +284,12 @@
   margin-left: 4px;
 }
 
-/* Arrow: a CSS triangle whose visible side is set by the side class. The
-   offset along the edge is set inline so the tip points at the element. */
 .driver-popover-arrow {
   content: "";
   position: absolute;
   border: var(--driver-popover-arrow-size) solid var(--driver-popover-arrow-color);
 }
 
-/* Popover on the left of the element: arrow on the popover's right edge. */
 .driver-popover-arrow-side-left {
   left: 100%;
   border-right-color: transparent;
@@ -347,9 +327,6 @@
    Hints
    --------------------------------------------------------------------------- */
 
-/* Beacons are absolutely positioned in document coordinates, so they scroll
-   with the page natively (a fixed element repositioned from JS trails the
-   scroll by a frame). The `.driver-hints` root marks the origin. */
 .driver-hints {
   position: absolute;
   top: 0;
@@ -366,13 +343,12 @@
   width: var(--driver-hint-size);
   height: var(--driver-hint-size);
   cursor: pointer;
-  /* Below the overlay, so other beacons dim with the page while a hint is open. */
+
   z-index: calc(var(--driver-z-index) - 4);
-  /* Centered on the anchor point that the script sets inline. */
+
   transform: translate(-50%, -50%);
 }
 
-/* The open hint's beacon rises above the overlay, next to its popover. */
 .driver-hint[aria-expanded="true"] {
   z-index: calc(var(--driver-z-index) - 2);
 }
@@ -395,8 +371,7 @@
 .driver-hint-pulse {
   inset: 0;
   opacity: 0.6;
-  /* Scales past the button box; without this the invisible ring would
-     extend the click target and swallow clicks meant for the page. */
+
   pointer-events: none;
   animation: driver-hint-pulse var(--driver-hint-animation-duration) ease-out infinite;
 }
@@ -428,19 +403,15 @@
   }
 }
 
-/* A larger arrow than the tour's, proportionate to the beacon. */
 .driver-hint-popover {
   --driver-popover-arrow-size: 7px;
 }
 
-/* box-shadow stops at the popover's box, leaving the protruding arrow flat.
-   A drop-shadow filter follows the rendered silhouette instead. */
 .driver-hint-popover.driver-popover {
   box-shadow: none;
   filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.25)) drop-shadow(0 4px 12px rgba(0, 0, 0, 0.2));
 }
 
-/* The opt-in dim with the hint's element cut out. */
 .driver-hint-overlay {
   position: fixed;
   inset: 0;
@@ -465,7 +436,6 @@
   }
 }
 
-/* The tour marks the body while it runs; beacons step aside until it ends. */
 .driver-active .driver-hint {
   display: none;
 }

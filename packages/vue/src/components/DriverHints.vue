@@ -47,10 +47,6 @@ onMounted(() => {
   mounted.value = true;
 });
 
-// Beacons and the popover are positioned absolutely inside this root so they
-// scroll with the page natively. The root sits at the teleport target's
-// origin; its document offset is measured (once, and on refresh) and
-// subtracted from the document coordinates the engine computes.
 const root = useTemplateRef<HTMLElement>("root");
 const origin = ref({ x: 0, y: 0 });
 
@@ -103,8 +99,6 @@ const overlayPathStyle = computed(() => ({
   pointerEvents: "auto" as const,
 }));
 
-// In overlay mode the spotlight does the pointing, so the beacon steps aside
-// while its popover is up and the popover frames the element.
 const visibleBeacons = computed(() => state.value.mounted.filter(entry => !(config.value.overlay && entry.expanded)));
 
 const scopeFor = (entry: MountedHint): HintScope => ({

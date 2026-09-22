@@ -18,7 +18,6 @@ const { drive, driver } = useDriver({
     },
     { popover: { title: "Last step", description: "On the last step the tour closes without asking." } },
   ],
-  // onDestroyStarted is called when the user tries to exit the tour
   onDestroyStarted: () => {
     if (!driver.hasNextStep() || confirm("Are you sure you want to leave the tour?")) {
       driver.destroy();

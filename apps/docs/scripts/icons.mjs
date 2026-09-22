@@ -1,6 +1,3 @@
-// Renders the PNG icons the docs need (favicon, apple touch icon, social
-// image) from the repository logo, so `logo.svg` at the root stays the single
-// source. Runs as part of the docs build.
 import { readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { Resvg } from "@resvg/resvg-js";

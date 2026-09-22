@@ -46,10 +46,6 @@ const panels = (stage: { x: number; y: number; width: number; height: number }, 
     <ClientOnly>
       <DriverTour :driver="driver">
         <template #overlay="{ stage, padding, zIndex, onClick }">
-          <!-- The panels carry `driver-interactive` so the tour's page-wide
-               `pointer-events: none` cannot swallow the overlay click. The
-               root stays inert, so clicks inside the cutout still reach the
-               highlighted element. -->
           <div class="frost" :style="{ zIndex }" @click="onClick">
             <div
               v-for="(style, i) in panels(stage, padding)"

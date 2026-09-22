@@ -1,14 +1,9 @@
-/* Docs-only styles: demo boxes and the themes used by the styling examples. */
-
 :root {
-  /* A readable blue for links, badges and buttons; the indigo default was
-     hard to read on the page. Dark mode lightens it below. */
   --vp-c-brand-1: #3866e8;
   --vp-c-brand-2: #2f57cc;
   --vp-c-brand-3: #2547ad;
   --vp-c-brand-soft: rgba(56, 102, 232, 0.14);
 
-  /* The sandbox frame: a dashed accent border and faint diagonal stripes. */
   --docs-sandbox-line: rgba(79, 70, 229, 0.55);
   --docs-sandbox-stripe: rgba(79, 70, 229, 0.04);
   --docs-sandbox-badge: var(--vp-c-brand-1);
@@ -36,8 +31,6 @@
   margin: 0 0 8px;
 }
 
-/* Every demo target lives in here. It is styled to look like a sandbox and
-   not like documentation: dashed accent border, striped tint, corner badge. */
 .demo-box {
   position: relative;
   border: 2px dashed var(--docs-sandbox-line);
@@ -67,8 +60,6 @@
   text-transform: uppercase;
 }
 
-/* <Demo> wraps its sample content in the frame, and that content is often a
-   <DemoBox>. The inner frame collapses so there is only ever one. */
 .demo-box .demo-box {
   border: 0;
   border-radius: 0;
@@ -102,7 +93,6 @@
   margin-top: 0;
 }
 
-/* The fake app inside the sandbox. */
 .demo-app-head {
   display: flex;
   align-items: center;
@@ -216,8 +206,6 @@
   overflow: auto;
 }
 
-/* Filler that pushes the second box of the Smooth Scroll example a screen
-   down, so the scrolling between steps is actually visible. */
 .smooth-spacer {
   display: grid;
   place-items: center;
@@ -231,8 +219,6 @@
   text-align: center;
 }
 
-/* The classic driver.js yellow theme, used by several examples. Works
-   unchanged in driver-vue because the class names are the same. */
 .driver-popover.driverjs-theme {
   --driver-popover-bg: #fde047;
   --driver-popover-color: #000;
@@ -259,7 +245,6 @@
   gap: 3px;
 }
 
-/* Dark theme via variables only (see ThemeDemo). */
 .driver-popover.docs-dark-theme {
   --driver-popover-bg: #18181b;
   --driver-popover-color: #f4f4f5;
@@ -282,7 +267,6 @@
   padding: 6px 12px;
 }
 
-/* Hint beacon variants (see Styling Hints). */
 .docs-hint-rose {
   --driver-hint-color: #e11d48;
 }
@@ -292,7 +276,6 @@
   --driver-hint-size: 32px;
 }
 
-/* Glow stage (see Highlight Animation). */
 .docs-glow .driver-stage {
   box-shadow:
     0 0 0 2px rgba(99, 102, 241, 0.9),
@@ -319,7 +302,6 @@
   }
 }
 
-/* Slide-in popover transition (see Highlight Animation). */
 .docs-slide .driver-popover-enter-active {
   transition:
     opacity 300ms ease-out,
@@ -339,8 +321,6 @@
   opacity: 0;
 }
 
-/* The card the Async Tour demo creates on the fly, inside the sandbox box and
-   in normal flow (see AsyncTourDemo.vue). */
 .dynamic-el {
   display: block;
   padding: 12px 14px;
@@ -356,7 +336,6 @@
   font-size: 14px;
 }
 
-/* Home hero: the logo on the right, large. */
 .VPHero .image-container {
   transform: none;
 }

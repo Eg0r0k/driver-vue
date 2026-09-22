@@ -2,10 +2,6 @@ import type { Context } from "./context";
 import type { AllowedButtons, DriverHook, DriveStep, PopoverRenderModel } from "../types";
 import { isDummyElement, resolveElement } from "./utils";
 
-// Bridges the tour and the popover: a step's popover resolves here against
-// the instance config (step value first, then the global default, then the
-// built-in fallback) into a PopoverRenderModel that the components render.
-
 const DEFAULT_PROGRESS_TEXT = "{{current}} of {{total}}";
 
 let popoverKey = 0;
@@ -19,11 +15,6 @@ export const shouldSkipStep = (ctx: Context, step: DriveStep): boolean => {
   return !resolveElement(step.element);
 };
 
-// The index navigation would actually land on, starting at fromIndex
-// (inclusive) and walking in the given direction past any skipped steps.
-// Resolved against the live DOM, so the answer can change as elements mount
-// and unmount; every first/last-step decision goes through here so the done
-// button and the tour's real end always agree.
 export const findReachableIndex = (ctx: Context, fromIndex: number, direction: 1 | -1): number | undefined => {
   const steps = ctx.getConfig("steps") || [];
 
@@ -36,8 +27,6 @@ export const findReachableIndex = (ctx: Context, fromIndex: number, direction: 1
   return undefined;
 };
 
-// On the final step the next button acts as the done button, so a dedicated
-// onDoneClick takes precedence over onNextClick when provided.
 export const resolveNextHook = (ctx: Context, step?: DriveStep): DriverHook | undefined => {
   const activeIndex = ctx.getState("activeIndex");
   const isLastStep = activeIndex !== undefined && findReachableIndex(ctx, activeIndex + 1, 1) === undefined;
@@ -56,16 +45,12 @@ export const resolvePrevHook = (ctx: Context, step?: DriveStep): DriverHook | un
 export const resolveCloseHook = (ctx: Context, step?: DriveStep): DriverHook | undefined =>
   step?.popover?.onCloseClick || ctx.getConfig("onCloseClick");
 
-// Default button actions passed in by the tour, which alone knows how to
-// navigate and destroy; a hook from the step or the config wins over them.
 export type TourStepDefaults = {
   onNextClick: DriverHook;
   onPrevClick: DriverHook;
   onCloseClick: DriverHook;
 };
 
-// The resolved step is what ends up in state and what the lifecycle hooks
-// receive, not just what gets rendered.
 export const resolveTourStep = (ctx: Context, stepIndex: number, defaults: TourStepDefaults): DriveStep => {
   const steps = ctx.getConfig("steps") || [];
   const step = steps[stepIndex];
@@ -83,8 +68,6 @@ export const resolveTourStep = (ctx: Context, stepIndex: number, defaults: TourS
     .replace("{{current}}", `${stepIndex + 1}`)
     .replace("{{total}}", `${steps.length}`);
 
-  // Unset means every button; an empty list means none (driver.js treated
-  // `[]` on a tour step as "all", which made hiding the buttons impossible).
   const configuredButtons = popover.showButtons ?? ctx.getConfig("showButtons");
   const calculatedButtons: AllowedButtons[] = [
     "next",
@@ -142,12 +125,8 @@ export const resolveStepPopover = (ctx: Context, element: Element, step: DriveSt
 
     side: popover.side || "bottom",
     align: popover.align || "start",
-    // The anchor rect is expanded by the stage padding (so the popover clears
-    // the cutout) and the configured gap is kept between the two.
     offset: ctx.getConfig("popoverOffset") || 0,
     padding: stagePadding,
-    // Without a real element the tour highlights a dummy element at the center
-    // of the screen, and the popover is centered over it like a modal.
     centered: isDummyElement(element),
 
     smoothScroll: !!ctx.getConfig("smoothScroll"),
@@ -155,8 +134,6 @@ export const resolveStepPopover = (ctx: Context, element: Element, step: DriveSt
     component: popover.component ?? ctx.getConfig("components")?.popover,
     componentProps: popover.props,
 
-    // The hooks are resolved when the button is clicked rather than up front,
-    // so a setConfig() between render and click is still picked up.
     onNextClick: () => {
       const onNextClick = resolveNextHook(ctx, step);
       if (onNextClick) {

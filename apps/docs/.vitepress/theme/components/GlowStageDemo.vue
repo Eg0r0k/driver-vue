@@ -2,8 +2,6 @@
 import { onMounted, onUnmounted } from "vue";
 import { useDriver, DriverTour } from "driver-vue";
 
-// A gentle easing for the stage slide, plus a glowing `.driver-stage` styled
-// in custom.css under `.docs-glow`, plus a corner badge from the `#stage` slot.
 const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
 
 const { drive, driver } = useDriver({
@@ -24,7 +22,6 @@ const { drive, driver } = useDriver({
   ],
 });
 
-// The body class scopes the glow CSS to this demo's tour.
 const toggleClass = (active: boolean) => {
   document.body.classList.toggle("docs-glow", active);
   document.body.classList.toggle("docs-slide", active);

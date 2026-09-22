@@ -77,7 +77,6 @@ export const useDriver = (config: MaybeRefOrGetter<Config> = {}, options: UseDri
     driver = createDriver(resolve());
   }
 
-  // A reactive config (ref/getter) is re-applied whenever it changes.
   const isReactiveConfig =
     typeof config === "function" || (config !== null && typeof config === "object" && "value" in config);
   if (isReactiveConfig) {
@@ -89,8 +88,6 @@ export const useDriver = (config: MaybeRefOrGetter<Config> = {}, options: UseDri
       onScopeDispose(() => driver.destroy());
     }
 
-    // A <DriverTour /> in this component (or below it) renders this driver
-    // without a prop; the plugin's shared instance stays the fallback elsewhere.
     if (getCurrentInstance()) {
       provide(DRIVER_KEY, shallowRef(driver));
     }
@@ -111,8 +108,6 @@ export const useDriver = (config: MaybeRefOrGetter<Config> = {}, options: UseDri
     popover: computed(() => state.popover),
     transitioning: computed(() => state.transitioning),
 
-    // These depend on the live DOM (skipped steps) as well as the index, so
-    // they re-evaluate when the active index or the popover changes.
     isFirstStep: computed(() => (void state.activeIndex, void state.popover, driver.isFirstStep())),
     isLastStep: computed(() => (void state.activeIndex, void state.popover, driver.isLastStep())),
     hasNextStep: computed(() => (void state.activeIndex, void state.popover, driver.hasNextStep())),

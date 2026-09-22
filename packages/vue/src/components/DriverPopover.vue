@@ -115,9 +115,6 @@ const componentProps = computed(() => ({
   ...(props.model.componentProps || {}),
 }));
 
-// Our own buttons never leak their clicks to the page: the app's listeners
-// don't see them and the document click that advances on the active element
-// is not confused by them. Links in the title/description are left alone.
 const handle = (action: () => void) => (event: MouseEvent) => {
   event.preventDefault();
   event.stopPropagation();
@@ -154,13 +151,8 @@ const focusFirst = () => {
     return;
   }
 
-  // Focus on the first focusable element in the popover or the anchor. The
-  // anchor is always scanned: a 0x0 anchor (like the tour's dummy element for
-  // anchor-less popovers) never yields a focusable element anyway.
   const anchor = props.anchor instanceof Element ? [props.anchor] : [];
   const focusable = getFocusableElements([root, ...anchor]);
-  // preventScroll: the element (tour) or the beacon (hint) is already in
-  // view; focusing must not scroll the page on its own.
   focusable[0]?.focus({ preventScroll: true });
 };
 
@@ -192,15 +184,12 @@ onBeforeUnmount(() => {
   }
 });
 
-// Once positioned, scroll the popover into view if it landed off-screen.
 watch(isPositioned, async positioned => {
   if (!positioned || !wrapper.value) {
     return;
   }
 
   await nextTick();
-  // A hint's popover hangs off a beacon the user just clicked; the page must
-  // not move under them. A tour step may need the popover scrolled into view.
   if (props.mode === "tour") {
     bringInView(wrapper.value, props.model.smoothScroll);
   }
