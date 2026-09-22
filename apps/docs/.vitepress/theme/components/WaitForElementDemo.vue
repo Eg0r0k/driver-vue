@@ -6,11 +6,11 @@ import { useDriver, DriverTour } from "driver-vue";
 // button shows the "modal" ~800ms later, while the tour is already waiting.
 const modalOpen = ref(false);
 
-function openModal() {
+const openModal = () => {
   window.setTimeout(() => (modalOpen.value = true), 800);
-}
+};
 
-const { drive } = useDriver({
+const { drive, driver } = useDriver({
   showProgress: true,
   onDestroyed: () => (modalOpen.value = false),
   steps: [
@@ -47,7 +47,7 @@ const { drive } = useDriver({
     </div>
     <button type="button" class="demo-run" @click="drive()">Run the waiting tour</button>
     <ClientOnly>
-      <DriverTour />
+      <DriverTour :driver="driver" />
     </ClientOnly>
   </div>
 </template>

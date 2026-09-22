@@ -1,10 +1,10 @@
 import { mount } from "@vue/test-utils";
 import { defineComponent, h, nextTick, ref } from "vue";
 import { useDriver, type UseDriverReturn } from "../src/composables/useDriver";
-import { createDriverPlugin } from "../src/plugin";
+import { createDriverPlugin, injectDriver } from "../src/plugin";
 import DriverTour from "../src/components/DriverTour.vue";
 import { DEMO_HTML, flush, popoverTitle, SAMPLE_STEPS } from "./utils";
-import type { Config } from "../src/types";
+import type { Config, Driver } from "../src/types";
 
 beforeEach(() => {
   document.body.innerHTML = DEMO_HTML;
@@ -15,17 +15,17 @@ afterEach(() => {
   document.body.className = "";
 });
 
-function host(setup: () => UseDriverReturn, plugins: any[] = []) {
+const host = (setup: () => UseDriverReturn, plugins: any[] = []) => {
   let api!: UseDriverReturn;
   const Host = defineComponent({
-    setup() {
+    setup: () => {
       api = setup();
       return () => h("div", [h(DriverTour, { driver: api.driver })]);
     },
   });
   const wrapper = mount(Host, { attachTo: document.body, global: { plugins } });
   return { wrapper, api };
-}
+};
 
 describe("useDriver", () => {
   it("creates a driver and mirrors its state as refs", async () => {
@@ -53,6 +53,42 @@ describe("useDriver", () => {
     await flush();
     expect(api.isLastStep.value).toBe(true);
     expect(api.hasNextStep.value).toBe(false);
+  });
+
+  it("provides its driver to a <DriverTour /> in the same component", async () => {
+    let api!: UseDriverReturn;
+    const Host = defineComponent({
+      setup: () => {
+        api = useDriver({ animate: false, steps: SAMPLE_STEPS });
+        // No driver prop: the tour must pick up the composable's driver.
+        return () => h("div", [h(DriverTour)]);
+      },
+    });
+    mount(Host, { attachTo: document.body });
+
+    api.drive();
+    await flush();
+
+    expect(popoverTitle()).toBe("Step 1");
+    api.destroy();
+  });
+
+  it("prefers the composable's driver over the plugin's shared one", async () => {
+    const plugin = createDriverPlugin({ defaults: { animate: false } });
+    const { api } = host(() => useDriver({ steps: SAMPLE_STEPS }), [plugin]);
+    let shared!: Driver;
+    const Probe = defineComponent({
+      setup: () => {
+        shared = injectDriver().value;
+        return () => h("div");
+      },
+    });
+    mount(Probe, { global: { plugins: [plugin] } });
+
+    expect(api.driver).not.toBe(shared);
+    api.drive();
+    await flush();
+    expect(popoverTitle()).toBe("Step 1");
   });
 
   it("hides the dummy element behind activeElement", async () => {

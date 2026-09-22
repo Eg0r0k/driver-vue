@@ -156,7 +156,7 @@ export interface Hints {
 
 let popoverKey = 0;
 
-export function createHints(config: HintsConfig = {}): Hints {
+export const createHints = (config: HintsConfig = {}): Hints => {
   const currentConfig: HintsConfig = { ...config };
   const dismissed = new Set<string>();
   const beacons = new Map<string, HTMLElement>();
@@ -175,21 +175,15 @@ export function createHints(config: HintsConfig = {}): Hints {
     refreshTick: 0,
   });
 
-  function hintId(hint: DriverHint, index: number): string {
-    return hint.id ?? `${index}`;
-  }
+  const hintId = (hint: DriverHint, index: number): string => hint.id ?? `${index}`;
 
-  function find(id: string | number): MountedHint | undefined {
-    return state.mounted.find(entry => entry.id === `${id}`);
-  }
+  const find = (id: string | number): MountedHint | undefined => state.mounted.find(entry => entry.id === `${id}`);
 
-  function beaconConfig(hint: DriverHint): HintBeacon {
-    return { ...currentConfig.beacon, ...hint.beacon };
-  }
+  const beaconConfig = (hint: DriverHint): HintBeacon => ({ ...currentConfig.beacon, ...hint.beacon });
 
   // The beacon is centered on its anchor point by CSS, so this only has to
   // find the point itself.
-  function positionBeacon(entry: MountedHint) {
+  const positionBeacon = (entry: MountedHint) => {
     const { side = "top", align = "end", offsetX = 0, offsetY = 0 } = beaconConfig(entry.hint);
     const rect = entry.element.getBoundingClientRect();
 
@@ -206,11 +200,11 @@ export function createHints(config: HintsConfig = {}): Hints {
 
     entry.x = left + offsetX;
     entry.y = top + offsetY;
-  }
+  };
 
   // Hide the beacon when its element scrolls out of view (or out of a
   // scrollable container), so it never floats over unrelated UI.
-  function observeVisibility(entry: MountedHint) {
+  const observeVisibility = (entry: MountedHint) => {
     if (typeof IntersectionObserver === "undefined") {
       return;
     }
@@ -225,9 +219,9 @@ export function createHints(config: HintsConfig = {}): Hints {
 
     observer.observe(entry.element);
     observers.set(entry.id, observer);
-  }
+  };
 
-  function mountHint(hint: DriverHint, id: string) {
+  const mountHint = (hint: DriverHint, id: string) => {
     // A hint without an anchor has nothing to point at. It is skipped rather
     // than centered like a tour's element-less popover, and picked up on the
     // next show() if the element appears later.
@@ -254,9 +248,9 @@ export function createHints(config: HintsConfig = {}): Hints {
     positionBeacon(entry);
     state.mounted = [...state.mounted, entry];
     observeVisibility(entry);
-  }
+  };
 
-  function mountHints() {
+  const mountHints = () => {
     (currentConfig.hints || []).forEach((hint, index) => {
       const id = hintId(hint, index);
       if (dismissed.has(id) || find(id)) {
@@ -265,28 +259,28 @@ export function createHints(config: HintsConfig = {}): Hints {
 
       mountHint(hint, id);
     });
-  }
+  };
 
-  function unmountHint(entry: MountedHint) {
+  const unmountHint = (entry: MountedHint) => {
     observers.get(entry.id)?.disconnect();
     observers.delete(entry.id);
     beacons.delete(entry.id);
-  }
+  };
 
-  function unmountHints() {
+  const unmountHints = () => {
     state.mounted.forEach(unmountHint);
     state.mounted = [];
-  }
+  };
 
-  function requireRefresh() {
+  const requireRefresh = () => {
     if (refreshTimeout) {
       window.cancelAnimationFrame(refreshTimeout);
     }
 
     refreshTimeout = window.requestAnimationFrame(() => refresh());
-  }
+  };
 
-  function bindListeners() {
+  const bindListeners = () => {
     const onDocumentClick = (event: MouseEvent) => {
       if (!state.activeId) {
         return;
@@ -345,25 +339,25 @@ export function createHints(config: HintsConfig = {}): Hints {
 
     tourObserver.observe(document.body, { attributes: true, attributeFilter: ["class"] });
     teardown.push(() => tourObserver.disconnect());
-  }
+  };
 
-  function rectOf(element: Element): StageRect {
+  const rectOf = (element: Element): StageRect => {
     const rect = element.getBoundingClientRect();
 
     return { x: rect.x, y: rect.y, width: rect.width, height: rect.height };
-  }
+  };
 
   // With the overlay, the popover anchors to the element like a tour step;
   // without it, to the beacon.
-  function popoverAnchor(entry: MountedHint): Element | StageRect {
+  const popoverAnchor = (entry: MountedHint): Element | StageRect => {
     if (currentConfig.overlay) {
       return entry.element;
     }
 
     return beacons.get(entry.id) ?? { x: entry.x, y: entry.y, width: 0, height: 0 };
-  }
+  };
 
-  function popoverModel(entry: MountedHint): PopoverRenderModel {
+  const popoverModel = (entry: MountedHint): PopoverRenderModel => {
     const hintPopover = entry.hint.popover || {};
     const showButton = hintPopover.showButton ?? true;
     const noop = () => {};
@@ -410,9 +404,9 @@ export function createHints(config: HintsConfig = {}): Hints {
       onPrevClick: noop,
       onCloseClick: noop,
     };
-  }
+  };
 
-  function close() {
+  const close = () => {
     if (!state.activeId) {
       return;
     }
@@ -427,9 +421,9 @@ export function createHints(config: HintsConfig = {}): Hints {
     state.overlayRect = undefined;
     state.activeId = undefined;
     popoverDom = undefined;
-  }
+  };
 
-  function open(id: string | number) {
+  const open = (id: string | number) => {
     const entry = find(id);
     if (!entry) {
       return;
@@ -450,18 +444,18 @@ export function createHints(config: HintsConfig = {}): Hints {
 
     const onOpen = entry.hint.onOpen || currentConfig.onOpen;
     onOpen?.(entry.element, entry.hint, { config: currentConfig, hints: api });
-  }
+  };
 
-  function toggle(id: string | number) {
+  const toggle = (id: string | number) => {
     if (state.activeId === `${id}`) {
       close();
       return;
     }
 
     open(id);
-  }
+  };
 
-  function dismiss(id: string | number) {
+  const dismiss = (id: string | number) => {
     const entry = find(id);
     if (!entry) {
       return;
@@ -478,9 +472,9 @@ export function createHints(config: HintsConfig = {}): Hints {
 
     const onDismiss = entry.hint.onDismiss || currentConfig.onDismiss;
     onDismiss?.(entry.element, entry.hint, { config: currentConfig, hints: api });
-  }
+  };
 
-  function restore(id: string | number) {
+  const restore = (id: string | number) => {
     const key = `${id}`;
     if (!dismissed.delete(key) || !state.isVisible || find(key)) {
       return;
@@ -493,17 +487,17 @@ export function createHints(config: HintsConfig = {}): Hints {
     }
 
     mountHint(list[index], key);
-  }
+  };
 
   // Bring back every dismissed hint at once; the bulk counterpart to restore().
-  function restoreAll() {
+  const restoreAll = () => {
     dismissed.clear();
     if (state.isVisible) {
       mountHints();
     }
-  }
+  };
 
-  function refresh() {
+  const refresh = () => {
     state.mounted.forEach(positionBeacon);
 
     const active = state.activeId ? find(state.activeId) : undefined;
@@ -517,9 +511,9 @@ export function createHints(config: HintsConfig = {}): Hints {
 
     state.popoverAnchor = popoverAnchor(active);
     state.refreshTick++;
-  }
+  };
 
-  function show() {
+  const show = () => {
     if (!isBrowser) {
       return;
     }
@@ -533,9 +527,9 @@ export function createHints(config: HintsConfig = {}): Hints {
     // picks up hints whose elements have appeared since.
     mountHints();
     refresh();
-  }
+  };
 
-  function hide() {
+  const hide = () => {
     if (!state.isVisible) {
       return;
     }
@@ -553,9 +547,9 @@ export function createHints(config: HintsConfig = {}): Hints {
 
     window.cancelAnimationFrame(refreshTimeout);
     refreshTimeout = undefined;
-  }
+  };
 
-  function setHints(list: DriverHint[]) {
+  const setHints = (list: DriverHint[]) => {
     currentConfig.hints = list;
     dismissed.clear();
 
@@ -566,7 +560,7 @@ export function createHints(config: HintsConfig = {}): Hints {
     close();
     unmountHints();
     mountHints();
-  }
+  };
 
   const api: Hints = {
     show,
@@ -615,7 +609,7 @@ export function createHints(config: HintsConfig = {}): Hints {
   };
 
   return api;
-}
+};
 
 /** driver.js-compatible alias of `createHints`. */
 export const hints = createHints;

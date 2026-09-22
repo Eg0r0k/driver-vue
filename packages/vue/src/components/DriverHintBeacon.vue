@@ -33,11 +33,11 @@ const style = computed(() => ({
   left: `${props.entry.x}px`,
 }));
 
-function onClick(event: MouseEvent) {
+const onClick = (event: MouseEvent) => {
   event.preventDefault();
   event.stopPropagation();
   emit("click");
-}
+};
 
 onMounted(() => {
   if (button.value) {

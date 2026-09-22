@@ -18,11 +18,11 @@ export const SAMPLE_STEPS: DriveStep[] = [
 ];
 
 /** Lets Vue render and Floating UI position (computePosition is async). */
-export async function flush(): Promise<void> {
+export const flush = async (): Promise<void> => {
   await nextTick();
   await new Promise(resolve => setTimeout(resolve, 0));
   await nextTick();
-}
+};
 
 // The driver.js API is synchronous, but the DOM is rendered by Vue on the
 // next tick. The test driver wraps every method that changes what is rendered
@@ -36,7 +36,7 @@ let active: Driver | undefined;
 const mounted: { app: App; host: HTMLElement }[] = [];
 
 /** Mounts a <DriverTour> for the driver; torn down by the harness. */
-export function mountTour(driver: Driver, slots?: Record<string, any>): App {
+export const mountTour = (driver: Driver, slots?: Record<string, any>): App => {
   const host = document.createElement("div");
   host.className = "driver-test-host";
   document.body.appendChild(host);
@@ -47,9 +47,9 @@ export function mountTour(driver: Driver, slots?: Record<string, any>): App {
   mounted.push({ app, host });
 
   return app;
-}
+};
 
-export function createDriver(config?: Config, slots?: Record<string, any>): TestDriver {
+export const createDriver = (config?: Config, slots?: Record<string, any>): TestDriver => {
   const driver = createDriverCore(config);
   active = driver;
   mountTour(driver, slots);
@@ -72,11 +72,11 @@ export function createDriver(config?: Config, slots?: Record<string, any>): Test
     refresh: wrap(driver.refresh),
     setSteps: wrap(driver.setSteps),
   };
-}
+};
 
 // Resets the DOM before each test and tears the driver down after, so state
 // never leaks between tests. Call once per file.
-export function useDriverHarness(): void {
+export const useDriverHarness = (): void => {
   beforeEach(() => {
     document.body.innerHTML = DEMO_HTML;
   });
@@ -93,13 +93,13 @@ export function useDriverHarness(): void {
     document.body.innerHTML = "";
     document.body.className = "";
   });
-}
+};
 
 // Waits a single animation frame — needed for hooks that fire in the rAF loop.
-export async function nextFrame(): Promise<void> {
+export const nextFrame = async (): Promise<void> => {
   await new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
   await flush();
-}
+};
 
 export const popoverEl = () => document.querySelector<HTMLElement>(".driver-popover");
 export const popoverTitle = () => document.querySelector(".driver-popover-title")?.textContent?.trim();
@@ -111,12 +111,12 @@ export const overlayEl = () => document.querySelector<SVGSVGElement>(".driver-ov
 export const stageEl = () => document.querySelector<HTMLElement>(".driver-stage");
 
 /** Clicks an element and lets Vue render. */
-export async function click(element: Element | null | undefined): Promise<void> {
+export const click = async (element: Element | null | undefined): Promise<void> => {
   element?.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true }));
   await flush();
-}
+};
 
-export async function pressKey(key: string): Promise<void> {
+export const pressKey = async (key: string): Promise<void> => {
   window.dispatchEvent(new KeyboardEvent("keyup", { key }));
   await flush();
-}
+};

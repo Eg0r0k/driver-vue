@@ -10,7 +10,10 @@ useDriverHarness();
 // its var() references resolved against the :root tokens, and injected once;
 // the harness only resets <body>, so it survives each test.
 beforeAll(() => {
-  const styleCss = readFileSync(resolve((globalThis as unknown as { process: { cwd(): string } }).process.cwd(), "src/style.css"), "utf8");
+  const styleCss = readFileSync(
+    resolve((globalThis as unknown as { process: { cwd(): string } }).process.cwd(), "src/style.css"),
+    "utf8"
+  );
   const rule = styleCss.match(/\.driver-popover-footer-btn \{[^}]*\}/)?.[0];
   const root = styleCss.match(/:root \{([^}]*)\}/)?.[1];
   if (!rule || !root) {
@@ -31,10 +34,12 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-async function addCustomFooterButton(opts: { keepDefaultStyle: boolean }): Promise<{
+const addCustomFooterButton = async (opts: {
+  keepDefaultStyle: boolean;
+}): Promise<{
   button: HTMLButtonElement;
   onClick: ReturnType<typeof vi.fn>;
-}> {
+}> => {
   const onClick = vi.fn();
   const button = document.createElement("button");
   button.id = "custom-footer-btn";
@@ -54,7 +59,7 @@ async function addCustomFooterButton(opts: { keepDefaultStyle: boolean }): Promi
   await d.drive();
 
   return { button, onClick };
-}
+};
 
 describe("footer button styling", () => {
   it("styles the built-in navigation buttons through the footer button class", async () => {

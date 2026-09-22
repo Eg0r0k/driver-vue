@@ -18,9 +18,25 @@ const { drive, driver } = useDriver({
     firstButton.addEventListener("click", () => driver.drive(0));
   },
   steps: [
-    { element: "#btn-title", popover: { title: "More control with hooks", description: "onPopoverRender added the 'Go to first' button to the footer." } },
-    { element: "#btn-export", popover: { title: "Still driver.js", description: "The hook receives the same PopoverDOM as driver.js.", side: "right" } },
-    { element: "#btn-share", popover: { title: "Try it", description: "Click 'Go to first' to jump back.", side: "top" } },
+    {
+      element: "#btn-title",
+      popover: {
+        title: "More control with hooks",
+        description: "onPopoverRender added the 'Go to first' button to the footer.",
+      },
+    },
+    {
+      element: "#btn-export",
+      popover: {
+        title: "Still driver.js",
+        description: "The hook receives the same PopoverDOM as driver.js.",
+        side: "right",
+      },
+    },
+    {
+      element: "#btn-share",
+      popover: { title: "Try it", description: "Click 'Go to first' to jump back.", side: "top" },
+    },
   ],
 });
 </script>
@@ -30,7 +46,7 @@ const { drive, driver } = useDriver({
     <DemoBox prefix="btn" />
     <button type="button" class="demo-run" @click="drive()">Run with a custom button</button>
     <ClientOnly>
-      <DriverTour />
+      <DriverTour :driver="driver" />
     </ClientOnly>
   </div>
 </template>

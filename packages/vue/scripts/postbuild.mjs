@@ -25,7 +25,7 @@ for (const entry of ["index", "hints"]) {
 // `./core/driver.js` (found as driver.d.ts), `./X.vue` becomes `./X.vue.js`
 // (found as X.vue.d.ts) and a directory becomes `./dir/index.js`. Bundler
 // resolution accepts all of these too.
-function withExtension(fromFile, specifier) {
+const withExtension = (fromFile, specifier) => {
   if (!specifier.startsWith(".") || /\.(js|mjs|cjs|json|css)$/.test(specifier)) {
     return specifier;
   }
@@ -39,9 +39,9 @@ function withExtension(fromFile, specifier) {
   }
 
   return specifier;
-}
+};
 
-function walk(dir) {
+const walk = dir => {
   for (const name of readdirSync(dir)) {
     const file = join(dir, name);
     if (statSync(file).isDirectory()) {
@@ -55,6 +55,6 @@ function walk(dir) {
       writeFileSync(file, rewritten);
     }
   }
-}
+};
 
 walk(resolve(dist, "types"));

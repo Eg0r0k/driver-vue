@@ -84,23 +84,19 @@ const overlayPathStyle = computed(() => ({
 
 // In overlay mode the spotlight does the pointing, so the beacon steps aside
 // while its popover is up and the popover frames the element.
-const visibleBeacons = computed(() =>
-  state.value.mounted.filter(entry => !(config.value.overlay && entry.expanded))
-);
+const visibleBeacons = computed(() => state.value.mounted.filter(entry => !(config.value.overlay && entry.expanded)));
 
-function scopeFor(entry: MountedHint): HintScope {
-  return {
-    hints: props.hints,
-    hint: entry.hint,
-    id: entry.id,
-    element: entry.element,
-    isOpen: entry.expanded,
-    open: () => props.hints.open(entry.id),
-    toggle: () => props.hints.toggle(entry.id),
-    dismiss: () => props.hints.dismiss(entry.id),
-    close: () => props.hints.close(),
-  };
-}
+const scopeFor = (entry: MountedHint): HintScope => ({
+  hints: props.hints,
+  hint: entry.hint,
+  id: entry.id,
+  element: entry.element,
+  isOpen: entry.expanded,
+  open: () => props.hints.open(entry.id),
+  toggle: () => props.hints.toggle(entry.id),
+  dismiss: () => props.hints.dismiss(entry.id),
+  close: () => props.hints.close(),
+});
 
 const activeEntry = computed(() =>
   state.value.activeId ? state.value.mounted.find(entry => entry.id === state.value.activeId) : undefined
@@ -108,13 +104,13 @@ const activeEntry = computed(() =>
 
 const popoverScope = computed(() => (activeEntry.value ? scopeFor(activeEntry.value) : undefined));
 
-function onPopoverRender(dom: PopoverDOM) {
+const onPopoverRender = (dom: PopoverDOM) => {
   props.hints.__internal.reportPopoverDom(dom);
-}
+};
 
-function onPopoverUnrender(dom: PopoverDOM) {
+const onPopoverUnrender = (dom: PopoverDOM) => {
   props.hints.__internal.clearPopoverDom(dom);
-}
+};
 
 const slots = useSlots();
 const popoverSlots = ["arrow", "title", "description", "footer", "next"] as const;

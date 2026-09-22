@@ -36,7 +36,8 @@ const COMPONENTS = [
   {
     name: "DriverHints",
     file: "src/components/DriverHints.vue",
-    intro: "Renders a hints instance: the beacons, the optional overlay and the open hint's popover (from `driver-vue/hints`).",
+    intro:
+      "Renders a hints instance: the beacons, the optional overlay and the open hint's popover (from `driver-vue/hints`).",
   },
   {
     name: "DriverHintBeacon",
@@ -50,18 +51,23 @@ const checker = createChecker(resolve(pkg, "tsconfig.json"), {
   printer: { newLine: 1 },
 });
 
-const code = value => (value === undefined || value === "" ? "" : `\`${String(value).replace(/\|/g, "\\|").replace(/\n/g, " ")}\``);
-const text = value => (value ?? "").replace(/\|/g, "\\|").replace(/\s*\n\s*/g, " ").trim();
+const code = value =>
+  value === undefined || value === "" ? "" : `\`${String(value).replace(/\|/g, "\\|").replace(/\n/g, " ")}\``;
+const text = value =>
+  (value ?? "")
+    .replace(/\|/g, "\\|")
+    .replace(/\s*\n\s*/g, " ")
+    .trim();
 
-function table(headers, rows) {
+const table = (headers, rows) => {
   if (!rows.length) {
     return "_None._\n";
   }
   const line = cells => `| ${cells.join(" | ")} |`;
   return [line(headers), line(headers.map(() => "---")), ...rows.map(line)].join("\n") + "\n";
-}
+};
 
-function section(component) {
+const section = component => {
   const meta = checker.getComponentMeta(resolve(pkg, component.file));
 
   const props = meta.props
@@ -79,7 +85,25 @@ function section(component) {
   const slots = meta.slots.map(slot => [code(slot.name), code(slot.type), text(slot.description)]);
 
   const exposed = meta.exposed
-    .filter(item => !["$slots", "$props", "$attrs", "$emit", "$el", "$refs", "$parent", "$root", "$options", "$data", "$watch", "$forceUpdate", "$nextTick", "$"].includes(item.name))
+    .filter(
+      item =>
+        ![
+          "$slots",
+          "$props",
+          "$attrs",
+          "$emit",
+          "$el",
+          "$refs",
+          "$parent",
+          "$root",
+          "$options",
+          "$data",
+          "$watch",
+          "$forceUpdate",
+          "$nextTick",
+          "$",
+        ].includes(item.name)
+    )
     .filter(item => !meta.props.some(prop => prop.name === item.name))
     .map(item => [code(item.name), code(item.type), text(item.description)]);
 
@@ -101,7 +125,7 @@ function section(component) {
     "",
     table(["Name", "Type", "Description"], exposed),
   ].join("\n");
-}
+};
 
 const body = [
   "# Components",

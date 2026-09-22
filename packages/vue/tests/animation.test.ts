@@ -5,7 +5,7 @@ useDriverHarness();
 // Advances the rAF loop until the predicate holds or the frame budget runs out.
 // The animated stage transition settles over several frames, so polling beats a
 // fixed wait.
-async function flushFrames(predicate: () => boolean, maxFrames = 120): Promise<void> {
+const flushFrames = async (predicate: () => boolean, maxFrames = 120): Promise<void> => {
   for (let i = 0; i < maxFrames; i++) {
     if (predicate()) {
       return;
@@ -13,7 +13,7 @@ async function flushFrames(predicate: () => boolean, maxFrames = 120): Promise<v
     await nextFrame();
   }
   throw new Error("condition not met within frame budget");
-}
+};
 
 // The library drives the CSS fade via a custom property on <body> so a single
 // `duration` config controls both the JS stage slide and the CSS transitions.
@@ -105,7 +105,7 @@ describe("animated stage transition", () => {
 
   it("interpolates the stage rect with the configured easing", async () => {
     const rect = (x: number) =>
-      ({ x, y: 0, top: 0, left: x, right: x + 100, bottom: 50, width: 100, height: 50, toJSON() {} }) as DOMRect;
+      ({ x, y: 0, top: 0, left: x, right: x + 100, bottom: 50, width: 100, height: 50, toJSON: () => {} }) as DOMRect;
     document.querySelector<HTMLElement>("#intro")!.getBoundingClientRect = () => rect(0);
     document.querySelector<HTMLElement>("#card-1")!.getBoundingClientRect = () => rect(1000);
 

@@ -5,8 +5,17 @@ const { drive, driver } = useDriver({
   showProgress: true,
   showButtons: ["next", "previous"],
   steps: [
-    { element: "#confirm-title", popover: { title: "Confirm on exit", description: "Try pressing Escape or clicking the overlay before the last step." } },
-    { element: "#confirm-export", popover: { title: "Still here", description: "You confirmed you want to stay (or never tried).", side: "right" } },
+    {
+      element: "#confirm-title",
+      popover: {
+        title: "Confirm on exit",
+        description: "Try pressing Escape or clicking the overlay before the last step.",
+      },
+    },
+    {
+      element: "#confirm-export",
+      popover: { title: "Still here", description: "You confirmed you want to stay (or never tried).", side: "right" },
+    },
     { popover: { title: "Last step", description: "On the last step the tour closes without asking." } },
   ],
   // onDestroyStarted is called when the user tries to exit the tour
@@ -23,7 +32,7 @@ const { drive, driver } = useDriver({
     <DemoBox prefix="confirm" />
     <button type="button" class="demo-run" @click="drive()">Run with confirmation</button>
     <ClientOnly>
-      <DriverTour />
+      <DriverTour :driver="driver" />
     </ClientOnly>
   </div>
 </template>

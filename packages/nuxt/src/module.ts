@@ -25,7 +25,7 @@ export interface ModulePublicRuntimeConfig {
 
 const COMPOSABLES = ["useDriver", "createDriver", "driver", "useDriverPosition", "provideDriver", "injectDriver"];
 
-const COMPONENTS = ["Tour", "Popover", "Overlay", "Stage"];
+const COMPONENTS = ["Tour", "Popover", "Overlay", "BoxOverlay", "Stage"];
 
 const HINT_COMPOSABLES = ["useHints", "createHints", "hints"];
 
@@ -44,7 +44,7 @@ export default defineNuxtModule<ModuleOptions>({
     css: true,
     prefix: "Driver",
   },
-  setup(options, nuxt) {
+  setup: (options, nuxt) => {
     const resolver = createResolver(import.meta.url);
 
     // Runtime config from nuxt.config wins over the module option, key by key.

@@ -1,9 +1,18 @@
-import { click, createDriver, flush, navButton, nextFrame, popoverTitle, SAMPLE_STEPS, useDriverHarness } from "./utils";
+import {
+  click,
+  createDriver,
+  flush,
+  navButton,
+  nextFrame,
+  popoverTitle,
+  SAMPLE_STEPS,
+  useDriverHarness,
+} from "./utils";
 
 useDriverHarness();
 
 // Bubbling like a real user click, so the document-level listener hears it.
-async function clickElement(selector: string): Promise<boolean> {
+const clickElement = async (selector: string): Promise<boolean> => {
   const element = document.querySelector(selector);
   if (!element) {
     throw new Error(`No element for ${selector}`);
@@ -12,7 +21,7 @@ async function clickElement(selector: string): Promise<boolean> {
   const notPrevented = element.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true }));
   await flush();
   return notPrevented;
-}
+};
 
 describe("advanceOnClick", () => {
   it("advances to the next step when the highlighted element is clicked", async () => {

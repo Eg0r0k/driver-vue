@@ -7,7 +7,7 @@ import { defineNuxtPlugin, useRuntimeConfig } from "#app";
 // it is mounted, so SSR output never contains tour markup.
 export default defineNuxtPlugin({
   name: "nuxt-driver-vue",
-  setup(nuxtApp) {
+  setup: nuxtApp => {
     const runtime = useRuntimeConfig().public.driver as { defaults?: Config } | undefined;
 
     nuxtApp.vueApp.use(DriverPlugin, { defaults: runtime?.defaults ?? {} });

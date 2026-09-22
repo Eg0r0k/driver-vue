@@ -95,13 +95,11 @@ describe("popover slots", () => {
 describe("custom popover components", () => {
   const StepPopover = defineComponent({
     props: { popover: { type: Object, required: true }, next: Function, accent: String, index: Number },
-    setup(props) {
-      return () =>
-        h("div", { class: "step-popover", "data-accent": props.accent }, [
-          h("span", { class: "step-popover-title" }, (props.popover as any).title),
-          h("button", { class: "step-popover-next", onClick: () => props.next?.() }, "next"),
-        ]);
-    },
+    setup: props => () =>
+      h("div", { class: "step-popover", "data-accent": props.accent }, [
+        h("span", { class: "step-popover-title" }, (props.popover as any).title),
+        h("button", { class: "step-popover-next", onClick: () => props.next?.() }, "next"),
+      ]),
   });
 
   it("renders a per-step component with the slot props and its own props", async () => {
@@ -166,7 +164,14 @@ describe("overlay and stage slots", () => {
   it("replaces the overlay and exposes the stage geometry", async () => {
     let received: OverlaySlotProps | undefined;
     const d = createDriver(
-      { animate: false, steps: SAMPLE_STEPS, stagePadding: 7, stageRadius: 3, overlayColor: "#123", overlayOpacity: 0.5 },
+      {
+        animate: false,
+        steps: SAMPLE_STEPS,
+        stagePadding: 7,
+        stageRadius: 3,
+        overlayColor: "#123",
+        overlayOpacity: 0.5,
+      },
       {
         overlay: (props: OverlaySlotProps) => {
           received = props;
@@ -223,7 +228,7 @@ describe("overlay and stage slots", () => {
 
 describe("stage element", () => {
   const rect = (over: Partial<DOMRect>): DOMRect =>
-    ({ top: 0, left: 0, right: 0, bottom: 0, width: 0, height: 0, x: 0, y: 0, toJSON() {}, ...over }) as DOMRect;
+    ({ top: 0, left: 0, right: 0, bottom: 0, width: 0, height: 0, x: 0, y: 0, toJSON: () => {}, ...over }) as DOMRect;
 
   it("tracks the padded cutout and exposes it as CSS variables", async () => {
     const el = document.querySelector<HTMLElement>("#intro")!;

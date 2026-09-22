@@ -12,21 +12,30 @@ useDriverHarness();
 // offsetHeight (what Floating UI measures).
 
 const rect = (over: Partial<DOMRect>): DOMRect =>
-  ({ top: 0, left: 0, right: 0, bottom: 0, width: 0, height: 0, x: 0, y: 0, toJSON() {}, ...over }) as DOMRect;
+  ({ top: 0, left: 0, right: 0, bottom: 0, width: 0, height: 0, x: 0, y: 0, toJSON: () => {}, ...over }) as DOMRect;
 
 // The element box used across the cases: 200x20 sitting well inside the
 // viewport so every side has room by default.
-const ELEMENT_BOX: Partial<DOMRect> = { top: 400, left: 400, right: 600, bottom: 420, width: 200, height: 20, x: 400, y: 400 };
+const ELEMENT_BOX: Partial<DOMRect> = {
+  top: 400,
+  left: 400,
+  right: 600,
+  bottom: 420,
+  width: 200,
+  height: 20,
+  x: 400,
+  y: 400,
+};
 
 const POPOVER_SIZE = { width: 200, height: 100 };
 
-async function placePopover(opts: {
+const placePopover = async (opts: {
   side: Side;
   align?: Alignment;
   element?: Partial<DOMRect>;
   stagePadding?: number;
   popoverOffset?: number;
-}): Promise<HTMLElement> {
+}): Promise<HTMLElement> => {
   const el = document.querySelector<HTMLElement>("#intro")!;
   el.getBoundingClientRect = () => rect(opts.element ?? ELEMENT_BOX);
   el.scrollIntoView = () => {};
@@ -52,7 +61,7 @@ async function placePopover(opts: {
   await d.destroy();
 
   return wrapper;
-}
+};
 
 describe("popover box placement", () => {
   // The anchor box is expanded by stagePadding (10) so the popover clears the

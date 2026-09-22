@@ -2,16 +2,16 @@ import { createDriver, flush, nextFrame, popoverTitle, useDriverHarness } from "
 
 useDriverHarness();
 
-async function tick(ms = 10): Promise<void> {
+const tick = async (ms = 10): Promise<void> => {
   await new Promise(resolve => setTimeout(resolve, ms));
   await flush();
-}
+};
 
-function appendElement(id: string): void {
+const appendElement = (id: string): void => {
   const element = document.createElement("div");
   element.id = id;
   document.body.appendChild(element);
-}
+};
 
 describe("waitForElement", () => {
   it("stays on the current step until the next element appears", async () => {

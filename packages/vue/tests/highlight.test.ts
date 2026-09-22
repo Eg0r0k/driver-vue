@@ -121,7 +121,7 @@ describe("active element accessibility attributes", () => {
 
 describe("stage", () => {
   const rect = (over: Partial<DOMRect>): DOMRect =>
-    ({ top: 0, left: 0, right: 0, bottom: 0, width: 0, height: 0, x: 0, y: 0, toJSON() {}, ...over }) as DOMRect;
+    ({ top: 0, left: 0, right: 0, bottom: 0, width: 0, height: 0, x: 0, y: 0, toJSON: () => {}, ...over }) as DOMRect;
 
   it("tracks the element's box in the reactive state and the stage element", async () => {
     document.querySelector<HTMLElement>("#intro")!.getBoundingClientRect = () =>

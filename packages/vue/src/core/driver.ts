@@ -12,18 +12,18 @@ import type { Config, Driver, DriveStep, PopoverDOM } from "../types";
  *
  * The instance is inert on the server: `drive()` and `highlight()` do nothing.
  */
-export function createDriver(options: Config = {}): Driver {
+export const createDriver = (options: Config = {}): Driver => {
   const ctx = createContext(options);
 
-  function handleClose() {
+  const handleClose = () => {
     if (!ctx.getConfig("allowClose")) {
       return;
     }
 
     destroy();
-  }
+  };
 
-  function handleOverlayClick() {
+  const handleOverlayClick = () => {
     const overlayClickBehavior = ctx.getConfig("overlayClickBehavior");
 
     if (ctx.getConfig("allowClose") && overlayClickBehavior === "close") {
@@ -52,9 +52,9 @@ export function createDriver(options: Config = {}): Driver {
 
       moveNext();
     }
-  }
+  };
 
-  function moveNext() {
+  const moveNext = () => {
     const activeIndex = ctx.getState("activeIndex");
     const steps = ctx.getConfig("steps") || [];
     if (typeof activeIndex === "undefined") {
@@ -67,9 +67,9 @@ export function createDriver(options: Config = {}): Driver {
     } else {
       destroy();
     }
-  }
+  };
 
-  function movePrevious() {
+  const movePrevious = () => {
     const activeIndex = ctx.getState("activeIndex");
     const steps = ctx.getConfig("steps") || [];
     if (typeof activeIndex === "undefined") {
@@ -82,9 +82,9 @@ export function createDriver(options: Config = {}): Driver {
     } else {
       destroy();
     }
-  }
+  };
 
-  function moveTo(index: number) {
+  const moveTo = (index: number) => {
     const steps = ctx.getConfig("steps") || [];
 
     if (steps[index]) {
@@ -92,9 +92,9 @@ export function createDriver(options: Config = {}): Driver {
     } else {
       destroy();
     }
-  }
+  };
 
-  function handleActiveElementClick() {
+  const handleActiveElementClick = () => {
     const isTransitioning = ctx.getState("__transitionCallback");
     if (isTransitioning) {
       return;
@@ -118,9 +118,9 @@ export function createDriver(options: Config = {}): Driver {
     }
 
     moveNext();
-  }
+  };
 
-  function handleArrowLeft() {
+  const handleArrowLeft = () => {
     const isTransitioning = ctx.getState("__transitionCallback");
     if (isTransitioning) {
       return;
@@ -144,9 +144,9 @@ export function createDriver(options: Config = {}): Driver {
     }
 
     movePrevious();
-  }
+  };
 
-  function handleArrowRight() {
+  const handleArrowRight = () => {
     const isTransitioning = ctx.getState("__transitionCallback");
     if (isTransitioning) {
       return;
@@ -165,9 +165,9 @@ export function createDriver(options: Config = {}): Driver {
     }
 
     moveNext();
-  }
+  };
 
-  function init() {
+  const init = () => {
     if (ctx.getState("isInitialized")) {
       return;
     }
@@ -187,9 +187,9 @@ export function createDriver(options: Config = {}): Driver {
     ctx.listen("closeClick", handleClose);
     ctx.listen("arrowLeftPress", handleArrowLeft);
     ctx.listen("arrowRightPress", handleArrowRight);
-  }
+  };
 
-  function cancelElementWait() {
+  const cancelElementWait = () => {
     const cancel = ctx.getState("__pendingWaitCancel");
     if (!cancel) {
       return;
@@ -197,11 +197,11 @@ export function createDriver(options: Config = {}): Driver {
 
     ctx.setState("__pendingWaitCancel", undefined);
     cancel();
-  }
+  };
 
   // Re-resolves the step's element on every DOM mutation rather than polling;
   // this also covers function elements, since they query the mutated DOM.
-  function waitForStepElement(step: DriveStep, timeout: number, onSettled: () => void) {
+  const waitForStepElement = (step: DriveStep, timeout: number, onSettled: () => void) => {
     const settle = () => {
       observer.disconnect();
       window.clearTimeout(timer);
@@ -223,9 +223,9 @@ export function createDriver(options: Config = {}): Driver {
     });
 
     observer.observe(document.documentElement, { childList: true, subtree: true, attributes: true });
-  }
+  };
 
-  function drive(stepIndex: number = 0, hasWaitedForElement = false) {
+  const drive = (stepIndex: number = 0, hasWaitedForElement = false) => {
     cancelElementWait();
 
     const steps = ctx.getConfig("steps");
@@ -287,9 +287,9 @@ export function createDriver(options: Config = {}): Driver {
         },
       })
     );
-  }
+  };
 
-  function destroy(withOnDestroyStartedHook = true) {
+  const destroy = (withOnDestroyStartedHook = true) => {
     const activeElement = ctx.getState("__activeElement");
     const activeStep = ctx.getState("__activeStep");
 
@@ -338,9 +338,9 @@ export function createDriver(options: Config = {}): Driver {
     if (activeOnDestroyed) {
       (activeOnDestroyed as HTMLElement).focus();
     }
-  }
+  };
 
-  function reportPopoverDom(dom: PopoverDOM) {
+  const reportPopoverDom = (dom: PopoverDOM) => {
     // Commit the popover to state before the user hook runs; the hook's
     // opts.state.popover has always pointed at the freshly rendered popover.
     ctx.setState("popover", dom);
@@ -348,11 +348,11 @@ export function createDriver(options: Config = {}): Driver {
     const activeStep = ctx.getState("activeStep");
     const onPopoverRender = activeStep?.popover?.onPopoverRender || ctx.getConfig("onPopoverRender");
     onPopoverRender?.(dom, ctx.getHookOpts());
-  }
+  };
 
-  function clearPopoverDom() {
+  const clearPopoverDom = () => {
     ctx.setState("popover", undefined);
-  }
+  };
 
   const api: Driver = {
     isActive: () => ctx.getState("isInitialized") || false,
@@ -452,7 +452,7 @@ export function createDriver(options: Config = {}): Driver {
   ctx.setDriver(api);
 
   return api;
-}
+};
 
 /** driver.js-compatible alias of `createDriver`. */
 export const driver = createDriver;

@@ -19,7 +19,9 @@ afterEach(() => {
 
 describe("DriverPlugin", () => {
   it("registers the components globally on request", () => {
-    const App = defineComponent({ template: "<div><DriverTour /><DriverStage :stage=\"{x:0,y:0,width:1,height:1}\" /></div>" });
+    const App = defineComponent({
+      template: '<div><DriverTour /><DriverStage :stage="{x:0,y:0,width:1,height:1}" /></div>',
+    });
     const wrapper = mount(App, { global: { plugins: [[DriverPlugin, { components: true }]] } });
 
     expect(wrapper.findComponent(DriverTour).exists()).toBe(true);
@@ -27,7 +29,7 @@ describe("DriverPlugin", () => {
   });
 
   it("uses a custom component prefix", () => {
-    const App = defineComponent({ template: "<div><TourStage :stage=\"{x:0,y:0,width:1,height:1}\" /></div>" });
+    const App = defineComponent({ template: '<div><TourStage :stage="{x:0,y:0,width:1,height:1}" /></div>' });
     const wrapper = mount(App, { global: { plugins: [[DriverPlugin, { components: "Tour" }]] } });
 
     expect(wrapper.find(".driver-stage").exists()).toBe(true);
@@ -45,7 +47,7 @@ describe("DriverPlugin", () => {
   it("renders the shared driver through <DriverTour> without a prop", async () => {
     let shared: ReturnType<typeof injectDriver> | undefined;
     const App = defineComponent({
-      setup() {
+      setup: () => {
         shared = injectDriver();
         return () => h(DriverTour);
       },
@@ -67,7 +69,7 @@ describe("DriverPlugin", () => {
     const plugin = createDriverPlugin({ defaults: { animate: false, stagePadding: 1 } });
     let config: any;
     const App = defineComponent({
-      setup() {
+      setup: () => {
         config = injectDriver().value.getConfig();
         return () => h("div");
       },
@@ -82,7 +84,7 @@ describe("DriverPlugin", () => {
     const driver = createDriver({ animate: false, steps: SAMPLE_STEPS });
     const Child = defineComponent({ setup: () => () => h(DriverTour) });
     const App = defineComponent({
-      setup() {
+      setup: () => {
         provideDriver(driver);
         return () => h(Child);
       },
@@ -97,7 +99,7 @@ describe("DriverPlugin", () => {
 
   it("injectDriver throws without a provider unless optional", () => {
     const App = defineComponent({
-      setup() {
+      setup: () => {
         expect(() => injectDriver()).toThrow(/No driver provided/);
         expect(injectDriver({ optional: true })).toBeUndefined();
         return () => h("div");

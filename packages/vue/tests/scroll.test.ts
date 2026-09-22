@@ -7,14 +7,14 @@ const hasNoScroll = () => document.body.classList.contains("driver-no-scroll");
 // Forces #intro out of view and spies on its scrollIntoView so the chosen
 // scroll behavior can be asserted. happy-dom reports a 0×0 box that always
 // counts as in-view, so without this the library never scrolls.
-function spyOnScrollIntoView(): ReturnType<typeof vi.fn> {
+const spyOnScrollIntoView = (): ReturnType<typeof vi.fn> => {
   const el = document.querySelector<HTMLElement>("#intro")!;
   el.getBoundingClientRect = () =>
-    ({ top: -500, left: 0, right: 0, bottom: -480, width: 0, height: 0, x: 0, y: 0, toJSON() {} }) as DOMRect;
+    ({ top: -500, left: 0, right: 0, bottom: -480, width: 0, height: 0, x: 0, y: 0, toJSON: () => {} }) as DOMRect;
   const scrollIntoView = vi.fn();
   el.scrollIntoView = scrollIntoView;
   return scrollIntoView;
-}
+};
 
 describe("allowScroll", () => {
   it("allows body scrolling by default", async () => {

@@ -51,27 +51,24 @@ export type UseDriverPositionReturn = {
   isPositioned: Ref<boolean>;
 };
 
-function toRect(value: Element | StageRect): DOMRect {
+const toRect = (value: Element | StageRect): DOMRect => {
   if (value instanceof Element) {
     return value.getBoundingClientRect();
   }
 
   return new DOMRect(value.x, value.y, value.width, value.height);
-}
+};
 
-function expand(rect: DOMRect, padding: number): DOMRect {
-  return new DOMRect(rect.x - padding, rect.y - padding, rect.width + padding * 2, rect.height + padding * 2);
-}
+const expand = (rect: DOMRect, padding: number): DOMRect =>
+  new DOMRect(rect.x - padding, rect.y - padding, rect.width + padding * 2, rect.height + padding * 2);
 
-function toPlacement(side: Side, align: Alignment): Placement {
-  return align === "center" ? side : `${side}-${align}`;
-}
+const toPlacement = (side: Side, align: Alignment): Placement => (align === "center" ? side : `${side}-${align}`);
 
-function fromPlacement(placement: Placement): { side: Side; align: Alignment } {
+const fromPlacement = (placement: Placement): { side: Side; align: Alignment } => {
   const [side, align] = placement.split("-") as [Side, "start" | "end" | undefined];
 
   return { side, align: align ?? "center" };
-}
+};
 
 /**
  * Positions a popover against an element (or a rect) with Floating UI: the
@@ -79,7 +76,7 @@ function fromPlacement(placement: Placement): { side: Side; align: Alignment } {
  * the viewport, and the arrow tracks the reference. The rendered side and
  * alignment are exposed so class names can reflect them.
  */
-export function useDriverPosition(options: UseDriverPositionOptions): UseDriverPositionReturn {
+export const useDriverPosition = (options: UseDriverPositionOptions): UseDriverPositionReturn => {
   const padding = computed(() => toValue(options.padding) ?? 0);
   const isCentered = computed(() => !!toValue(options.centered));
 
@@ -161,4 +158,4 @@ export function useDriverPosition(options: UseDriverPositionOptions): UseDriverP
     update: floating.update,
     isPositioned: floating.isPositioned,
   };
-}
+};

@@ -3,6 +3,7 @@ import { createDriver } from "./core/driver";
 import DriverTour from "./components/DriverTour.vue";
 import DriverPopover from "./components/DriverPopover.vue";
 import DriverOverlay from "./components/DriverOverlay.vue";
+import DriverBoxOverlay from "./components/DriverBoxOverlay.vue";
 import DriverStage from "./components/DriverStage.vue";
 import type { Config, Driver } from "./types";
 
@@ -27,6 +28,7 @@ const COMPONENTS = {
   Tour: DriverTour,
   Popover: DriverPopover,
   Overlay: DriverOverlay,
+  BoxOverlay: DriverBoxOverlay,
   Stage: DriverStage,
 };
 
@@ -40,39 +42,44 @@ const COMPONENTS = {
  * app.use(DriverPlugin, { defaults: { animate: true }, components: true })
  * ```
  */
-export function createDriverPlugin(options: DriverPluginOptions = {}): Plugin<[DriverPluginOptions?]> {
-  return {
-    install(app: App, installOptions: DriverPluginOptions = {}) {
-      const merged = { ...options, ...installOptions };
-      const defaults = { ...(options.defaults || {}), ...(installOptions.defaults || {}) };
+export const createDriverPlugin = (options: DriverPluginOptions = {}): Plugin<[DriverPluginOptions?]> => ({
+  install: (app: App, installOptions: DriverPluginOptions = {}) => {
+    const merged = { ...options, ...installOptions };
+    const defaults = { ...(options.defaults || {}), ...(installOptions.defaults || {}) };
 
-      const shared = shallowRef<Driver>();
+    const shared = shallowRef<Driver>();
 
-      app.provide(DRIVER_DEFAULTS_KEY, defaults);
-      app.provide(DRIVER_KEY, shared);
+    app.provide(DRIVER_DEFAULTS_KEY, defaults);
+    app.provide(DRIVER_KEY, shared);
 
-      if (merged.components) {
-        const prefix = typeof merged.components === "string" ? merged.components : "Driver";
-        for (const [name, component] of Object.entries(COMPONENTS)) {
-          app.component(`${prefix}${name}`, component);
-        }
+    if (merged.components) {
+      const prefix = typeof merged.components === "string" ? merged.components : "Driver";
+      for (const [name, component] of Object.entries(COMPONENTS)) {
+        app.component(`${prefix}${name}`, component);
       }
-    },
-  };
-}
+    }
+  },
+});
 
 /** The plugin with no preset options; pass options to `app.use`. */
 export const DriverPlugin: Plugin<[DriverPluginOptions?]> = createDriverPlugin();
 
 /** Provide a driver to the subtree; `<DriverTour>` and `useDriver({ shared: true })` pick it up. */
-export function provideDriver(driver: Driver): void {
+export const provideDriver = (driver: Driver): void => {
   provide(DRIVER_KEY, shallowRef(driver));
-}
+};
 
-/** The shared driver from `DriverPlugin` or `provideDriver`, created on first access. */
-export function injectDriver(options: { optional: true }): ShallowRef<Driver | undefined> | undefined;
-export function injectDriver(options?: { optional?: false }): ShallowRef<Driver>;
-export function injectDriver(options: { optional?: boolean } = {}) {
+export type InjectDriver = {
+  (options: { optional: true }): ShallowRef<Driver | undefined> | undefined;
+  (options?: { optional?: false }): ShallowRef<Driver>;
+};
+
+/**
+ * The nearest provided driver: one from `useDriver()` in an ancestor, from
+ * `provideDriver()`, or the app-wide one from `DriverPlugin` (created on
+ * first access).
+ */
+export const injectDriver: InjectDriver = ((options: { optional?: boolean } = {}) => {
   const shared = inject(DRIVER_KEY, undefined);
   const defaults = inject(DRIVER_DEFAULTS_KEY, undefined);
 
@@ -89,9 +96,7 @@ export function injectDriver(options: { optional?: boolean } = {}) {
   }
 
   return shared;
-}
+}) as InjectDriver;
 
 /** The config defaults installed by `DriverPlugin`, or an empty object. */
-export function injectDriverDefaults(): Config {
-  return inject(DRIVER_DEFAULTS_KEY, undefined) ?? {};
-}
+export const injectDriverDefaults = (): Config => inject(DRIVER_DEFAULTS_KEY, undefined) ?? {};

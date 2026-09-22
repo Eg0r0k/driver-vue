@@ -6,11 +6,11 @@ useDriverHarness();
 // and the overlay path handle their clicks and stop them there, while free
 // content inside the popover (links, custom buttons) behaves normally.
 
-function fire(target: Element | null | undefined, type = "click"): MouseEvent {
+const fire = (target: Element | null | undefined, type = "click"): MouseEvent => {
   const event = new MouseEvent(type, { bubbles: true, cancelable: true });
   target?.dispatchEvent(event);
   return event;
-}
+};
 
 describe("popover button clicks", () => {
   it("prevents the default action and stops propagation on the built-in buttons", async () => {

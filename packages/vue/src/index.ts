@@ -24,6 +24,7 @@ export type { DriverPluginOptions } from "./plugin";
 export { default as DriverTour } from "./components/DriverTour.vue";
 export { default as DriverPopover } from "./components/DriverPopover.vue";
 export { default as DriverOverlay } from "./components/DriverOverlay.vue";
+export { default as DriverBoxOverlay } from "./components/DriverBoxOverlay.vue";
 export { default as DriverStage } from "./components/DriverStage.vue";
 export type { TourSlotProps, TourScope, PopoverSlotProps, OverlaySlotProps, StageSlotProps } from "./components/types";
 

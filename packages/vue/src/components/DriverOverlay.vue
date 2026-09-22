@@ -19,6 +19,10 @@ const props = withDefaults(
     zIndex?: number;
     /** Bump to re-measure the viewport (resize). */
     refreshTick?: number;
+    /** The stage is animating between two elements. */
+    transitioning?: boolean;
+    /** The engine drives the stage rect per frame; ignored by this overlay. */
+    animated?: boolean;
   }>(),
   {
     padding: 10,
@@ -27,6 +31,8 @@ const props = withDefaults(
     opacity: 0.7,
     zIndex: 10000,
     refreshTick: 0,
+    transitioning: false,
+    animated: true,
   }
 );
 
@@ -65,15 +71,15 @@ const pathStyle = computed(() => ({
 
 // Driver's own UI never leaks pointer events to the page underneath: the
 // dimmed path swallows the whole press sequence, and only the click is acted on.
-function swallow(event: Event) {
+const swallow = (event: Event) => {
   event.preventDefault();
   event.stopPropagation();
-}
+};
 
-function onPathClick(event: MouseEvent) {
+const onPathClick = (event: MouseEvent) => {
   swallow(event);
   emit("click", event);
-}
+};
 </script>
 
 <template>

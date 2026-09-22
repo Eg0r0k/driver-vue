@@ -1,7 +1,10 @@
 import {
   computed,
+  getCurrentInstance,
   getCurrentScope,
   onScopeDispose,
+  provide,
+  shallowRef,
   toValue,
   watch,
   type ComputedRef,
@@ -9,7 +12,7 @@ import {
   type Ref,
 } from "vue";
 import { createDriver } from "../core/driver";
-import { injectDriver, injectDriverDefaults } from "../plugin";
+import { DRIVER_KEY, injectDriver, injectDriverDefaults } from "../plugin";
 import { isDummyElement } from "../core/utils";
 import type { Config, Driver, DriveStep, PopoverRenderModel, StageRect } from "../types";
 
@@ -54,17 +57,15 @@ export type UseDriverReturn = {
 
 /**
  * Creates a driver bound to the current component: the plugin defaults are
- * merged under `config`, a reactive `config` is re-applied on change, and the
- * tour is destroyed when the component unmounts.
+ * merged under `config`, a reactive `config` is re-applied on change, the
+ * driver is provided to the component's subtree (so a `<DriverTour />` there
+ * renders it), and the tour is destroyed when the component unmounts.
  *
  * ```ts
  * const { drive, isActive } = useDriver({ steps })
  * ```
  */
-export function useDriver(
-  config: MaybeRefOrGetter<Config> = {},
-  options: UseDriverOptions = {}
-): UseDriverReturn {
+export const useDriver = (config: MaybeRefOrGetter<Config> = {}, options: UseDriverOptions = {}): UseDriverReturn => {
   const defaults = injectDriverDefaults();
   const resolve = (): Config => ({ ...defaults, ...toValue(config) });
 
@@ -77,13 +78,22 @@ export function useDriver(
   }
 
   // A reactive config (ref/getter) is re-applied whenever it changes.
-  const isReactiveConfig = typeof config === "function" || (config !== null && typeof config === "object" && "value" in config);
+  const isReactiveConfig =
+    typeof config === "function" || (config !== null && typeof config === "object" && "value" in config);
   if (isReactiveConfig) {
     watch(resolve, next => driver.setConfig(next), { deep: true });
   }
 
-  if (!options.shared && getCurrentScope()) {
-    onScopeDispose(() => driver.destroy());
+  if (!options.shared) {
+    if (getCurrentScope()) {
+      onScopeDispose(() => driver.destroy());
+    }
+
+    // A <DriverTour /> in this component (or below it) renders this driver
+    // without a prop; the plugin's shared instance stays the fallback elsewhere.
+    if (getCurrentInstance()) {
+      provide(DRIVER_KEY, shallowRef(driver));
+    }
   }
 
   const state = driver.state;
@@ -118,6 +128,6 @@ export function useDriver(
     setSteps: driver.setSteps,
     setConfig: driver.setConfig,
   };
-}
+};
 
 export type { Ref };

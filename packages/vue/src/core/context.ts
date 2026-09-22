@@ -11,41 +11,39 @@ import { easeInOutQuad } from "./utils";
 // Vue-only fields (stage, transitioning, popover model, refreshTick) live in
 // the reactive state only and are written directly by the engine.
 
-export function createDefaultConfig(): Config {
-  return {
-    animate: true,
-    duration: 400,
-    allowClose: true,
-    allowScroll: true,
-    overlayClickBehavior: "close",
-    overlayOpacity: 0.7,
-    smoothScroll: false,
-    disableActiveInteraction: false,
-    advanceOnClick: false,
-    skipMissingElement: false,
-    waitForElement: 0,
-    showProgress: false,
-    stagePadding: 10,
-    stageRadius: 5,
-    popoverOffset: 10,
-    showButtons: ["next", "previous", "close"],
-    disableButtons: [],
-    overlayColor: "#000",
-    easing: easeInOutQuad,
-    teleportTo: "body",
-    zIndex: 10000,
-  };
-}
+export const createDefaultConfig = (): Config => ({
+  animate: true,
+  duration: 400,
+  allowClose: true,
+  allowScroll: true,
+  overlayClickBehavior: "close",
+  overlayOpacity: 0.7,
+  smoothScroll: false,
+  disableActiveInteraction: false,
+  advanceOnClick: false,
+  skipMissingElement: false,
+  waitForElement: 0,
+  showProgress: false,
+  stagePadding: 10,
+  stageRadius: 5,
+  popoverOffset: 10,
+  showButtons: ["next", "previous", "close"],
+  disableButtons: [],
+  overlayColor: "#000",
+  easing: easeInOutQuad,
+  teleportTo: "body",
+  zIndex: 10000,
+});
 
-function createConfigStore() {
+const createConfigStore = () => {
   let currentConfig: Config = {};
 
-  function configure(config: Config = {}) {
+  const configure = (config: Config = {}) => {
     currentConfig = {
       ...createDefaultConfig(),
       ...config,
     };
-  }
+  };
 
   const getConfig: GetConfig = (<K extends keyof Config>(key?: K) => {
     return key ? currentConfig[key] : currentConfig;
@@ -54,23 +52,21 @@ function createConfigStore() {
   configure();
 
   return { getConfig, configure };
-}
+};
 
-export function createInitialState(): DriverState {
-  return {
-    isActive: false,
-    activeIndex: undefined,
-    activeStep: undefined,
-    activeElement: undefined,
-    previousStep: undefined,
-    previousElement: undefined,
-    transitioning: false,
-    stage: undefined,
-    popover: undefined,
-    popoverDom: undefined,
-    refreshTick: 0,
-  };
-}
+export const createInitialState = (): DriverState => ({
+  isActive: false,
+  activeIndex: undefined,
+  activeStep: undefined,
+  activeElement: undefined,
+  previousStep: undefined,
+  previousElement: undefined,
+  transitioning: false,
+  stage: undefined,
+  popover: undefined,
+  popoverDom: undefined,
+  refreshTick: 0,
+});
 
 // Plain state keys whose writes are mirrored into the reactive state.
 const MIRRORED: { [K in keyof State]?: keyof DriverState } = {
@@ -83,7 +79,7 @@ const MIRRORED: { [K in keyof State]?: keyof DriverState } = {
   popover: "popoverDom",
 };
 
-function createStateStore() {
+const createStateStore = () => {
   let currentState: State = {};
   const reactiveState = shallowReactive<DriverState>(createInitialState());
 
@@ -100,13 +96,13 @@ function createStateStore() {
     }
   };
 
-  function resetState() {
+  const resetState = () => {
     currentState = {};
     Object.assign(reactiveState, createInitialState());
-  }
+  };
 
   return { getState, setState, resetState, state: reactiveState };
-}
+};
 
 export type AllowedEvents =
   | "overlayClick"
@@ -118,23 +114,23 @@ export type AllowedEvents =
   | "arrowRightPress"
   | "arrowLeftPress";
 
-function createEmitter() {
+const createEmitter = () => {
   let registeredListeners: Partial<{ [key in AllowedEvents]: () => void }> = {};
 
-  function listen(hook: AllowedEvents, callback: () => void) {
+  const listen = (hook: AllowedEvents, callback: () => void) => {
     registeredListeners[hook] = callback;
-  }
+  };
 
-  function emit(hook: AllowedEvents) {
+  const emit = (hook: AllowedEvents) => {
     registeredListeners[hook]?.();
-  }
+  };
 
-  function reset() {
+  const reset = () => {
     registeredListeners = {};
-  }
+  };
 
   return { listen, emit, reset };
-}
+};
 
 export type Context = {
   getConfig: GetConfig;
@@ -157,7 +153,7 @@ export type Context = {
   getHookOpts: (stateOverride?: State) => HookOpts;
 };
 
-export function createContext(options: Config = {}): Context {
+export const createContext = (options: Config = {}): Context => {
   const config = createConfigStore();
   config.configure(options);
 
@@ -196,4 +192,4 @@ export function createContext(options: Config = {}): Context {
       };
     },
   };
-}
+};

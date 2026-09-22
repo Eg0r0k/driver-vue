@@ -12,15 +12,15 @@ type ListenerRecord = {
   capture: boolean;
 };
 
-function normalizeCapture(options?: boolean | AddEventListenerOptions | EventListenerOptions): boolean {
+const normalizeCapture = (options?: boolean | AddEventListenerOptions | EventListenerOptions): boolean => {
   if (typeof options === "boolean") {
     return options;
   }
 
   return !!options?.capture;
-}
+};
 
-function trackDocumentListeners() {
+const trackDocumentListeners = () => {
   const added: ListenerRecord[] = [];
   const removed: ListenerRecord[] = [];
 
@@ -51,7 +51,7 @@ function trackDocumentListeners() {
     return originalRemove(type, listener as EventListener, options);
   });
 
-  function liveCount(): number {
+  const liveCount = (): number => {
     const outstanding = [...removed];
     let live = 0;
 
@@ -71,10 +71,10 @@ function trackDocumentListeners() {
     }
 
     return live;
-  }
+  };
 
   return { liveCount };
-}
+};
 
 describe("document listener cleanup", () => {
   it("attaches a document click listener while the tour is active", async () => {
@@ -119,11 +119,11 @@ describe("document listener cleanup", () => {
 });
 
 describe("keyboard focus trap", () => {
-  function pressTab(opts: { shift?: boolean } = {}): KeyboardEvent {
+  const pressTab = (opts: { shift?: boolean } = {}): KeyboardEvent => {
     const event = new KeyboardEvent("keydown", { key: "Tab", shiftKey: !!opts.shift, cancelable: true });
     window.dispatchEvent(event);
     return event;
-  }
+  };
 
   // happy-dom doesn't lay elements out, so the focusable buttons read as
   // invisible and focus never actually moves. We assert the trap swallows the
@@ -163,7 +163,7 @@ describe("keyboard focus trap", () => {
 
 describe("refresh on viewport changes", () => {
   const rect = (over: Partial<DOMRect>): DOMRect =>
-    ({ top: 0, left: 0, right: 0, bottom: 0, width: 0, height: 0, x: 0, y: 0, toJSON() {}, ...over }) as DOMRect;
+    ({ top: 0, left: 0, right: 0, bottom: 0, width: 0, height: 0, x: 0, y: 0, toJSON: () => {}, ...over }) as DOMRect;
   const overlayD = () => document.querySelector<SVGPathElement>(".driver-overlay path")?.getAttribute("d");
 
   it("re-tracks the active element when the window resizes", async () => {

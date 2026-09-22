@@ -10,21 +10,21 @@ const DEFAULT_PROGRESS_TEXT = "{{current}} of {{total}}";
 
 let popoverKey = 0;
 
-export function shouldSkipStep(ctx: Context, step: DriveStep): boolean {
+export const shouldSkipStep = (ctx: Context, step: DriveStep): boolean => {
   const skip = step.skipMissingElement ?? ctx.getConfig("skipMissingElement");
   if (!skip || !step.element) {
     return false;
   }
 
   return !resolveElement(step.element);
-}
+};
 
 // The index navigation would actually land on, starting at fromIndex
 // (inclusive) and walking in the given direction past any skipped steps.
 // Resolved against the live DOM, so the answer can change as elements mount
 // and unmount; every first/last-step decision goes through here so the done
 // button and the tour's real end always agree.
-export function findReachableIndex(ctx: Context, fromIndex: number, direction: 1 | -1): number | undefined {
+export const findReachableIndex = (ctx: Context, fromIndex: number, direction: 1 | -1): number | undefined => {
   const steps = ctx.getConfig("steps") || [];
 
   for (let i = fromIndex; i >= 0 && i < steps.length; i += direction) {
@@ -34,11 +34,11 @@ export function findReachableIndex(ctx: Context, fromIndex: number, direction: 1
   }
 
   return undefined;
-}
+};
 
 // On the final step the next button acts as the done button, so a dedicated
 // onDoneClick takes precedence over onNextClick when provided.
-export function resolveNextHook(ctx: Context, step?: DriveStep): DriverHook | undefined {
+export const resolveNextHook = (ctx: Context, step?: DriveStep): DriverHook | undefined => {
   const activeIndex = ctx.getState("activeIndex");
   const isLastStep = activeIndex !== undefined && findReachableIndex(ctx, activeIndex + 1, 1) === undefined;
 
@@ -48,15 +48,13 @@ export function resolveNextHook(ctx: Context, step?: DriveStep): DriverHook | un
   }
 
   return step?.popover?.onNextClick || ctx.getConfig("onNextClick");
-}
+};
 
-export function resolvePrevHook(ctx: Context, step?: DriveStep): DriverHook | undefined {
-  return step?.popover?.onPrevClick || ctx.getConfig("onPrevClick");
-}
+export const resolvePrevHook = (ctx: Context, step?: DriveStep): DriverHook | undefined =>
+  step?.popover?.onPrevClick || ctx.getConfig("onPrevClick");
 
-export function resolveCloseHook(ctx: Context, step?: DriveStep): DriverHook | undefined {
-  return step?.popover?.onCloseClick || ctx.getConfig("onCloseClick");
-}
+export const resolveCloseHook = (ctx: Context, step?: DriveStep): DriverHook | undefined =>
+  step?.popover?.onCloseClick || ctx.getConfig("onCloseClick");
 
 // Default button actions passed in by the tour, which alone knows how to
 // navigate and destroy; a hook from the step or the config wins over them.
@@ -68,7 +66,7 @@ export type TourStepDefaults = {
 
 // The resolved step is what ends up in state and what the lifecycle hooks
 // receive, not just what gets rendered.
-export function resolveTourStep(ctx: Context, stepIndex: number, defaults: TourStepDefaults): DriveStep {
+export const resolveTourStep = (ctx: Context, stepIndex: number, defaults: TourStepDefaults): DriveStep => {
   const steps = ctx.getConfig("steps") || [];
   const step = steps[stepIndex];
   const popover = step.popover || {};
@@ -112,9 +110,9 @@ export function resolveTourStep(ctx: Context, stepIndex: number, defaults: TourS
       progressText: progressTextReplaced,
     },
   };
-}
+};
 
-export function resolveStepPopover(ctx: Context, element: Element, step: DriveStep): PopoverRenderModel {
+export const resolveStepPopover = (ctx: Context, element: Element, step: DriveStep): PopoverRenderModel => {
   const popover = step.popover || {};
   const stagePadding = ctx.getConfig("stagePadding") || 0;
 
@@ -183,14 +181,14 @@ export function resolveStepPopover(ctx: Context, element: Element, step: DriveSt
       return ctx.emit("closeClick");
     },
   };
-}
+};
 
 /** Show the step's popover (the component mounts from the reactive state). */
-export function renderStepPopover(ctx: Context, element: Element, step: DriveStep) {
+export const renderStepPopover = (ctx: Context, element: Element, step: DriveStep) => {
   ctx.state.popover = resolveStepPopover(ctx, element, step);
-}
+};
 
 /** Hide the popover; the component unmounts from the reactive state. */
-export function hideStepPopover(ctx: Context) {
+export const hideStepPopover = (ctx: Context) => {
   ctx.state.popover = undefined;
-}
+};

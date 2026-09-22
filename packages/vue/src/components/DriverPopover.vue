@@ -113,15 +113,13 @@ const componentProps = computed(() => ({
 // Our own buttons never leak their clicks to the page: the app's listeners
 // don't see them and the document click that advances on the active element
 // is not confused by them. Links in the title/description are left alone.
-function handle(action: () => void) {
-  return (event: MouseEvent) => {
-    event.preventDefault();
-    event.stopPropagation();
-    action();
-  };
-}
+const handle = (action: () => void) => (event: MouseEvent) => {
+  event.preventDefault();
+  event.stopPropagation();
+  action();
+};
 
-function collectDom(): PopoverDOM | undefined {
+const collectDom = (): PopoverDOM | undefined => {
   const root = wrapper.value;
   if (!root) {
     return undefined;
@@ -141,11 +139,11 @@ function collectDom(): PopoverDOM | undefined {
     closeButton: q<HTMLButtonElement>(".driver-popover-close-btn"),
     footerButtons: q(".driver-popover-navigation-btns"),
   };
-}
+};
 
 let reported: PopoverDOM | undefined;
 
-function focusFirst() {
+const focusFirst = () => {
   const root = wrapper.value;
   if (!root) {
     return;
@@ -157,9 +155,9 @@ function focusFirst() {
   const anchor = props.anchor instanceof Element ? [props.anchor] : [];
   const focusable = getFocusableElements([root, ...anchor]);
   focusable[0]?.focus();
-}
+};
 
-function repositionOnImagesLoad() {
+const repositionOnImagesLoad = () => {
   wrapper.value?.querySelectorAll("img").forEach(image => {
     if (image.complete) {
       return;
@@ -168,7 +166,7 @@ function repositionOnImagesLoad() {
     image.addEventListener("load", update, { once: true });
     image.addEventListener("error", update, { once: true });
   });
-}
+};
 
 onMounted(() => {
   reported = collectDom();
@@ -210,11 +208,12 @@ defineExpose({
 });
 </script>
 
+<!-- eslint-disable vue/no-v-html -- title, description and button texts are HTML for driver.js parity -->
 <template>
   <Transition name="driver-popover" appear>
     <div
-      ref="wrapper"
       id="driver-popover-content"
+      ref="wrapper"
       :class="wrapperClass"
       :style="wrapperStyle"
       role="dialog"
@@ -228,7 +227,7 @@ defineExpose({
       </slot>
 
       <slot v-bind="slotProps">
-        <component v-if="model.component" :is="model.component" v-bind="componentProps" />
+        <component :is="model.component" v-if="model.component" v-bind="componentProps" />
 
         <template v-else>
           <slot v-if="showClose" name="close" v-bind="slotProps">

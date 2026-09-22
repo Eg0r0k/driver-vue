@@ -29,13 +29,13 @@ const resolved = computed(() =>
 
 const { hints, isVisible, show, hide } = useHints(() => ({ ...props.config, hints: resolved.value }));
 
-function toggle() {
+const toggle = () => {
   if (isVisible.value) {
     hide();
   } else {
     show();
   }
-}
+};
 </script>
 
 <template>

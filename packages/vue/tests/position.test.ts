@@ -26,7 +26,7 @@ type HostOptions = {
   size?: { width: number; height: number };
 };
 
-function mountHost(options: HostOptions = {}) {
+const mountHost = (options: HostOptions = {}) => {
   const side = ref<Side>(options.side ?? "bottom");
   const align = ref<Alignment>(options.align ?? "start");
   const centered = ref(!!options.centered);
@@ -36,7 +36,7 @@ function mountHost(options: HostOptions = {}) {
   let position!: UseDriverPositionReturn;
 
   const Host = defineComponent({
-    setup() {
+    setup: () => {
       const floating = ref<HTMLElement | null>(null);
       const arrow = ref<HTMLElement | null>(null);
 
@@ -64,7 +64,7 @@ function mountHost(options: HostOptions = {}) {
   Object.defineProperty(box, "offsetHeight", { value: size.height, configurable: true });
 
   return { wrapper, box, position, side, align, centered, reference, settle };
-}
+};
 
 describe("useDriverPosition", () => {
   it("positions the floating element with fixed left/top styles", async () => {
@@ -143,7 +143,17 @@ describe("useDriverPosition", () => {
     const el = document.createElement("div");
     document.body.appendChild(el);
     el.getBoundingClientRect = () =>
-      ({ x: 100, y: 300, top: 300, left: 100, right: 300, bottom: 320, width: 200, height: 20, toJSON() {} }) as DOMRect;
+      ({
+        x: 100,
+        y: 300,
+        top: 300,
+        left: 100,
+        right: 300,
+        bottom: 320,
+        width: 200,
+        height: 20,
+        toJSON: () => {},
+      }) as DOMRect;
 
     const { box, position, settle } = mountHost({ side: "top", reference: el });
     await settle();
@@ -154,7 +164,17 @@ describe("useDriverPosition", () => {
     expect(box.style.left).toBe("100px");
 
     el.getBoundingClientRect = () =>
-      ({ x: 500, y: 600, top: 600, left: 500, right: 700, bottom: 620, width: 200, height: 20, toJSON() {} }) as DOMRect;
+      ({
+        x: 500,
+        y: 600,
+        top: 600,
+        left: 500,
+        right: 700,
+        bottom: 620,
+        width: 200,
+        height: 20,
+        toJSON: () => {},
+      }) as DOMRect;
     await position.update();
     await settle();
 

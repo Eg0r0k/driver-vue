@@ -3,7 +3,7 @@ import { computed, ref } from "vue";
 import { useDriver, useDriverPosition } from "driver-vue";
 
 /**
- * No <DriverTour> at all. The engine still runs the tour (state, hooks,
+ * No <DriverTour :driver="driver"> at all. The engine still runs the tour (state, hooks,
  * keyboard, scrolling, the body classes), and this component renders its
  * own overlay and card from `driver.state`, positioning the card with
  * `useDriverPosition`.
@@ -12,8 +12,14 @@ const { drive, isActive, activeElement, popover, stage, activeIndex, driver } = 
   stagePadding: 6,
   steps: [
     { element: "#hl-title", popover: { title: "Headless", description: "This card is rendered by the demo itself." } },
-    { element: "#hl-summary", popover: { title: "Your markup", description: "Any element, any framework component.", side: "top" } },
-    { element: "#hl-share", popover: { title: "Your positioning", description: "useDriverPosition wraps Floating UI.", side: "right" } },
+    {
+      element: "#hl-summary",
+      popover: { title: "Your markup", description: "Any element, any framework component.", side: "top" },
+    },
+    {
+      element: "#hl-share",
+      popover: { title: "Your positioning", description: "useDriverPosition wraps Floating UI.", side: "right" },
+    },
   ],
 });
 

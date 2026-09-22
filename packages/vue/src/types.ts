@@ -170,6 +170,12 @@ export type Config = {
 
   /** driver-vue addition: base z-index of the overlay; the popover sits above it. (default: 10000) */
   zIndex?: number;
+
+  /** driver-vue addition: class added to the `.driver-stage` box, for per-tour highlight effects. */
+  stageClass?: string;
+
+  /** driver-vue addition: class added to the overlay root. */
+  overlayClass?: string;
 };
 
 /** The cutout rectangle, in viewport coordinates, without the stage padding. */

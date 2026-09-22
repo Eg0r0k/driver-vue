@@ -3,7 +3,7 @@ import type { DriveStep, StageRect } from "../types";
 import { hideStepPopover, renderStepPopover } from "./step";
 import { DUMMY_ELEMENT_ID, easeInOutQuad, isDummyElement, isScrollable, resolveElement, bringInView } from "./utils";
 
-function mountDummyElement(): Element {
+const mountDummyElement = (): Element => {
   const existingDummy = document.getElementById(DUMMY_ELEMENT_ID);
   if (existingDummy) {
     return existingDummy;
@@ -23,15 +23,15 @@ function mountDummyElement(): Element {
   document.body.appendChild(element);
 
   return element;
-}
+};
 
-function rectOf(element: Element): StageRect {
+const rectOf = (element: Element): StageRect => {
   const rect = element.getBoundingClientRect();
 
   return { x: rect.x, y: rect.y, width: rect.width, height: rect.height };
-}
+};
 
-export function highlight(ctx: Context, step: DriveStep) {
+export const highlight = (ctx: Context, step: DriveStep) => {
   let elemObj = resolveElement(step.element);
 
   // If the element is not found, we mount a 1px div
@@ -43,10 +43,10 @@ export function highlight(ctx: Context, step: DriveStep) {
   }
 
   transferHighlight(ctx, elemObj, step);
-}
+};
 
 // The stage snaps to the element's current box and the components re-measure.
-export function trackActiveElement(ctx: Context, element: Element) {
+export const trackActiveElement = (ctx: Context, element: Element) => {
   if (!element) {
     return;
   }
@@ -55,9 +55,9 @@ export function trackActiveElement(ctx: Context, element: Element) {
 
   ctx.setState("__activeStagePosition", activeStagePosition);
   ctx.state.stage = activeStagePosition;
-}
+};
 
-export function refreshActiveHighlight(ctx: Context) {
+export const refreshActiveHighlight = (ctx: Context) => {
   const activeHighlight = ctx.getState("__activeElement");
 
   if (!activeHighlight) {
@@ -66,11 +66,11 @@ export function refreshActiveHighlight(ctx: Context) {
 
   trackActiveElement(ctx, activeHighlight);
   ctx.state.refreshTick++;
-}
+};
 
 // One frame of the stage animation: the cutout eases from where it was when
 // the transfer started to the target element's box.
-function transitionStage(ctx: Context, elapsed: number, duration: number, from: StageRect, to: Element) {
+const transitionStage = (ctx: Context, elapsed: number, duration: number, from: StageRect, to: Element) => {
   const easing = ctx.getConfig("easing") || easeInOutQuad;
   const progress = easing(Math.min(Math.max(elapsed / duration, 0), 1));
   const toDefinition = rectOf(to);
@@ -86,9 +86,9 @@ function transitionStage(ctx: Context, elapsed: number, duration: number, from: 
 
   ctx.setState("__activeStagePosition", activeStagePosition);
   ctx.state.stage = activeStagePosition;
-}
+};
 
-function transferHighlight(ctx: Context, toElement: Element, toStep: DriveStep) {
+const transferHighlight = (ctx: Context, toElement: Element, toStep: DriveStep) => {
   const duration = ctx.getConfig("duration") || 400;
   const start = Date.now();
 
@@ -216,9 +216,9 @@ function transferHighlight(ctx: Context, toElement: Element, toStep: DriveStep) 
   toElement.setAttribute("aria-haspopup", "dialog");
   toElement.setAttribute("aria-expanded", "true");
   toElement.setAttribute("aria-controls", "driver-popover-content");
-}
+};
 
-export function destroyHighlight() {
+export const destroyHighlight = () => {
   document.getElementById(DUMMY_ELEMENT_ID)?.remove();
   document.querySelectorAll(".driver-active-element").forEach(element => {
     const parent = element.parentElement;
@@ -231,4 +231,4 @@ export function destroyHighlight() {
     element.removeAttribute("aria-expanded");
     element.removeAttribute("aria-controls");
   });
-}
+};

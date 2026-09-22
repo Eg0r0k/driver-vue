@@ -13,18 +13,30 @@ const { drive, driver } = useDriver({
   showProgress: true,
   steps: [
     { element: "#glow-title", popover: { title: "Glowing stage", description: "The cutout carries a pulsing glow." } },
-    { element: "#glow-search", popover: { title: "Custom easing", description: "The slide overshoots a little (ease-out-back)." } },
-    { element: "#glow-export", popover: { title: "Stage slot", description: "The step badge in the corner comes from the #stage slot." } },
+    {
+      element: "#glow-search",
+      popover: { title: "Custom easing", description: "The slide overshoots a little (ease-out-back)." },
+    },
+    {
+      element: "#glow-export",
+      popover: { title: "Stage slot", description: "The step badge in the corner comes from the #stage slot." },
+    },
   ],
 });
 
 // The body class scopes the glow CSS to this demo's tour.
-function toggleClass(active: boolean) {
+const toggleClass = (active: boolean) => {
   document.body.classList.toggle("docs-glow", active);
   document.body.classList.toggle("docs-slide", active);
-}
+};
 
-onMounted(() => driver.setConfig({ ...driver.getConfig(), onHighlightStarted: () => toggleClass(true), onDestroyed: () => toggleClass(false) }));
+onMounted(() =>
+  driver.setConfig({
+    ...driver.getConfig(),
+    onHighlightStarted: () => toggleClass(true),
+    onDestroyed: () => toggleClass(false),
+  })
+);
 onUnmounted(() => toggleClass(false));
 </script>
 
@@ -33,7 +45,7 @@ onUnmounted(() => toggleClass(false));
     <DemoBox prefix="glow" />
     <button type="button" class="demo-run" @click="drive()">Run with a glowing stage</button>
     <ClientOnly>
-      <DriverTour>
+      <DriverTour :driver="driver">
         <template #stage="{ index, total }">
           <span class="glow-badge">{{ index + 1 }}/{{ total }}</span>
         </template>
@@ -49,7 +61,10 @@ onUnmounted(() => toggleClass(false));
   left: -12px;
   background: #4f46e5;
   color: #fff;
-  font: 600 11px/1 ui-sans-serif, system-ui, sans-serif;
+  font:
+    600 11px/1 ui-sans-serif,
+    system-ui,
+    sans-serif;
   padding: 6px 8px;
   border-radius: 999px;
   box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);

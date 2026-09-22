@@ -25,7 +25,7 @@ import ComposableDemo from "./components/ComposableDemo.vue";
 const theme: Theme = {
   extends: DefaultTheme,
   Layout,
-  enhanceApp({ app }) {
+  enhanceApp: ({ app }) => {
     // One shared driver for the plain <Demo> blocks; the Layout renders its
     // <DriverTour />. Demos that need slots create their own driver.
     app.use(DriverPlugin, { components: true });

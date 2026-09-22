@@ -185,7 +185,7 @@ describe("popover rendering", () => {
 
   it("clears stale side classes when the popover is repositioned", async () => {
     const rect = (over: Partial<DOMRect>): DOMRect =>
-      ({ top: 0, left: 0, right: 0, bottom: 0, width: 0, height: 0, x: 0, y: 0, toJSON() {}, ...over }) as DOMRect;
+      ({ top: 0, left: 0, right: 0, bottom: 0, width: 0, height: 0, x: 0, y: 0, toJSON: () => {}, ...over }) as DOMRect;
 
     const el = document.querySelector<HTMLElement>("#intro")!;
 
@@ -471,19 +471,22 @@ describe("popover interaction edge cases", () => {
 
 describe("popover arrow", () => {
   const rect = (over: Partial<DOMRect>): DOMRect =>
-    ({ top: 0, left: 0, right: 0, bottom: 0, width: 0, height: 0, x: 0, y: 0, toJSON() {}, ...over }) as DOMRect;
+    ({ top: 0, left: 0, right: 0, bottom: 0, width: 0, height: 0, x: 0, y: 0, toJSON: () => {}, ...over }) as DOMRect;
 
   const arrowEl = () => document.querySelector<HTMLElement>(".driver-popover-arrow")!;
 
   // happy-dom doesn't lay anything out, so we feed the element its box and
   // give the popover real dimensions, then refresh to position against them.
-  async function positionArrow(opts: { side: Side; align?: Alignment; element: Partial<DOMRect> }): Promise<void> {
+  const positionArrow = async (opts: { side: Side; align?: Alignment; element: Partial<DOMRect> }): Promise<void> => {
     const el = document.querySelector<HTMLElement>("#intro")!;
     el.getBoundingClientRect = () => rect(opts.element);
     el.scrollIntoView = () => {};
 
     const d = createDriver({ animate: false });
-    await d.highlight({ element: "#intro", popover: { title: "Intro", side: opts.side, align: opts.align ?? "start" } });
+    await d.highlight({
+      element: "#intro",
+      popover: { title: "Intro", side: opts.side, align: opts.align ?? "start" },
+    });
 
     const wrapper = popoverEl() as HTMLElement;
     Object.defineProperty(wrapper, "offsetWidth", { value: 200, configurable: true });
@@ -491,7 +494,7 @@ describe("popover arrow", () => {
 
     await d.refresh();
     await nextFrame();
-  }
+  };
 
   it("sits on the popover's edge facing the element for a left placement", async () => {
     await positionArrow({
@@ -571,13 +574,13 @@ describe("done button text", () => {
 
 describe("popover offset", () => {
   const rect = (over: Partial<DOMRect>): DOMRect =>
-    ({ top: 0, left: 0, right: 0, bottom: 0, width: 0, height: 0, x: 0, y: 0, toJSON() {}, ...over }) as DOMRect;
+    ({ top: 0, left: 0, right: 0, bottom: 0, width: 0, height: 0, x: 0, y: 0, toJSON: () => {}, ...over }) as DOMRect;
 
   // Places a top-positioned popover with the given offset and returns its
   // resolved top coordinate. Asserting the *difference* between two offsets
   // tests the feature (offset distances the popover from the element) without
   // hard-coding the full positioning formula.
-  async function topForOffset(popoverOffset: number): Promise<number> {
+  const topForOffset = async (popoverOffset: number): Promise<number> => {
     const el = document.querySelector<HTMLElement>("#intro")!;
     el.getBoundingClientRect = () =>
       rect({ top: 400, left: 400, right: 600, bottom: 420, width: 200, height: 20, x: 400, y: 400 });
@@ -590,7 +593,7 @@ describe("popover offset", () => {
     const top = parseFloat((popoverEl() as HTMLElement).style.top);
     await d.destroy();
     return top;
-  }
+  };
 
   it("moves the popover further from the element as the offset grows", async () => {
     const near = await topForOffset(10);

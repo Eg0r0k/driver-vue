@@ -23,8 +23,14 @@ const { drive, driver } = useDriver({
     driver.destroy();
   },
   steps: [
-    { element: "#events-log", popover: { title: "Events logged", description: "Watch the log below as you click the buttons." } },
-    { element: "#events-export", popover: { title: "Popover title", description: "Popover description", side: "right" } },
+    {
+      element: "#events-log",
+      popover: { title: "Events logged", description: "Watch the log below as you click the buttons." },
+    },
+    {
+      element: "#events-export",
+      popover: { title: "Popover title", description: "Popover description", side: "right" },
+    },
   ],
 });
 </script>
@@ -35,7 +41,7 @@ const { drive, driver } = useDriver({
     <pre id="events-log" class="demo-log">{{ log.length ? log.join("\n") : "No events yet." }}</pre>
     <button type="button" class="demo-run" @click="drive()">Show example</button>
     <ClientOnly>
-      <DriverTour />
+      <DriverTour :driver="driver" />
     </ClientOnly>
   </div>
 </template>

@@ -33,7 +33,7 @@ const props = withDefaults(
 
 const shared = injectDriver({ optional: true });
 
-function run() {
+const run = () => {
   const driver = shared?.value;
   if (!driver) {
     return;
@@ -47,7 +47,7 @@ function run() {
   } else {
     driver.drive();
   }
-}
+};
 </script>
 
 <template>

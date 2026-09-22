@@ -45,6 +45,10 @@ export type OverlaySlotProps = TourScope & {
   opacity: number;
   zIndex: number;
   transitioning: boolean;
+  /** The engine animates the stage frame by frame (`config.animate`); false means the rect jumps and CSS may transition it. */
+  animated: boolean;
+  /** Bumped by `driver.refresh()`; re-measure on change. */
+  refreshTick: number;
   /** Call when the dimmed area is clicked (runs `overlayClickBehavior`). */
   onClick: () => void;
 };

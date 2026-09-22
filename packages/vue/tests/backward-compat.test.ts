@@ -10,11 +10,11 @@ useDriverHarness();
 // The shared harness only tracks a single driver; multi-instance tests create
 // several, so track and tear them all down here.
 const extra: Driver[] = [];
-function track(d: Driver): Driver {
+const track = (d: Driver): Driver => {
   extra.push(d);
   mountTour(d);
   return d;
-}
+};
 afterEach(() => {
   while (extra.length) {
     extra.pop()?.destroy();

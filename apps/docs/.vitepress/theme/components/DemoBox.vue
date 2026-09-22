@@ -8,7 +8,7 @@ withDefaults(defineProps<{ prefix?: string }>(), { prefix: "demo" });
 </script>
 
 <template>
-  <div class="demo-box" :id="`${prefix}-box`">
+  <div :id="`${prefix}-box`" class="demo-box">
     <h4 :id="`${prefix}-title`">Quarterly report</h4>
     <p :id="`${prefix}-summary`">
       Revenue grew 12% quarter over quarter, driven by the new onboarding flow. Churn stayed flat at 2.1%.

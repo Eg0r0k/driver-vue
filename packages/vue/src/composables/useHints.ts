@@ -1,4 +1,12 @@
-import { computed, getCurrentScope, onScopeDispose, toValue, watch, type ComputedRef, type MaybeRefOrGetter } from "vue";
+import {
+  computed,
+  getCurrentScope,
+  onScopeDispose,
+  toValue,
+  watch,
+  type ComputedRef,
+  type MaybeRefOrGetter,
+} from "vue";
 import { createHints, type DriverHint, type Hints, type HintsConfig } from "../core/hints";
 
 export type UseHintsReturn = {
@@ -31,10 +39,11 @@ export type UseHintsReturn = {
  * const { show } = useHints({ hints })
  * ```
  */
-export function useHints(config: MaybeRefOrGetter<HintsConfig> = {}): UseHintsReturn {
+export const useHints = (config: MaybeRefOrGetter<HintsConfig> = {}): UseHintsReturn => {
   const hints = createHints(toValue(config));
 
-  const isReactiveConfig = typeof config === "function" || (config !== null && typeof config === "object" && "value" in config);
+  const isReactiveConfig =
+    typeof config === "function" || (config !== null && typeof config === "object" && "value" in config);
   if (isReactiveConfig) {
     watch(
       () => toValue(config).hints,
@@ -52,7 +61,9 @@ export function useHints(config: MaybeRefOrGetter<HintsConfig> = {}): UseHintsRe
   return {
     hints,
     isVisible: computed(() => state.isVisible),
-    active: computed(() => (state.activeId ? state.mounted.find(entry => entry.id === state.activeId)?.hint : undefined)),
+    active: computed(() =>
+      state.activeId ? state.mounted.find(entry => entry.id === state.activeId)?.hint : undefined
+    ),
     activeId: computed(() => state.activeId),
     mountedIds: computed(() => state.mounted.map(entry => entry.id)),
 
@@ -67,4 +78,4 @@ export function useHints(config: MaybeRefOrGetter<HintsConfig> = {}): UseHintsRe
     setHints: hints.setHints,
     refresh: hints.refresh,
   };
-}
+};

@@ -6,7 +6,7 @@ import { useDriver, DriverTour } from "driver-vue";
  * emoji "avatar", and buttons from the docs' own button styles. The
  * positioned wrapper and the arrow are still driver-vue's.
  */
-const { drive } = useDriver({
+const { drive, driver } = useDriver({
   showProgress: true,
   popoverClass: "docs-custom-popover",
   steps: [
@@ -23,7 +23,7 @@ const { drive } = useDriver({
     <button type="button" class="demo-run" @click="drive()">Run with a custom popover</button>
 
     <ClientOnly>
-      <DriverTour>
+      <DriverTour :driver="driver">
         <template #popover="{ popover, index, total, isFirst, isLast, next, prev, close }">
           <div class="cp">
             <div class="cp-head">

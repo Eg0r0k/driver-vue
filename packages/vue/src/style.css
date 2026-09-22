@@ -93,6 +93,44 @@
   cursor: auto;
 }
 
+/* Box overlay (DriverBoxOverlay): a full-screen click catcher whose cutout
+   child dims the page through its box-shadow. The cutout is a real element,
+   so its movement can be a CSS transition when the engine is not animating. */
+.driver-box-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--driver-z-index);
+  overflow: hidden;
+  pointer-events: auto;
+  cursor: auto;
+}
+
+.driver-box-overlay-cutout {
+  position: fixed;
+  box-sizing: border-box;
+  pointer-events: none;
+}
+
+.driver-box-overlay:not([data-animated]) .driver-box-overlay-cutout {
+  transition-property: left, top, width, height, border-radius;
+  transition-duration: var(--driver-animation-duration);
+  transition-timing-function: var(--driver-animation-easing);
+}
+
+/* The page must stay interactive inside the cutout, so the overlay itself
+   only catches clicks on the dimmed part: pointer events pass through the
+   root and land on the shadow-painting cutout's surroundings. */
+.driver-active .driver-box-overlay {
+  pointer-events: none;
+}
+
+.driver-box-overlay-cutout::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: auto;
+}
+
 /* ---------------------------------------------------------------------------
    Stage: an unstyled box tracking the cutout, for decorations
    --------------------------------------------------------------------------- */
@@ -101,6 +139,14 @@
   position: fixed;
   box-sizing: border-box;
   pointer-events: none;
+}
+
+/* With the engine animation off, the stage box glides between elements on
+   its own, using the same duration/easing variables as everything else. */
+.driver-simple .driver-stage {
+  transition-property: left, top, width, height, border-radius;
+  transition-duration: var(--driver-animation-duration);
+  transition-timing-function: var(--driver-animation-easing);
 }
 
 /* ---------------------------------------------------------------------------

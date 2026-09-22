@@ -16,21 +16,13 @@ describe("stage path", () => {
   });
 
   it("caps the radius to half of the smallest side", () => {
-    const path = generateStageSvgPathString(
-      { x: 0, y: 0, width: 4, height: 4 },
-      { padding: 0, radius: 50 },
-      viewport
-    );
+    const path = generateStageSvgPathString({ x: 0, y: 0, width: 4, height: 4 }, { padding: 0, radius: 50 }, viewport);
 
     expect(path).toContain("a2,2 0 0 1 2,2");
   });
 
   it("never produces a negative radius", () => {
-    const path = generateStageSvgPathString(
-      { x: 0, y: 0, width: 0, height: 0 },
-      { padding: 0, radius: -5 },
-      viewport
-    );
+    const path = generateStageSvgPathString({ x: 0, y: 0, width: 0, height: 0 }, { padding: 0, radius: -5 }, viewport);
 
     expect(path).toContain("a0,0 0 0 1 0,0");
   });

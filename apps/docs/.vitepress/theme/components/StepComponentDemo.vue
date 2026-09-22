@@ -13,25 +13,23 @@ const VideoStep = defineComponent({
     // From `popover.props`:
     emoji: { type: String, default: "🎬" },
   },
-  setup(props) {
-    return () =>
-      h("div", { class: "sc" }, [
-        h("div", { class: "sc-media" }, props.emoji),
-        h("strong", (props.popover as TourSlotProps["popover"]).title),
-        h("p", (props.popover as TourSlotProps["popover"]).description),
-        h("div", { class: "demo-row" }, [
-          h("button", { type: "button", class: "demo-button secondary", onClick: () => props.close() }, "Skip"),
-          h(
-            "button",
-            { type: "button", class: "demo-button", onClick: () => props.next() },
-            props.isLast ? "Done" : "Next"
-          ),
-        ]),
-      ]);
-  },
+  setup: props => () =>
+    h("div", { class: "sc" }, [
+      h("div", { class: "sc-media" }, props.emoji),
+      h("strong", (props.popover as TourSlotProps["popover"]).title),
+      h("p", (props.popover as TourSlotProps["popover"]).description),
+      h("div", { class: "demo-row" }, [
+        h("button", { type: "button", class: "demo-button secondary", onClick: () => props.close() }, "Skip"),
+        h(
+          "button",
+          { type: "button", class: "demo-button", onClick: () => props.next() },
+          props.isLast ? "Done" : "Next"
+        ),
+      ]),
+    ]),
 });
 
-const { drive } = useDriver({
+const { drive, driver } = useDriver({
   steps: [
     {
       element: "#stepc-title",
@@ -66,7 +64,7 @@ const { drive } = useDriver({
     <DemoBox prefix="stepc" />
     <button type="button" class="demo-run" @click="drive()">Run with per-step components</button>
     <ClientOnly>
-      <DriverTour />
+      <DriverTour :driver="driver" />
     </ClientOnly>
   </div>
 </template>

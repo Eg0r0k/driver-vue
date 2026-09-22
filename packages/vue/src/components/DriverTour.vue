@@ -100,6 +100,8 @@ const overlayScope = computed<OverlaySlotProps | undefined>(() => {
     opacity: config.value.overlayOpacity ?? 0.7,
     zIndex: zIndex.value,
     transitioning: s.transitioning,
+    animated: config.value.animate !== false,
+    refreshTick: s.refreshTick,
     onClick: () => driver.value?.__internal.overlayClick(),
   };
 });
@@ -121,16 +123,16 @@ const stageScope = computed<StageSlotProps | undefined>(() => {
 
 const popoverAnchor = computed(() => state.value?.activeElement);
 
-function onPopoverRender(dom: PopoverDOM) {
+const onPopoverRender = (dom: PopoverDOM) => {
   driver.value?.__internal.reportPopoverDom(dom);
-}
+};
 
-function onPopoverUnrender(dom: PopoverDOM) {
+const onPopoverUnrender = (dom: PopoverDOM) => {
   // Only clear what is still the reported popover; a newer one may already be up.
   if (driver.value?.getState("popover") === dom) {
     driver.value.__internal.clearPopoverDom();
   }
-}
+};
 
 // Popover part slots that were actually provided are forwarded to the
 // popover; the rest keep the popover's default content. `popover` is
@@ -154,7 +156,9 @@ const forwardedSlots = computed(() => popoverSlots.filter(name => !!slots[name])
             :opacity="overlayScope.opacity"
             :z-index="overlayScope.zIndex"
             :transitioning="overlayScope.transitioning"
-            :refresh-tick="state!.refreshTick"
+            :animated="overlayScope.animated"
+            :refresh-tick="overlayScope.refreshTick"
+            :class="config.overlayClass"
             @click="overlayScope.onClick"
           />
         </slot>
@@ -168,6 +172,7 @@ const forwardedSlots = computed(() => popoverSlots.filter(name => !!slots[name])
       :radius="stageScope.radius"
       :transitioning="stageScope.transitioning"
       :z-index="zIndex"
+      :class="config.stageClass"
     >
       <slot name="stage" v-bind="stageScope" />
     </DriverStage>

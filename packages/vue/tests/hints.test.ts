@@ -28,12 +28,12 @@ class FakeIntersectionObserver {
   }
 }
 
-async function intersect(target: Element, isIntersecting: boolean) {
+const intersect = async (target: Element, isIntersecting: boolean) => {
   observerCallbacks
     .filter(entry => entry.target === target && !entry.disconnected)
     .forEach(entry => entry.callback([{ isIntersecting }]));
   await flush();
-}
+};
 
 const SAMPLE_HINTS: DriverHint[] = [
   { element: "#intro", id: "intro", popover: { title: "Intro hint", description: "About the intro" } },
@@ -42,30 +42,31 @@ const SAMPLE_HINTS: DriverHint[] = [
 
 // The hints API is synchronous; the DOM renders on the next tick, so the
 // rendering methods are wrapped to await it.
-type AsyncMethods = "show" | "hide" | "open" | "close" | "toggle" | "dismiss" | "restore" | "restoreAll" | "setHints" | "refresh";
+type AsyncMethods =
+  "show" | "hide" | "open" | "close" | "toggle" | "dismiss" | "restore" | "restoreAll" | "setHints" | "refresh";
 type TestHints = Omit<Hints, AsyncMethods> & {
   [K in AsyncMethods]: (...args: Parameters<Hints[K]>) => Promise<void>;
 };
 
 const mounted: { app: App; host: HTMLElement; hints: Hints }[] = [];
 
-function mountHints(instance: Hints, slots?: Record<string, any>) {
+const mountHints = (instance: Hints, slots?: Record<string, any>) => {
   const host = document.createElement("div");
   document.body.appendChild(host);
   const app = createApp({ render: () => h(DriverHints, { hints: instance }, slots) });
   app.config.warnHandler = () => {};
   app.mount(host);
   mounted.push({ app, host, hints: instance });
-}
+};
 
 // The overlay leaves through a <Transition>, which needs a couple of frames.
-async function settle(): Promise<void> {
+const settle = async (): Promise<void> => {
   await flush();
   await new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
   await flush();
-}
+};
 
-function wrapHints(instance: Hints): TestHints {
+const wrapHints = (instance: Hints): TestHints => {
   const wrap =
     <A extends unknown[]>(fn: (...args: A) => void) =>
     async (...args: A) => {
@@ -86,13 +87,13 @@ function wrapHints(instance: Hints): TestHints {
     setHints: wrap(instance.setHints),
     refresh: wrap(instance.refresh),
   };
-}
+};
 
-function createHints(config?: Parameters<typeof createHintsCore>[0], slots?: Record<string, any>): TestHints {
+const createHints = (config?: Parameters<typeof createHintsCore>[0], slots?: Record<string, any>): TestHints => {
   const instance = createHintsCore(config);
   mountHints(instance, slots);
   return wrapHints(instance);
-}
+};
 
 const beacons = () => Array.from(document.querySelectorAll<HTMLButtonElement>(".driver-hint"));
 const beaconFor = (id: string) => document.querySelector<HTMLButtonElement>(`.driver-hint[data-hint-id="${id}"]`)!;
@@ -101,7 +102,7 @@ const overlayEl = () => document.querySelector<SVGSVGElement>(".driver-hint-over
 const overlayPath = () => overlayEl()?.querySelector("path");
 
 const rect = (over: Partial<DOMRect>): DOMRect =>
-  ({ top: 0, left: 0, right: 0, bottom: 0, width: 0, height: 0, x: 0, y: 0, toJSON() {}, ...over }) as DOMRect;
+  ({ top: 0, left: 0, right: 0, bottom: 0, width: 0, height: 0, x: 0, y: 0, toJSON: () => {}, ...over }) as DOMRect;
 
 useDriverHarness();
 
@@ -221,7 +222,7 @@ describe("beacon positioning", () => {
   // Element box: 200x20 at (400, 400).
   const ELEMENT_BOX = { top: 400, left: 400, right: 600, bottom: 420, width: 200, height: 20 };
 
-  async function positionFor(beacon?: DriverHint["beacon"]) {
+  const positionFor = async (beacon?: DriverHint["beacon"]) => {
     const el = document.querySelector<HTMLElement>("#intro")!;
     el.getBoundingClientRect = () => rect(ELEMENT_BOX);
 
@@ -229,22 +230,49 @@ describe("beacon positioning", () => {
 
     const mountedBeacon = beacons()[0];
     return { top: mountedBeacon.style.top, left: mountedBeacon.style.left };
-  }
+  };
 
   it("defaults to the element's top-right corner", async () => {
     expect(await positionFor()).toEqual({ top: "400px", left: "600px" });
   });
 
   it.each([
-    [{ side: "top", align: "start" }, { top: "400px", left: "400px" }],
-    [{ side: "top", align: "center" }, { top: "400px", left: "500px" }],
-    [{ side: "top", align: "end" }, { top: "400px", left: "600px" }],
-    [{ side: "bottom", align: "start" }, { top: "420px", left: "400px" }],
-    [{ side: "bottom", align: "center" }, { top: "420px", left: "500px" }],
-    [{ side: "left", align: "start" }, { top: "400px", left: "400px" }],
-    [{ side: "left", align: "center" }, { top: "410px", left: "400px" }],
-    [{ side: "left", align: "end" }, { top: "420px", left: "400px" }],
-    [{ side: "right", align: "center" }, { top: "410px", left: "600px" }],
+    [
+      { side: "top", align: "start" },
+      { top: "400px", left: "400px" },
+    ],
+    [
+      { side: "top", align: "center" },
+      { top: "400px", left: "500px" },
+    ],
+    [
+      { side: "top", align: "end" },
+      { top: "400px", left: "600px" },
+    ],
+    [
+      { side: "bottom", align: "start" },
+      { top: "420px", left: "400px" },
+    ],
+    [
+      { side: "bottom", align: "center" },
+      { top: "420px", left: "500px" },
+    ],
+    [
+      { side: "left", align: "start" },
+      { top: "400px", left: "400px" },
+    ],
+    [
+      { side: "left", align: "center" },
+      { top: "410px", left: "400px" },
+    ],
+    [
+      { side: "left", align: "end" },
+      { top: "420px", left: "400px" },
+    ],
+    [
+      { side: "right", align: "center" },
+      { top: "410px", left: "600px" },
+    ],
   ] as const)("anchors the beacon for %o", async (beacon, expected) => {
     expect(await positionFor(beacon)).toEqual(expected);
   });
@@ -307,7 +335,9 @@ describe("popover anchoring", () => {
     expect(productHints.state.popoverAnchor).toBe(beaconFor("intro"));
     expect(popoverEl()?.className).toContain("driver-hint-popover");
     expect(document.querySelector(".driver-popover-arrow")).not.toBeNull();
-    expect(document.querySelector(".driver-popover-arrow")?.classList.contains("driver-popover-arrow-none")).toBe(false);
+    expect(document.querySelector(".driver-popover-arrow")?.classList.contains("driver-popover-arrow-none")).toBe(
+      false
+    );
   });
 });
 
@@ -584,7 +614,10 @@ describe("opening and closing", () => {
   it("renders a custom popover body through the popover slot", async () => {
     const productHints = createHints(
       { hints: SAMPLE_HINTS },
-      { popover: (scope: { hint: DriverHint; dismiss: () => void }) => h("b", { class: "my-hint", onClick: scope.dismiss }, scope.hint.popover?.title) }
+      {
+        popover: (scope: { hint: DriverHint; dismiss: () => void }) =>
+          h("b", { class: "my-hint", onClick: scope.dismiss }, scope.hint.popover?.title),
+      }
     );
     await productHints.show();
     await productHints.open("intro");

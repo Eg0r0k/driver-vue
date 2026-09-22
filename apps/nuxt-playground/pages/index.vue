@@ -18,7 +18,11 @@ const local = useDriver({ steps, animate: false, allowClose: true });
 // Hints: beacons pinned to elements, rendered by <DriverHints> below.
 const productHints = useHints({
   hints: [
-    { element: "#features", id: "features", popover: { title: "Features", description: "Click a beacon to learn more." } },
+    {
+      element: "#features",
+      id: "features",
+      popover: { title: "Features", description: "Click a beacon to learn more." },
+    },
     { element: "#cta", id: "cta", beacon: { side: "left", align: "center" }, popover: { title: "Actions" } },
   ],
 });

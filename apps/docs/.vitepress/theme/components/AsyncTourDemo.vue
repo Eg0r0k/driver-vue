@@ -1,18 +1,18 @@
 <script setup lang="ts">
 import { useDriver, DriverTour } from "driver-vue";
 
-function mountDynamicElement() {
+const mountDynamicElement = () => {
   const el = (document.querySelector(".dynamic-el") || document.createElement("div")) as HTMLElement;
   el.className = "dynamic-el";
   el.textContent = "This is a new element";
   el.style.top = `${Math.random() * 300 + 60}px`;
   el.style.left = `${Math.random() * 300 + 60}px`;
   document.body.appendChild(el);
-}
+};
 
-function removeDynamicElement() {
+const removeDynamicElement = () => {
   document.querySelector(".dynamic-el")?.remove();
-}
+};
 
 const { drive, driver } = useDriver({
   showProgress: true,
@@ -51,7 +51,7 @@ const { drive, driver } = useDriver({
     <DemoBox prefix="async" />
     <button type="button" class="demo-run" @click="drive()">Run the async tour</button>
     <ClientOnly>
-      <DriverTour />
+      <DriverTour :driver="driver" />
     </ClientOnly>
   </div>
 </template>
