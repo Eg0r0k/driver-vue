@@ -1,0 +1,21 @@
+{
+  "name": "driver-vue-monorepo",
+  "private": true,
+  "packageManager": "pnpm@10.33.0",
+  "scripts": {
+    "build": "turbo run build",
+    "test": "pnpm --filter driver-vue test",
+    "test:run": "turbo run test:run",
+    "typecheck": "turbo run typecheck",
+    "lint:package": "turbo run lint:package",
+    "docs:dev": "pnpm --filter driver-vue-docs dev",
+    "docs:build": "turbo run build --filter=driver-vue-docs",
+    "play:nuxt": "pnpm --filter nuxt-playground dev",
+    "format": "prettier . --write"
+  },
+  "devDependencies": {
+    "prettier": "^3.8.4",
+    "turbo": "^2.6.5",
+    "typescript": "~5.9.3"
+  }
+}
