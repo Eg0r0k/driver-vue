@@ -277,6 +277,35 @@ describe("beacon positioning", () => {
     expect(await positionFor(beacon)).toEqual(expected);
   });
 
+  it("positions the beacon in document coordinates so it scrolls with the page", async () => {
+    const el = document.querySelector<HTMLElement>("#intro")!;
+    el.getBoundingClientRect = () => rect(ELEMENT_BOX);
+    Object.defineProperty(window, "scrollY", { value: 250, configurable: true });
+    Object.defineProperty(window, "scrollX", { value: 40, configurable: true });
+    try {
+      const productHints = createHints({ hints: [{ element: "#intro" }] });
+      await productHints.show();
+
+      const entry = productHints.state.mounted[0];
+      expect(entry.y).toBe(400);
+      expect(entry.pageY).toBe(650);
+      expect(entry.pageX).toBe(640);
+      // The root marks the origin. A browser reports it at (-scrollX, -scrollY)
+      // once the page is scrolled (happy-dom does not, so it is mocked here),
+      // which puts the origin at the page's top-left and the beacon at its
+      // document coordinates.
+      const rootEl = document.querySelector<HTMLElement>(".driver-hints")!;
+      rootEl.getBoundingClientRect = () => rect({ top: -250, left: -40 });
+      await productHints.refresh();
+
+      expect(beacons()[0].style.top).toBe("650px");
+      expect(beacons()[0].style.left).toBe("640px");
+    } finally {
+      Object.defineProperty(window, "scrollY", { value: 0, configurable: true });
+      Object.defineProperty(window, "scrollX", { value: 0, configurable: true });
+    }
+  });
+
   it("nudges the beacon by offsetX and offsetY", async () => {
     expect(await positionFor({ side: "top", align: "end", offsetX: 12, offsetY: -8 })).toEqual({
       top: "392px",

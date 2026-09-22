@@ -103,6 +103,13 @@ export type MountedHint = {
   /** The beacon's anchor point, in viewport coordinates (the beacon is centered on it). */
   x: number;
   y: number;
+  /**
+   * The same point in document coordinates (viewport + scroll offset). The
+   * beacon is positioned absolutely with these, so it scrolls with the page
+   * natively instead of chasing the scroll from JavaScript.
+   */
+  pageX: number;
+  pageY: number;
   /** The element scrolled out of view; the beacon is hidden. */
   hidden: boolean;
   /** This hint's popover is open. */
@@ -200,6 +207,8 @@ export const createHints = (config: HintsConfig = {}): Hints => {
 
     entry.x = left + offsetX;
     entry.y = top + offsetY;
+    entry.pageX = entry.x + window.scrollX;
+    entry.pageY = entry.y + window.scrollY;
   };
 
   // Hide the beacon when its element scrolls out of view (or out of a
@@ -238,6 +247,8 @@ export const createHints = (config: HintsConfig = {}): Hints => {
       element,
       x: 0,
       y: 0,
+      pageX: 0,
+      pageY: 0,
       hidden: false,
       expanded: false,
       className: className || "",
@@ -308,14 +319,16 @@ export const createHints = (config: HintsConfig = {}): Hints => {
     };
 
     // Capture, so scrolling inside a nested container repositions the beacons
-    // too; those events never reach the window during the bubble phase.
-    window.addEventListener("scroll", requireRefresh, true);
+    // too; those events never reach the window during the bubble phase. The
+    // refresh runs in the event itself so it lands in the same frame; the
+    // page scroll needs no repositioning at all (the beacons are absolute).
+    window.addEventListener("scroll", refresh, true);
     window.addEventListener("resize", requireRefresh);
     document.addEventListener("click", onDocumentClick);
     window.addEventListener("keyup", onKeyup);
 
     teardown = [
-      () => window.removeEventListener("scroll", requireRefresh, true),
+      () => window.removeEventListener("scroll", refresh, true),
       () => window.removeEventListener("resize", requireRefresh),
       () => document.removeEventListener("click", onDocumentClick),
       () => window.removeEventListener("keyup", onKeyup),
@@ -499,6 +512,9 @@ export const createHints = (config: HintsConfig = {}): Hints => {
 
   const refresh = () => {
     state.mounted.forEach(positionBeacon);
+    // Components re-measure on every refresh (the beacons' origin, the
+    // popover position), not only while a popover is open.
+    state.refreshTick++;
 
     const active = state.activeId ? find(state.activeId) : undefined;
     if (!active || !state.popover) {
@@ -510,7 +526,6 @@ export const createHints = (config: HintsConfig = {}): Hints => {
     }
 
     state.popoverAnchor = popoverAnchor(active);
-    state.refreshTick++;
   };
 
   const show = () => {

@@ -71,6 +71,15 @@
   pointer-events: none !important;
 }
 
+/* Opt-in for your own UI rendered outside the popover while a tour runs
+   (headless cards, custom overlays, page controls): the tour disables pointer
+   events page-wide, this turns them back on. Give the element a z-index above
+   the overlay (`--driver-z-index` + 2) as well. */
+.driver-active .driver-interactive,
+.driver-active .driver-interactive * {
+  pointer-events: auto;
+}
+
 /* ---------------------------------------------------------------------------
    Overlay
    --------------------------------------------------------------------------- */
@@ -338,10 +347,21 @@
    Hints
    --------------------------------------------------------------------------- */
 
+/* Beacons are absolutely positioned in document coordinates, so they scroll
+   with the page natively (a fixed element repositioned from JS trails the
+   scroll by a frame). The `.driver-hints` root marks the origin. */
+.driver-hints {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+}
+
 .driver-hint {
   all: unset;
   box-sizing: border-box;
-  position: fixed;
+  position: absolute;
   display: block;
   width: var(--driver-hint-size);
   height: var(--driver-hint-size);

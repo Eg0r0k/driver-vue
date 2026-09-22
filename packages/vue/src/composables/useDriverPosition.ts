@@ -35,6 +35,11 @@ export type UseDriverPositionOptions = {
   centered?: MaybeRefOrGetter<boolean>;
   /** Positioning only runs while open. */
   open?: MaybeRefOrGetter<boolean>;
+  /**
+   * `fixed` (default) positions in the viewport; `absolute` positions in the
+   * document, so the element scrolls natively with the page. (Floating UI strategy)
+   */
+  strategy?: "fixed" | "absolute";
 };
 
 export type UseDriverPositionReturn = {
@@ -111,7 +116,7 @@ export const useDriverPosition = (options: UseDriverPositionOptions): UseDriverP
 
   const floating = useFloating(reference, options.floating, {
     placement,
-    strategy: "fixed",
+    strategy: options.strategy ?? "fixed",
     middleware,
     transform: false,
     open: computed(() => (toValue(options.open) ?? true) && !isCentered.value),
@@ -126,7 +131,7 @@ export const useDriverPosition = (options: UseDriverPositionOptions): UseDriverP
   const floatingStyles = computed<CSSProperties>(() => {
     if (isCentered.value) {
       return {
-        position: "fixed",
+        position: options.strategy ?? "fixed",
         left: "50%",
         top: "50%",
         transform: "translate(-50%, -50%)",

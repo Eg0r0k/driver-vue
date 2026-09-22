@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, useSlots } from "vue";
+import { computed, onMounted, ref, useSlots, useTemplateRef, watch } from "vue";
 import DriverHintBeacon from "./DriverHintBeacon.vue";
 import DriverPopover from "./DriverPopover.vue";
 import { generateStageSvgPathString, getViewport } from "../core/stage";
@@ -45,6 +45,27 @@ defineSlots<{
 const mounted = ref(false);
 onMounted(() => {
   mounted.value = true;
+});
+
+// Beacons and the popover are positioned absolutely inside this root so they
+// scroll with the page natively. The root sits at the teleport target's
+// origin; its document offset is measured (once, and on refresh) and
+// subtracted from the document coordinates the engine computes.
+const root = useTemplateRef<HTMLElement>("root");
+const origin = ref({ x: 0, y: 0 });
+
+const measureOrigin = () => {
+  const el = root.value;
+  if (!el) {
+    return;
+  }
+
+  const rect = el.getBoundingClientRect();
+  origin.value = { x: rect.left + window.scrollX, y: rect.top + window.scrollY };
+};
+
+watch([root, () => props.hints.state.refreshTick, () => props.hints.state.isVisible], () => measureOrigin(), {
+  flush: "post",
 });
 
 const state = computed(() => props.hints.state);
@@ -119,10 +140,13 @@ const forwardedSlots = computed(() => popoverSlots.filter(name => !!slots[name])
 
 <template>
   <Teleport v-if="mounted && state.isVisible" :to="teleportTo">
+    <div ref="root" class="driver-hints" />
     <DriverHintBeacon
       v-for="entry in visibleBeacons"
       :key="entry.id"
       :entry="entry"
+      :origin-x="origin.x"
+      :origin-y="origin.y"
       @click="hints.toggle(entry.id)"
       @mounted="hints.__internal.registerBeacon"
       @unmounted="hints.__internal.unregisterBeacon"
@@ -146,6 +170,7 @@ const forwardedSlots = computed(() => popoverSlots.filter(name => !!slots[name])
       v-if="state.popover && popoverScope"
       :key="state.popover.key"
       mode="hint"
+      strategy="absolute"
       :model="state.popover"
       :anchor="state.popoverAnchor"
       :scope="popoverScope"

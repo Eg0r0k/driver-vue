@@ -24,6 +24,8 @@ const props = withDefaults(
     refreshTick?: number;
     /** Hint popovers render a single dismiss button and no close/progress. */
     mode?: "tour" | "hint";
+    /** Positioning strategy; `absolute` scrolls natively with the page. */
+    strategy?: "fixed" | "absolute";
   }>(),
   {
     anchor: undefined,
@@ -31,6 +33,7 @@ const props = withDefaults(
     zIndex: 10000,
     refreshTick: 0,
     mode: "tour",
+    strategy: "fixed",
   }
 );
 
@@ -66,6 +69,7 @@ const { floatingStyles, arrowStyles, side, align, update, isPositioned } = useDr
   offset: () => props.model.offset,
   padding: () => props.model.padding,
   centered: () => props.model.centered,
+  strategy: props.strategy,
 });
 
 const showClose = computed(() => props.mode === "tour" && props.model.showButtons.includes("close"));

@@ -7,9 +7,15 @@ import type { MountedHint } from "../core/hints";
  * ring and a dot. The button (position, aria, click) is the contract; the
  * content inside is the `default` slot.
  */
-const props = defineProps<{
-  entry: MountedHint;
-}>();
+const props = withDefaults(
+  defineProps<{
+    entry: MountedHint;
+    /** Document offset of the positioned container the beacon lives in. */
+    originX?: number;
+    originY?: number;
+  }>(),
+  { originX: 0, originY: 0 }
+);
 
 const emit = defineEmits<{
   click: [];
@@ -29,8 +35,8 @@ const classes = computed(() => [
 ]);
 
 const style = computed(() => ({
-  top: `${props.entry.y}px`,
-  left: `${props.entry.x}px`,
+  top: `${props.entry.pageY - props.originY}px`,
+  left: `${props.entry.pageX - props.originX}px`,
 }));
 
 const onClick = (event: MouseEvent) => {
