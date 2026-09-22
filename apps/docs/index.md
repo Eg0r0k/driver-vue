@@ -3,6 +3,9 @@ layout: home
 
 hero:
   name: driver-vue
+  image:
+    src: /favicon.svg
+    alt: driver-vue
   text: Product tours you render with your own Vue components
   tagline: A port of driver.js whose popover, overlay, stage and hint beacons are Vue components. Same API, same class names, your markup.
   actions:
