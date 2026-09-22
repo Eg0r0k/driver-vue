@@ -95,7 +95,7 @@ const { hints, show } = useHints({
 
 ## Documentation
 
-Guides, live demos and the API reference: [github.com/Eg0r0k/driver-vue](https://github.com/Eg0r0k/driver-vue) (`apps/docs`).
+Guides, live demos and the API reference: [eg0r0k.github.io/driver-vue](https://eg0r0k.github.io/driver-vue/).
 
 ## License
 

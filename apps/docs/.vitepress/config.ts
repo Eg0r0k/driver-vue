@@ -3,6 +3,9 @@ import { defineConfig } from "vitepress";
 
 const pkg = (path: string) => fileURLToPath(new URL(`../../../packages/vue/${path}`, import.meta.url));
 
+const SITE = "https://eg0r0k.github.io/driver-vue/";
+const base = process.env.DOCS_BASE ?? "/";
+
 export default defineConfig({
   title: "driver-vue",
   description:
@@ -12,12 +15,13 @@ export default defineConfig({
   cleanUrls: true,
   ignoreDeadLinks: [/^https?:\/\/localhost/],
 
+  base,
   head: [
-    ["link", { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" }],
-    ["link", { rel: "icon", type: "image/png", sizes: "32x32", href: "/favicon-32.png" }],
-    ["link", { rel: "apple-touch-icon", sizes: "180x180", href: "/apple-touch-icon.png" }],
+    ["link", { rel: "icon", type: "image/svg+xml", href: `${base}favicon.svg` }],
+    ["link", { rel: "icon", type: "image/png", sizes: "32x32", href: `${base}favicon-32.png` }],
+    ["link", { rel: "apple-touch-icon", sizes: "180x180", href: `${base}apple-touch-icon.png` }],
     ["meta", { name: "theme-color", content: "#3866e8" }],
-    ["meta", { property: "og:image", content: "/logo-512.png" }],
+    ["meta", { property: "og:image", content: `${SITE}logo-512.png` }],
   ],
 
   themeConfig: {

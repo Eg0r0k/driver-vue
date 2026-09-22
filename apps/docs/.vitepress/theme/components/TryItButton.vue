@@ -45,7 +45,7 @@ const run = () => {
 </script>
 
 <template>
-  <div style="display: flex">
+  <div style="display: flex; gap: 8px">
     <div class="action">
       <VPButton tag="button" theme="brand" text="Try it" @click="run" />
     </div>
@@ -57,11 +57,3 @@ const run = () => {
     </div>
   </div>
 </template>
-
-<style scoped>
-.flex.flex-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-</style>

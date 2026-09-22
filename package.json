@@ -17,7 +17,7 @@
     "prepare": "husky",
     "changeset": "changeset",
     "version-packages": "changeset version && pnpm install --lockfile-only && prettier --write \"**/CHANGELOG.md\"",
-    "release": "pnpm build && pnpm test:run && pnpm lint:package && changeset publish",
+    "release": "pnpm --filter driver-vue --filter nuxt-driver-vue build && pnpm --filter driver-vue test:run && pnpm --filter driver-vue --filter nuxt-driver-vue lint:package && changeset publish",
     "commitlint": "commitlint --edit"
   },
   "devDependencies": {

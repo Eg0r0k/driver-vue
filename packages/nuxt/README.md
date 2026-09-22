@@ -53,6 +53,8 @@ const { drive } = useDriver(
 
 Auto-imports: `useDriver`, `createDriver`, `useDriverPosition`, `injectDriver`, `provideDriver`, `useHints`, `createHints`. Components render nothing on the server.
 
+Documentation: [eg0r0k.github.io/driver-vue](https://eg0r0k.github.io/driver-vue/guide/nuxt).
+
 ## License
 
 MIT

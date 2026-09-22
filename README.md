@@ -84,6 +84,8 @@ export default defineNuxtConfig({ modules: ["nuxt-driver-vue"] });
 
 ## Contributing
 
+Documentation with live demos: [eg0r0k.github.io/driver-vue](https://eg0r0k.github.io/driver-vue/).
+
 See [CONTRIBUTING.md](./CONTRIBUTING.md) for the workflow, commit format and releases.
 
 ## License
