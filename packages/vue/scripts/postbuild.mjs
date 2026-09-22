@@ -8,7 +8,7 @@ const dist = resolve(import.meta.dirname, "../dist");
 mkdirSync(dist, { recursive: true });
 
 for (const entry of ["index", "hints"]) {
-  const body = `export * from "./types/${entry}";\nexport { default } from "./types/${entry}";\n`;
+  const body = `export * from "./types/${entry}";\n`;
   writeFileSync(resolve(dist, `${entry}.d.ts`), body);
   writeFileSync(resolve(dist, `${entry}.d.cts`), body);
 }
