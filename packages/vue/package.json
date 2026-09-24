@@ -1,6 +1,6 @@
 {
   "name": "driver-vue",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Vue 3 / Nuxt port of driver.js: product tours, highlights and hints rendered with your own Vue components",
   "license": "MIT",
   "type": "module",
