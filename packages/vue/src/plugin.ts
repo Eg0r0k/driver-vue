@@ -18,7 +18,7 @@ export type DriverPluginOptions = {
   defaults?: Config;
   /**
    * Register the components globally: `true` registers `DriverTour`,
-   * `DriverPopover`, `DriverOverlay` and `DriverStage`; a string changes the
+   * `DriverPopover`, `DriverOverlay`, `DriverBoxOverlay` and `DriverStage`; a string changes the
    * `Driver` prefix (`"Tour"` registers `TourTour`, ...). (default: false)
    */
   components?: boolean | string;

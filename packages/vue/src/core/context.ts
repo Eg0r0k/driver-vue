@@ -102,7 +102,8 @@ export type AllowedEvents =
   | "prevClick"
   | "closeClick"
   | "arrowRightPress"
-  | "arrowLeftPress";
+  | "arrowLeftPress"
+  | "scrollAway";
 
 const createEmitter = () => {
   let registeredListeners: Partial<{ [key in AllowedEvents]: () => void }> = {};

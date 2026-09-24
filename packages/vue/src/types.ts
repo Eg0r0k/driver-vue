@@ -160,6 +160,25 @@ export type Config = {
 
   /** driver-vue addition: class added to the overlay root. */
   overlayClass?: string;
+
+  /**
+   * driver-vue addition: what happens when the highlighted element is
+   * scrolled out of the viewport. `"stick"` keeps the popover pinned to the
+   * nearest edge with the arrow pointing back at the element; `"close"` ends
+   * the tour (only when `allowClose` is on); a function runs instead, once
+   * per departure. (default: "stick")
+   */
+  scrollAwayBehavior?: "stick" | "close" | DriverHook;
+  /**
+   * driver-vue addition: how far (px) the element has to be past the
+   * viewport edge before `scrollAwayBehavior` runs. (default: 0)
+   */
+  scrollAwayOffset?: number;
+  /**
+   * driver-vue addition: while the element is out of view, a click on the
+   * popover scrolls it back into view. (default: false)
+   */
+  scrollBackOnClick?: boolean;
 };
 
 /** The cutout rectangle, in viewport coordinates, without the stage padding. */
@@ -205,6 +224,8 @@ export type PopoverRenderModel = {
   centered: boolean;
 
   smoothScroll: boolean;
+  /** A click on the popover scrolls the element back while it is out of view. */
+  scrollBackOnClick: boolean;
 
   component?: Component;
   componentProps?: Record<string, unknown>;
@@ -264,6 +285,8 @@ export type State = {
   __transitionCallback?: () => void;
   __pendingWaitCancel?: () => void;
   __activeStagePosition?: StageRect;
+  /** The element has been in view since the step started, so leaving it counts. */
+  __scrollAwayArmed?: boolean;
 
   __events?: {
     onKeyup: (e: KeyboardEvent) => void;

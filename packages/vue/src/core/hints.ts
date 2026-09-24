@@ -360,6 +360,7 @@ export const createHints = (config: HintsConfig = {}): Hints => {
       padding: currentConfig.overlay ? HINT_OVERLAY_PADDING : 0,
       centered: false,
       smoothScroll: false,
+      scrollBackOnClick: false,
 
       component: hintPopover.component,
       componentProps: hintPopover.props,

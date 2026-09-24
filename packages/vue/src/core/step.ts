@@ -130,6 +130,7 @@ export const resolveStepPopover = (ctx: Context, element: Element, step: DriveSt
     centered: isDummyElement(element),
 
     smoothScroll: !!ctx.getConfig("smoothScroll"),
+    scrollBackOnClick: !!ctx.getConfig("scrollBackOnClick"),
 
     component: popover.component ?? ctx.getConfig("components")?.popover,
     componentProps: popover.props,

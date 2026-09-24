@@ -54,6 +54,22 @@ export const createDriver = (options: Config = {}): Driver => {
     }
   };
 
+  const handleScrollAway = () => {
+    const behavior = ctx.getConfig("scrollAwayBehavior");
+
+    if (typeof behavior === "function") {
+      const activeStep = ctx.getState("__activeStep");
+      const activeElement = ctx.getState("__activeElement");
+
+      behavior(activeElement, activeStep!, ctx.getHookOpts());
+      return;
+    }
+
+    if (behavior === "close" && ctx.getConfig("allowClose")) {
+      destroy();
+    }
+  };
+
   const moveNext = () => {
     const activeIndex = ctx.getState("activeIndex");
     const steps = ctx.getConfig("steps") || [];
@@ -187,6 +203,7 @@ export const createDriver = (options: Config = {}): Driver => {
     ctx.listen("closeClick", handleClose);
     ctx.listen("arrowLeftPress", handleArrowLeft);
     ctx.listen("arrowRightPress", handleArrowRight);
+    ctx.listen("scrollAway", handleScrollAway);
   };
 
   const cancelElementWait = () => {

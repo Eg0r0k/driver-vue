@@ -27,7 +27,8 @@
   --driver-popover-btn-font-size: 12px;
 
   --driver-popover-arrow-size: 5px;
-  --driver-popover-arrow-color: var(--driver-popover-bg);
+  /* --driver-popover-arrow-color is unset: the arrow follows --driver-popover-bg
+     wherever that is set, including a theme scoped to a popoverClass. */
 
   --driver-hint-size: 24px;
   --driver-hint-color: #818cf8;
@@ -287,7 +288,7 @@
 .driver-popover-arrow {
   content: "";
   position: absolute;
-  border: var(--driver-popover-arrow-size) solid var(--driver-popover-arrow-color);
+  border: var(--driver-popover-arrow-size) solid var(--driver-popover-arrow-color, var(--driver-popover-bg));
 }
 
 .driver-popover-arrow-side-left {
@@ -321,6 +322,10 @@
 .driver-popover-arrow-side-over,
 .driver-popover-arrow-none {
   display: none;
+}
+
+.driver-popover-scroll-back {
+  cursor: pointer;
 }
 
 /* ---------------------------------------------------------------------------

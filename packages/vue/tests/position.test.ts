@@ -229,5 +229,75 @@ describe("useDriverPosition", () => {
   });
 });
 
+describe("useDriverPosition side choice", () => {
+  // happy-dom's window is 1024x768; the popover box is 200x100.
+  const place = async (options: HostOptions) => {
+    const host = mountHost(options);
+    await host.settle();
+    await host.position.update();
+    await host.settle();
+    return host;
+  };
+
+  it("uses the opposite side before the perpendicular ones", async () => {
+    const { position } = await place({ side: "right", reference: { x: 900, y: 400, width: 100, height: 20 } });
+
+    expect(position.side.value).toBe("left");
+  });
+
+  it("moves below the element when neither horizontal side has room", async () => {
+    const { position, box } = await place({ side: "right", reference: { x: 50, y: 300, width: 924, height: 20 } });
+
+    expect(position.side.value).toBe("bottom");
+    // Below the element, not shifted over it.
+    expect(parseFloat(box.style.top)).toBe(330);
+  });
+
+  it("goes above when below has no room either", async () => {
+    const { position } = await place({ side: "left", reference: { x: 50, y: 680, width: 924, height: 20 } });
+
+    expect(position.side.value).toBe("top");
+  });
+
+  it("keeps a side placement while the element is above the viewport and points the arrow up", async () => {
+    const { position, box } = await place({ side: "right", reference: { x: 100, y: -300, width: 200, height: 20 } });
+
+    expect(position.side.value).toBe("right");
+    expect(parseFloat(box.style.top)).toBe(10);
+    // The arrow sits on the top edge, pointing up.
+    expect(position.arrowSide.value).toBe("bottom");
+    expect(position.referenceHidden.value).toBe(true);
+  });
+
+  it("re-resolves the arrow while the pinned popover does not move", async () => {
+    const reference = shallowRef<StageRect>({ x: 100, y: 5, width: 200, height: 20 });
+    const host = mountHost({ side: "right", reference: reference.value });
+    host.reference.value = reference.value;
+    await host.settle();
+    await host.position.update();
+    await host.settle();
+    const top = host.box.style.top;
+    expect(host.position.arrowSide.value).toBe("right");
+
+    // Scrolled further: the popover stays pinned at the same spot.
+    host.reference.value = { x: 100, y: -200, width: 200, height: 20 };
+    await host.settle();
+    await host.position.update();
+    await host.settle();
+
+    expect(host.box.style.top).toBe(top);
+    expect(host.position.arrowSide.value).toBe("bottom");
+  });
+
+  it("detaches to the bottom of the viewport when no side has room", async () => {
+    const { position, box } = await place({ side: "bottom", reference: { x: 10, y: 10, width: 1004, height: 748 } });
+
+    expect(position.arrowSide.value).toBe("over");
+    expect(position.arrowStyles.value).toEqual({});
+    expect(parseFloat(box.style.left)).toBe((1024 - 200) / 2);
+    expect(parseFloat(box.style.top)).toBe(768 - 100 - 10);
+  });
+});
+
 // Keep the Ref import in use for the host typing.
 export type { Ref };

@@ -12,6 +12,7 @@ export {
   resolveArrowSide,
   arrowOffsetAlong,
   ARROW_CORNER_INSET,
+  ARROW_SIZE,
   VIEWPORT_PADDING,
 } from "./composables/useDriverPosition";
 export type { UseDriverPositionOptions, UseDriverPositionReturn } from "./composables/useDriverPosition";

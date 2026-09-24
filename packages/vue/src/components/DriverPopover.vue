@@ -60,17 +60,18 @@ defineSlots<{
 const wrapper = useTemplateRef<HTMLElement>("wrapper");
 const arrowEl = useTemplateRef<HTMLElement>("arrowEl");
 
-const { floatingStyles, arrowStyles, side, arrowSide, align, update, isPositioned } = useDriverPosition({
-  reference: () => props.anchor,
-  floating: wrapper,
-  arrow: arrowEl,
-  side: () => props.model.side,
-  align: () => props.model.align,
-  offset: () => props.model.offset,
-  padding: () => props.model.padding,
-  centered: () => props.model.centered,
-  strategy: props.strategy,
-});
+const { floatingStyles, arrowStyles, side, arrowSide, align, referenceHidden, update, isPositioned } =
+  useDriverPosition({
+    reference: () => props.anchor,
+    floating: wrapper,
+    arrow: arrowEl,
+    side: () => props.model.side,
+    align: () => props.model.align,
+    offset: () => props.model.offset,
+    padding: () => props.model.padding,
+    centered: () => props.model.centered,
+    strategy: props.strategy,
+  });
 
 const showClose = computed(() => props.mode === "tour" && props.model.showButtons.includes("close"));
 const showNext = computed(() => props.model.showButtons.includes("next"));
@@ -80,13 +81,29 @@ const showFooter = computed(() => showNext.value || showPrev.value || showProgre
 
 const disabled = (button: "next" | "previous" | "close") => props.model.disableButtons.includes(button);
 
+const canScrollBack = computed(() => referenceHidden.value && props.model.scrollBackOnClick);
+
 const wrapperClass = computed(() => [
   "driver-popover",
   props.mode === "hint" ? "driver-hint-popover" : "",
   props.model.popoverClass,
   `driver-popover-side-${side.value}`,
   `driver-popover-align-${align.value}`,
+  referenceHidden.value ? "driver-popover-away" : "",
+  canScrollBack.value ? "driver-popover-scroll-back" : "",
 ]);
+
+const scrollBack = () => {
+  if (props.anchor instanceof Element) {
+    bringInView(props.anchor, props.model.smoothScroll);
+  }
+};
+
+const onWrapperClick = () => {
+  if (canScrollBack.value) {
+    scrollBack();
+  }
+};
 
 const wrapperStyle = computed(() => ({
   ...floatingStyles.value,
@@ -105,6 +122,8 @@ const slotProps = computed<PopoverSlotProps & Record<string, unknown>>(() => ({
   arrowSide: arrowSide.value,
   align: align.value,
   arrowStyles: arrowStyles.value,
+  away: referenceHidden.value,
+  scrollBack,
   next: props.model.onNextClick,
   prev: props.model.onPrevClick,
   close: props.model.onCloseClick,
@@ -221,6 +240,7 @@ defineExpose({
       aria-describedby="driver-popover-description"
       :data-side="side"
       :data-align="align"
+      @click="onWrapperClick"
     >
       <slot v-if="model.showArrow" name="arrow" v-bind="slotProps">
         <div ref="arrowEl" :class="arrowClass" :style="arrowStyles" />

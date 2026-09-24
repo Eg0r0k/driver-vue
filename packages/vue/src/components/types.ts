@@ -13,6 +13,10 @@ export type PopoverSlotProps = {
   align: Alignment;
   /** Inline styles that put the arrow on target; apply to a custom arrow. */
   arrowStyles: CSSProperties;
+  /** The element is scrolled out of the viewport; the popover is pinned to the edge meanwhile. */
+  away: boolean;
+  /** Scroll the element back into view. */
+  scrollBack: () => void;
   next: () => void;
   prev: () => void;
   close: () => void;
