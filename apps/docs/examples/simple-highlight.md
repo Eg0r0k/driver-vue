@@ -1,54 +1,49 @@
 # Simple Highlight
 
-Product tours are not the only use case. Highlight any element on the page and show a popover with a description: contextual help, form guidance, a feature announcement.
+`highlight()` dims the page around one element and shows a popover next to it, without a tour. Use it for contextual help, form guidance or a feature announcement. The popover has no buttons; Escape or a click on the overlay closes it.
 
 <Demo
-  id="highlight-me"
-  button-text="Highlight me"
-  :config="{ popoverClass: 'driverjs-theme', stagePadding: 4 }"
-  :highlight="{ element: '#highlight-me .demo-box', popover: { side: 'bottom', title: 'This is a title', description: 'This is a description' } }"
+  id="highlight-demo"
+  :highlight="{ element: '#hl-search', popover: { title: 'Project name', description: 'The name is shown in the sidebar and in every export.' } }"
 >
-  <p>Some content worth pointing at.</p>
+  <DemoBox prefix="hl" />
 </Demo>
 
 ```ts
-const { highlight } = useDriver({
-  popoverClass: "driverjs-theme",
-  stagePadding: 4,
-});
+const { highlight } = useDriver();
 
 highlight({
-  element: "#highlight-me",
+  element: "#project-name",
   popover: {
-    side: "bottom",
-    title: "This is a title",
-    description: "This is a description",
+    title: "Project name",
+    description: "The name is shown in the sidebar and in every export.",
   },
 });
 ```
 
-## A modal without an element
+To add buttons to a highlight, see [Popover Buttons](./buttons).
 
-Omit `element` to show a centered popover over the dimmed page.
+## A popover without an element
+
+Leave out `element` and the popover is centered over the dimmed page, like a modal. The description is HTML, so it can hold a list, a link or an image.
 
 <Demo
-  button-text="Show popover"
   :box="false"
-  :highlight="{ popover: { title: 'Yet another highlight', description: '<p style=\'margin:0\'>A centered popover, no element highlighted. The description is HTML, so it can carry an image, a list or anything else.</p>' } }"
+  :highlight="{ popover: { title: 'New in this release', description: 'Projects can now be exported as PDF.<br>Open the Export menu to try it.' } }"
 />
 
 ```ts
 highlight({
   popover: {
-    title: "Yet another highlight",
-    description: "<p>A centered popover, no element highlighted.</p>",
+    title: "New in this release",
+    description: "Projects can now be exported as PDF.<br>Open the Export menu to try it.",
   },
 });
 ```
 
 ## Contextual form help
 
-Focus a field below to see the popover follow it. This one is a small component with its own driver and `<DriverTour>`.
+Focus a field below: the field is highlighted with a hint about what to enter, and leaving the field closes it. The demo is a component with its own driver, so it renders its own `<DriverTour>` (see [Basic Usage](../guide/basic-usage) for which driver a `<DriverTour />` renders).
 
 <FormHelpDemo />
 
@@ -57,8 +52,9 @@ Focus a field below to see the popover follow it. This one is a small component 
 import { useDriver, DriverTour } from "driver-vue";
 
 const { highlight, destroy } = useDriver({
-  popoverClass: "driverjs-theme",
   stagePadding: 0,
+  // After Escape or an overlay click, blur the field
+  // so that focusing it again shows the popover.
   onDestroyed: () => (document.activeElement as HTMLElement | null)?.blur(),
 });
 
@@ -69,9 +65,9 @@ function onFocus(event: FocusEvent, title: string, description: string) {
 
 <template>
   <form @focusout="destroy()">
-    <input placeholder="Enter your name" @focus="onFocus($event, 'Name', 'Enter your name here')" />
-    <input placeholder="Your education" @focus="onFocus($event, 'Education', 'Enter your education here')" />
-    <input placeholder="Your age" @focus="onFocus($event, 'Age', 'Enter your age here')" />
+    <input placeholder="Name" @focus="onFocus($event, 'Name', 'Your full name, as it appears on invoices.')" />
+    <input placeholder="Email" @focus="onFocus($event, 'Email', 'Used for sign-in and receipts.')" />
+    <input placeholder="Company" @focus="onFocus($event, 'Company', 'Optional. Leave empty for a personal account.')" />
     <button type="submit">Submit</button>
     <DriverTour />
   </form>

@@ -1,8 +1,10 @@
 # Async Tour
 
-Steps can be asynchronous: load data from the server, render an element on demand, then continue. Override `onNextClick` to take control of the next button and call `moveNext()` yourself when ready.
+A step can do async work before the tour moves on, for example load data or render the element the next step points at. Give the step an `onNextClick` hook, do the work in it, and call `driver.moveNext()` when it is done.
 
-The element the second step points at does not exist when the tour starts. Clicking **Next** on the first step creates it inside the box, in normal flow, right under the summary — and leaves it there for the rest of the tour, so going back and forward again still finds it.
+Setting `onNextClick` replaces the default behavior of the next button, so the tour does not move until you call `moveNext()`. The same rule applies to the other button hooks; see [Buttons](./buttons).
+
+In the demo, the element of the second step does not exist when the tour starts. Next on the first step waits half a second, creates the element inside the box under the summary, and then calls `moveNext()`.
 
 <AsyncTourDemo />
 
@@ -10,24 +12,24 @@ The element the second step points at does not exist when the tour starts. Click
 <script setup lang="ts">
 import { useDriver } from "driver-vue";
 
-// Create the element where it belongs in the page — in normal flow, next to
-// the content it relates to — so the tour scrolls to it and highlights it
-// like any other element. Creating it only once keeps Previous/Next working.
-const mountDynamicElement = () => {
-  if (document.querySelector(".dynamic-el")) return;
+// Inserts the card in normal flow, next to the content it belongs to, so the
+// tour scrolls to it and highlights it like any other element.
+const renderReportCard = async () => {
+  if (document.querySelector("#report-card")) {
+    return; // already created: Previous, then Next again
+  }
 
-  const el = document.createElement("div");
-  el.className = "dynamic-el";
-  el.textContent = "Created on the fly ✨";
-  document.querySelector("#summary")?.after(el);
+  const report = await fetchReport();
+  const card = document.createElement("div");
+  card.id = "report-card";
+  card.textContent = report.summary;
+  document.querySelector("#summary")?.after(card);
 };
 
 const { drive, driver } = useDriver({
   showProgress: true,
-  // The element belongs to the tour, so remove it when the tour ends —
-  // not when the step is left, or Previous would land on nothing.
   onDestroyed: () => {
-    document.querySelector(".dynamic-el")?.remove();
+    document.querySelector("#report-card")?.remove();
   },
   steps: [
     {
@@ -35,21 +37,15 @@ const { drive, driver } = useDriver({
       popover: {
         title: "Next step is async",
         description: "The next element does not exist yet.",
-        // By passing onNextClick you override the default behavior of the
-        // next button: the driver no longer moves on by itself, you call
-        // driver.moveNext() when the element is ready.
         onNextClick: async () => {
-          await mountDynamicElement();
+          await renderReportCard();
           driver.moveNext();
         },
       },
     },
     {
-      element: ".dynamic-el",
-      popover: {
-        title: "Async element",
-        description: "This element was created on demand.",
-      },
+      element: "#report-card",
+      popover: { title: "Your report", description: "This element was created on demand." },
     },
     { popover: { title: "Last step", description: "This is the last step." } },
   ],
@@ -57,42 +53,8 @@ const { drive, driver } = useDriver({
 </script>
 ```
 
-> `onDeselected` runs whenever a step is left, in both directions, so removing the element there makes the step unreachable from the next step's **Previous** button. Tear down in `onDestroyed` instead, or re-create the element in the next step's `onPrevClick`.
+Remove the element in `onDestroyed`, when the tour ends. `onDeselected` runs every time the step is left, in both directions, so removing the element there leaves nothing to highlight when the reader presses Previous on the next step. If the element has to go when its step is left, create it again in the next step's `onPrevClick` and then call `driver.movePrevious()`.
 
-> By overriding `onNextClick` and `onPrevClick` you control navigation: the buttons no longer move by themselves and you call `driver.moveNext()` / `driver.movePrevious()` to move. Both hooks can be set at the driver level (all steps) or at the step level (that step only).
+If the reader closes the tour while the hook is still waiting, `moveNext()` does nothing, but an element created after that point stays on the page. Check `driver.isActive()` before creating it if that matters.
 
-## Waiting for elements
-
-When the next element is rendered on demand you often do not need the manual `onNextClick` dance at all. Give the step a `waitForElement` timeout and the tour waits for the element, staying on the current step in the meantime. Pair it with `advanceOnClick` when the highlighted element itself triggers the rendering, e.g. a button that opens a modal:
-
-```ts
-const { drive } = useDriver({
-  steps: [
-    {
-      element: "#open-modal-btn",
-      // Clicking the highlighted button acts like pressing next;
-      // the button's own click still runs and opens the modal.
-      advanceOnClick: true,
-      popover: {
-        title: "Open the modal",
-        description: "Click this button to continue.",
-        showButtons: ["close"],
-      },
-    },
-    {
-      element: "#modal-confirm",
-      // Wait up to 5 seconds for the modal to render before treating the
-      // element as missing.
-      waitForElement: 5000,
-      popover: {
-        title: "Confirm",
-        description: "This step appeared once the modal rendered.",
-      },
-    },
-  ],
-});
-```
-
-If the element never shows up, the wait times out into the usual missing-element behavior: the centered fallback popover, or a skip when `skipMissingElement` is set. Both options can also be set at the driver level.
-
-See [Interactive Tour](./interactive-tour) for live demos of both options, and [Multi-Page Tour](./multi-page-tour) for continuing a tour across navigations.
+If the element is rendered by the page itself (for example, a click on the highlighted button opens a modal), you do not need `onNextClick`. Use `waitForElement` on the next step instead, as shown in [Interactive Tour](./interactive-tour#waiting-for-elements).

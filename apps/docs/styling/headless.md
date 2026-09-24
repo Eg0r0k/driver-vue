@@ -1,6 +1,6 @@
 # Headless
 
-Nothing forces you to render `<DriverTour>`. The engine runs the tour on its own – navigation, hooks, keyboard control, scrolling, the `body` classes, marking the active element – and publishes everything it knows in `driver.state`. Read it and render whatever you like.
+You do not have to render `<DriverTour>`. The engine runs the tour on its own (navigation, hooks, keyboard control, scrolling, the `body` classes, marking the active element) and publishes what it knows in `driver.state`. Your components read it and render whatever you like.
 
 <HeadlessDemo />
 
@@ -8,7 +8,9 @@ Nothing forces you to render `<DriverTour>`. The engine runs the tour on its own
 
 ```ts
 const { driver, isActive, activeIndex, activeStep, activeElement, stage, popover, transitioning } = useDriver({
-  steps: [/* ... */],
+  steps: [
+    /* ... */
+  ],
 });
 ```
 
@@ -16,64 +18,78 @@ const { driver, isActive, activeIndex, activeStep, activeElement, stage, popover
 | --- | --- |
 | `isActive` | a tour or highlight is running |
 | `activeIndex` | index of the active step |
-| `activeStep` | the resolved step (with the effective `popover` options) |
-| `activeElement` | the highlighted element, `undefined` for a centered step |
+| `activeStep` | the active step, resolved (with the effective `popover` options) |
+| `activeElement` | the highlighted element, `undefined` for a step without an element |
 | `stage` | the cutout rect `{ x, y, width, height }` without padding, interpolated during the slide |
 | `popover` | the `PopoverRenderModel` to render, `undefined` while the popover is hidden (during the first half of a slide) |
-| `transitioning` | the slide is in flight |
+| `transitioning` | the stage is sliding to the next element |
 
-`popover` has the resolved title, description, `showButtons`, `disableButtons`, `progressText` (already interpolated), `nextBtnText`, `prevBtnText`, `doneButton`, `popoverClass`, `side`, `align`, `offset`, `padding`, `centered`, plus the three callbacks `onNextClick`, `onPrevClick`, `onCloseClick` that run the configured hooks or the default behaviour.
+`popover` contains the resolved `title`, `description`, `showButtons`, `disableButtons`, `showProgress`, `progressText` (already interpolated), `nextBtnText`, `prevBtnText`, `doneButton` (the next button ends the tour), `popoverClass`, `showArrow`, `side`, `align`, `offset`, `padding`, `centered`, `smoothScroll` and `scrollBackOnClick`, plus three callbacks, `onNextClick`, `onPrevClick` and `onCloseClick`, that run the configured hooks or the default behaviour. `key` changes on every step, so `:key="popover.key"` remounts your popover per step.
 
-The same values are available without the composable as `driver.state` (a `shallowReactive` object) on any driver.
+The same values are available without the composable in `driver.state`, a `shallowReactive` object on every driver. There `activeElement` is a placeholder element for a step without an element; `useDriver` turns it into `undefined`.
 
 ## Rendering an overlay
 
-The demo uses the cheapest possible overlay: a fixed `div` over the stage with a huge `box-shadow`. Because `stage` updates every frame of the slide, the cutout animates with no extra work.
+The demo uses a simple overlay: a fixed `div` over the stage with a large `box-shadow`. `stage` changes on every frame of the slide, so the cutout animates with no extra code.
 
 ```vue
+<script setup lang="ts">
+import { computed } from "vue";
+import { useDriver } from "driver-vue";
+
+const { isActive, stage } = useDriver({
+  stagePadding: 6,
+  steps: [
+    /* ... */
+  ],
+});
+
+const padding = 6;
+const cutout = computed(
+  () =>
+    stage.value && {
+      left: `${stage.value.x - padding}px`,
+      top: `${stage.value.y - padding}px`,
+      width: `${stage.value.width + padding * 2}px`,
+      height: `${stage.value.height + padding * 2}px`,
+    }
+);
+</script>
+
 <template>
   <Teleport to="body">
     <div v-if="isActive && stage" class="cutout" :style="cutout" />
   </Teleport>
 </template>
 
-<script setup lang="ts">
-const padding = 6;
-const cutout = computed(() => stage.value && {
-  left: `${stage.value.x - padding}px`,
-  top: `${stage.value.y - padding}px`,
-  width: `${stage.value.width + padding * 2}px`,
-  height: `${stage.value.height + padding * 2}px`,
-});
-</script>
-
 <style>
 .cutout {
   position: fixed;
   border-radius: 8px;
-  box-shadow: 0 0 0 100vmax rgba(20, 20, 40, 0.7);
+  box-shadow: 0 0 0 200vmax rgba(0, 0, 0, 0.6);
   z-index: var(--driver-z-index, 10000);
   pointer-events: none;
 }
 </style>
 ```
 
-The dim here is a `box-shadow`, which cannot receive clicks; if you want clicking outside to close the tour, add a separate full-screen click layer, as described in [Keeping your UI clickable](#keeping-your-ui-clickable-driver-interactive).
+A `box-shadow` does not receive clicks. To close the tour on a click outside the element, add a separate full-screen click layer, as in [Keeping your UI clickable](#keeping-your-ui-clickable).
 
-If you prefer the SVG path, `generateStageSvgPathString(stage, { padding, radius })` is exported and returns the evenodd path the default overlay uses.
+For an SVG overlay, `generateStageSvgPathString(stage, { padding, radius })` returns the evenodd path the default overlay uses.
 
 ## Positioning a popover
 
-`useDriverPosition` is the positioning composable behind `<DriverPopover>`, a thin layer over Floating UI's `useFloating` with driver.js semantics: the reference rect is expanded by `padding` (so the popover clears the cutout), `offset` is the gap, the requested `side` flips when it does not fit, the popover shifts to stay in the viewport, and `centered` puts it in the middle of the screen.
+`useDriverPosition` is the composable `<DriverPopover>` uses to place itself. It is built on Floating UI's `useFloating`.
 
 ```ts
+import { ref } from "vue";
 import { useDriverPosition } from "driver-vue";
 
 const card = ref<HTMLElement | null>(null);
 const arrow = ref<HTMLElement | null>(null);
 
-const { floatingStyles, arrowStyles, side, align, update } = useDriverPosition({
-  reference: activeElement, // Element, a rect, or a ref/getter of either
+const { floatingStyles, arrowStyles, side, arrowSide, align, referenceHidden, update } = useDriverPosition({
+  reference: activeElement, // an Element or a { x, y, width, height } rect, or a ref or getter of either
   floating: card,
   arrow,
   side: () => popover.value?.side ?? "bottom",
@@ -86,8 +102,8 @@ const { floatingStyles, arrowStyles, side, align, update } = useDriverPosition({
 ```
 
 ```vue
-<div v-if="popover" ref="card" class="card driver-interactive" :style="floatingStyles" :data-side="side">
-  <div ref="arrow" class="arrow" :style="arrowStyles" />
+<div v-if="popover" ref="card" class="card driver-interactive" :style="floatingStyles" :data-arrow-side="arrowSide">
+  <div v-show="arrowSide !== 'over'" ref="arrow" class="arrow" :style="arrowStyles" />
   <strong>{{ popover.title }}</strong>
   <p>{{ popover.description }}</p>
   <button @click="popover.onPrevClick()">Back</button>
@@ -95,21 +111,63 @@ const { floatingStyles, arrowStyles, side, align, update } = useDriverPosition({
 </div>
 ```
 
-`floatingStyles` are `position: fixed; left; top` (no `transform`, so yours is free). `arrowStyles` is the offset along the popover edge; put the arrow on the right edge yourself with `data-side`. `side` is `"over"` when centered. The position follows scroll and resize through Floating UI's `autoUpdate`; call `update()` after your own layout changes.
+The options:
 
-## What the engine still does
+| Option | Meaning |
+| --- | --- |
+| `reference` | what the popover points at |
+| `floating`, `arrow` | template refs of the popover and of its arrow (the arrow is optional) |
+| `side`, `align` | the requested placement |
+| `offset` | gap between the padded reference and the popover |
+| `padding` | grows the reference rect on every side, so the popover clears the cutout |
+| `centered` | ignore the reference and center the popover in the viewport |
+| `open` | positioning only runs while this is `true` (default `true`) |
+| `strategy` | `"fixed"` (default) positions in the viewport, `"absolute"` in the document |
 
-Even without `<DriverTour>`:
+The popover goes on the requested `side` when the space between the element and the viewport edge on that side holds it. Otherwise it tries the opposite side, then the perpendicular sides (for `left` and `right`: `bottom`, then `top`; for `top` and `bottom`: `left`, then `right`). Only that one axis is checked, so a popover on the right of an element that has scrolled above the viewport stays on the right. When no side has room (an element taller than a phone screen), the popover is centered at the bottom of the viewport and `arrowSide` is `"over"`. The popover is shifted to stay inside the viewport, with a 10 px margin. While its element scrolls away, it sticks to the nearest edge.
 
-- `body` gets `driver-active` (+ `driver-fade` / `driver-simple`, `driver-no-scroll`) and `--driver-animation-duration`.
-- The highlighted element gets `driver-active-element` and the ARIA attributes; its scrollable parent gets `driver-active-element-parent-no-scroll`.
-- Escape, the arrow keys and Tab trapping work. Tab trapping looks for focusable elements in `driver.getState("popover")?.wrapper`; report your popover's DOM with `driver.__internal.reportPopoverDom({ wrapper, ... })` if you want it included, or handle focus yourself.
-- Clicking the highlighted element with `advanceOnClick` advances.
-- Overlay clicks are yours to forward: call `driver.__internal.overlayClick()` from your overlay to run `overlayClickBehavior`, or just call `driver.destroy()` / `driver.moveNext()`.
+What it returns:
 
-## Keeping your UI clickable: `driver-interactive`
+| Value | Meaning |
+| --- | --- |
+| `floatingStyles` | `position`, `left` and `top` for the popover; `transform` is only set for a centered popover |
+| `side`, `align` | the rendered placement; `side` is `"over"` when centered |
+| `arrowSide` | the popover edge the arrow sits on (see below) |
+| `arrowStyles` | the arrow's `left` or `top` offset along that edge |
+| `referenceHidden` | the element is entirely outside the viewport |
+| `update()` | measure and position again |
+| `isPositioned` | the first position has been computed |
 
-This is the one thing that catches everybody out. While a tour runs, `driver-vue/style.css` makes the whole page inert so the reader cannot wander off:
+`arrowSide` is named like the side: `bottom` means the popover is below the element and the arrow is on its top edge. It is usually equal to `side`. While the element is scrolled away along the other axis (a popover on the right whose element has scrolled above it), the arrow moves to the edge that faces the element. It is `"over"` when there is nothing to point at; hide the arrow then. Putting the arrow on its edge is up to your CSS:
+
+```css
+.card[data-arrow-side="bottom"] .arrow {
+  top: -6px;
+}
+.card[data-arrow-side="top"] .arrow {
+  bottom: -6px;
+}
+.card[data-arrow-side="right"] .arrow {
+  left: -6px;
+}
+.card[data-arrow-side="left"] .arrow {
+  right: -6px;
+}
+```
+
+The arrow's size is measured from the `arrow` element's bounding box. For a rotated square, rotate a pseudo-element and leave the element itself unrotated, otherwise the measured width includes the rotation.
+
+`referenceHidden` is what the default popover uses for its `driver-popover-away` class and for `scrollBackOnClick`. In a headless card, use it to show a way back:
+
+```vue
+<button v-if="referenceHidden" @click="activeElement?.scrollIntoView({ block: 'center' })">Scroll back</button>
+```
+
+The position follows scrolling and resizing through Floating UI's `autoUpdate`; call `update()` after layout changes of your own.
+
+## Keeping your UI clickable
+
+While a tour runs, `driver-vue/style.css` makes the page ignore the pointer, so the reader cannot wander off:
 
 ```css
 .driver-active * {
@@ -124,9 +182,9 @@ This is the one thing that catches everybody out. While a tour runs, `driver-vue
 }
 ```
 
-Only the highlighted element and `.driver-popover` are exempt. A headless card, your own overlay, a "skip tour" bar in the layout — anything you render outside `.driver-popover` — is covered by that first rule, and its buttons silently stop responding: the clicks never reach them.
+Only the highlighted element and `.driver-popover` are exempt. A headless card, your own overlay, a "skip tour" bar in the layout, anything you render outside `.driver-popover` falls under the first rule, and its buttons stop responding.
 
-Add the `driver-interactive` class to opt back in. The stylesheet ships the rule:
+The `driver-interactive` class opts an element and its descendants back in. The stylesheet contains the rule:
 
 ```css
 .driver-active .driver-interactive,
@@ -135,21 +193,21 @@ Add the `driver-interactive` class to opt back in. The stylesheet ships the rule
 }
 ```
 
-Two things are needed, and both are easy to forget:
+Two things are needed:
 
-1. **The class**, on the element and not only on its buttons — it also covers the descendants.
-2. **A z-index above the overlay.** The overlay sits at `--driver-z-index` (`10000` by default); the default popover is at `calc(var(--driver-z-index) + 2)`. Anything below that is painted under the dim and, if the overlay catches clicks, unreachable anyway.
+1. The class, on the element itself and not only on its buttons.
+2. A z-index above the overlay. The default overlay is at `zIndex` from the config (`10000` by default) and the default popover at `zIndex + 2`. Anything lower is painted under the dim. The stylesheet's `--driver-z-index` variable has the same default, and the examples on this page use it.
 
 ```vue
 <template>
   <Teleport to="body">
-    <!-- The dim. A box-shadow cannot catch clicks, so the click layer is a
-         separate full-screen div under the cutout. -->
+    <!-- The box-shadow cutout cannot catch clicks, so a separate
+         full-screen layer under it does. -->
     <div v-if="isActive" class="click-layer driver-interactive" @click="driver.destroy()" />
-    <div v-if="isActive && stage" class="cutout" :style="cutoutStyle" />
+    <div v-if="isActive && stage" class="cutout" :style="cutout" />
 
     <div v-if="popover" ref="card" class="card driver-interactive" :style="floatingStyles">
-      <!-- these buttons would do nothing without `driver-interactive` -->
+      <!-- without driver-interactive these buttons would not respond -->
       <button @click="popover.onPrevClick()">Back</button>
       <button @click="popover.onNextClick()">Next</button>
     </div>
@@ -164,12 +222,23 @@ Two things are needed, and both are easy to forget:
 }
 
 .card {
-  position: fixed;
   z-index: calc(var(--driver-z-index, 10000) + 2);
 }
 </style>
 ```
 
-The alternative is to give your popover the `driver-popover` class, which is already exempt — useful when you keep the default look and only replace the body, less so headless, where the class also brings the default popover styling with it.
+Giving your popover the `driver-popover` class also exempts it, but it brings the default popover styles along. That suits a custom body inside the default look, less so a headless card.
 
-The same applies outside headless setups: a step-counter bar, a "restart the tour" button or a custom overlay rendered by your app needs `driver-interactive` too. Writing the equivalent rule yourself works just as well; the class only saves you the trouble.
+The same applies outside headless setups: a step counter, a "restart the tour" button or a custom overlay rendered by your app needs `driver-interactive` too.
+
+## What the engine still does
+
+Without `<DriverTour>`:
+
+- `body` gets `driver-active`, `driver-fade` or `driver-simple`, `driver-no-scroll` when `allowScroll` is off, and the `--driver-animation-duration` variable.
+- The highlighted element gets `driver-active-element` and its ARIA attributes; its parent gets `driver-active-element-parent`, and `driver-active-element-parent-no-scroll` if it scrolls.
+- Escape, the arrow keys and the Tab focus trap work. The focus trap cycles through the highlighted element and `driver.getState("popover")?.wrapper`. To include your card, report its DOM with `driver.__internal.reportPopoverDom({ wrapper, ... })` (a `PopoverDOM` object, with `null` for the parts you do not have); this also runs `onPopoverRender`. Otherwise handle focus yourself.
+- A click on the highlighted element advances when `advanceOnClick` is on.
+- `scrollAwayBehavior` runs when the element leaves the viewport. `scrollBackOnClick` is implemented by the default popover, so a headless card uses `referenceHidden` instead (see above).
+
+Overlay clicks are yours to forward: call `driver.__internal.overlayClick()` from your overlay to run `overlayClickBehavior`, or call `driver.destroy()` or `driver.moveNext()` directly.

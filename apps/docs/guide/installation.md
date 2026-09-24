@@ -1,6 +1,6 @@
 # Installation
 
-driver-vue is a Vue 3 (3.5+) library. For Nuxt 4 there is a module, see [Nuxt](./nuxt).
+driver-vue needs Vue 3.5 or later. For Nuxt 4 there is a module, see [Nuxt](./nuxt).
 
 ```bash
 # npm
@@ -13,11 +13,11 @@ pnpm add driver-vue
 yarn add driver-vue
 ```
 
-The package depends on `@floating-ui/vue` for popover positioning and has `vue` as a peer dependency.
+`vue` is a peer dependency. The package depends on `@floating-ui/vue` for popover positioning.
 
-## Start using
+## Setup
 
-Install the plugin once, import the stylesheet, and put one `<DriverTour />` somewhere that is always rendered (your root component or layout). It renders nothing until a tour is active.
+Install the plugin and import the stylesheet once:
 
 ```ts
 // main.ts
@@ -29,23 +29,11 @@ import App from "./App.vue";
 createApp(App).use(DriverPlugin).mount("#app");
 ```
 
-```vue
-<!-- App.vue -->
-<script setup lang="ts">
-import { DriverTour } from "driver-vue";
-</script>
-
-<template>
-  <RouterView />
-  <DriverTour />
-</template>
-```
-
-Then highlight an element from any component:
+`useDriver()` creates a driver, and `<DriverTour />` renders it: the overlay and the popover, teleported to `body`. A `<DriverTour />` without a `driver` prop renders the driver of the `useDriver()` call in its own component (or an ancestor), so placing both in the same component is enough:
 
 ```vue
 <script setup lang="ts">
-import { useDriver } from "driver-vue";
+import { useDriver, DriverTour } from "driver-vue";
 
 const { highlight } = useDriver();
 
@@ -59,6 +47,11 @@ function help() {
   });
 }
 </script>
+
+<template>
+  <button @click="help">Help</button>
+  <DriverTour />
+</template>
 ```
 
 <Demo
@@ -69,27 +62,38 @@ function help() {
   <p>Some element on the page.</p>
 </Demo>
 
-## Without the plugin
+`<DriverTour />` renders nothing while no tour is active. [Basic usage](./basic-usage) continues with tours and the rest of the API.
 
-The plugin is a convenience: it provides config defaults and a shared driver for `<DriverTour />` without a prop. You can skip it and pass drivers explicitly:
+## One `<DriverTour />` for the app
+
+The plugin also creates an app-wide driver. A `<DriverTour />` in your root component or layout renders it, and any component can use it through `useDriver(config, { shared: true })`:
 
 ```vue
-<script setup lang="ts">
-import { useDriver, DriverTour } from "driver-vue";
-import "driver-vue/style.css";
-
-const { driver, drive } = useDriver({ steps: [/* ... */] });
-</script>
-
+<!-- App.vue -->
 <template>
-  <button @click="drive()">Start tour</button>
-  <DriverTour :driver="driver" />
+  <RouterView />
+  <DriverTour />
 </template>
+```
+
+```ts
+// in any component
+const { drive } = useDriver({ steps: [/* ... */] }, { shared: true });
+```
+
+The app-wide driver keeps running when the component unmounts, which is what a [tour across routes](../examples/multi-page-tour) needs. [Basic usage](./basic-usage#which-driver-drivertour-renders) explains how `<DriverTour />` picks its driver.
+
+## Without the plugin
+
+The plugin is optional. It provides the config `defaults`, the app-wide driver and global component registration (see [Plugin options](./configuration#plugin-options)). Without it, `useDriver()` with a `<DriverTour />` in the same component works as above. A driver made with `createDriver()` is passed as a prop:
+
+```vue
+<DriverTour :driver="myDriver" />
 ```
 
 ## Hints
 
-[Hints](../examples/hints) ship as their own entry so tour-only apps never load them. The stylesheet is shared:
+[Hints](../examples/hints) have their own entry point, so an app that only uses tours does not load them. They use the same stylesheet:
 
 ```ts
 import { useHints, DriverHints } from "driver-vue/hints";
@@ -98,6 +102,4 @@ import "driver-vue/style.css";
 
 ## Stylesheet
 
-`driver-vue/style.css` contains the driver.js look, expressed as CSS custom properties. Import it once; see [Theming](./theming) for every variable. Nothing stops you from writing your own stylesheet from scratch against the [class names](./theming#class-names) instead.
-
-Continue with [Basic Usage](./basic-usage).
+`driver-vue/style.css` is the driver.js look, written with CSS custom properties. Import it once. [Theming](./theming) lists every variable and class name, in case you want to change the defaults or write your own stylesheet instead.

@@ -2,17 +2,22 @@
 import { useDriver, DriverTour } from "driver-vue";
 
 /**
- * The whole popover body comes from the `#popover` slot: a progress bar, an
- * emoji "avatar", and buttons from the docs' own button styles. The
- * positioned wrapper and the arrow are still driver-vue's.
+ * The whole popover body comes from the `#popover` slot: title, description,
+ * a progress bar and the docs' own buttons. The positioned wrapper and the
+ * arrow are still driver-vue's.
  */
 const { drive, driver } = useDriver({
-  showProgress: true,
   popoverClass: "docs-custom-popover",
   steps: [
-    { element: "#custom-title", popover: { title: "Your report", description: "Everything starts here." } },
-    { element: "#custom-search", popover: { title: "Search", description: "Find any metric by name.", side: "top" } },
-    { element: "#custom-export", popover: { title: "Export", description: "CSV or PDF, one click.", side: "right" } },
+    { element: "#custom-title", popover: { title: "Title", description: "The body of this popover is a slot." } },
+    {
+      element: "#custom-search",
+      popover: { title: "Field", description: "The progress bar uses index and total.", side: "top" },
+    },
+    {
+      element: "#custom-export",
+      popover: { title: "Button", description: "Back and Next call prev() and next().", side: "right" },
+    },
   ],
 });
 </script>
@@ -30,18 +35,15 @@ const { drive, driver } = useDriver({
         <template #popover="{ popover, index, total, isFirst, isLast, next, prev, close }">
           <div class="cp">
             <div class="cp-head">
-              <span class="cp-avatar">🧭</span>
-              <div>
-                <strong class="cp-title" v-text="popover.title" />
-                <p class="cp-desc" v-text="popover.description" />
-              </div>
-              <button type="button" class="cp-close" aria-label="Close" @click="close">✕</button>
+              <strong id="driver-popover-title" class="cp-title">{{ popover.title }}</strong>
+              <button type="button" class="cp-close" aria-label="Close" @click="close">&times;</button>
             </div>
+            <p id="driver-popover-description" class="cp-desc">{{ popover.description }}</p>
             <div class="cp-bar"><span :style="{ width: `${((index + 1) / total) * 100}%` }" /></div>
             <div class="cp-actions">
               <span class="cp-count">{{ index + 1 }} / {{ total }}</span>
-              <button type="button" class="demo-button secondary" :disabled="isFirst" @click="prev">Back</button>
-              <button type="button" class="demo-button" @click="next">{{ isLast ? "Finish" : "Continue" }}</button>
+              <button type="button" class="demo-button" :disabled="isFirst" @click="prev">Back</button>
+              <button type="button" class="demo-run" @click="next">{{ isLast ? "Finish" : "Next" }}</button>
             </div>
           </div>
         </template>
@@ -52,15 +54,13 @@ const { drive, driver } = useDriver({
 
 <style>
 .driver-popover.docs-custom-popover {
-  --driver-popover-padding: 0;
-  --driver-popover-radius: 14px;
-  --driver-popover-max-width: 340px;
-  --driver-popover-shadow: 0 24px 48px rgba(15, 23, 42, 0.25);
-}
-
-.cp {
-  padding: 16px;
-  font-family: ui-sans-serif, system-ui, sans-serif;
+  --driver-popover-bg: var(--vp-c-bg-elv);
+  --driver-popover-color: var(--vp-c-text-1);
+  --driver-popover-padding: 16px;
+  --driver-popover-radius: 8px;
+  --driver-popover-max-width: 320px;
+  --driver-popover-shadow: var(--vp-shadow-3);
+  --driver-popover-font-family: var(--vp-font-family-base);
 }
 
 .cp-head {
@@ -69,36 +69,38 @@ const { drive, driver } = useDriver({
   align-items: flex-start;
 }
 
-.cp-avatar {
-  font-size: 28px;
-  line-height: 1;
-}
-
 .cp-title {
-  display: block;
-  font-size: 16px;
+  font-size: 15px;
+  font-weight: 600;
 }
 
 .cp-desc {
   margin: 4px 0 0;
-  font-size: 13px;
-  color: #52525b;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--vp-c-text-2);
 }
 
 .cp-close {
   margin-left: auto;
   border: 0;
   background: transparent;
+  font-size: 18px;
+  line-height: 1;
+  color: var(--vp-c-text-3);
   cursor: pointer;
-  color: #a1a1aa;
+}
+
+.cp-close:hover {
+  color: var(--vp-c-text-1);
 }
 
 .cp-bar {
   height: 4px;
-  border-radius: 2px;
-  background: #e4e4e7;
-  margin: 14px 0 10px;
+  margin: 14px 0 12px;
   overflow: hidden;
+  border-radius: 2px;
+  background: var(--vp-c-divider);
 }
 
 .cp-bar span {
@@ -115,13 +117,8 @@ const { drive, driver } = useDriver({
 }
 
 .cp-count {
-  font-size: 12px;
-  color: #71717a;
   margin-right: auto;
-}
-
-.cp-actions .demo-button[disabled] {
-  opacity: 0.4;
-  cursor: default;
+  font-size: 13px;
+  color: var(--vp-c-text-2);
 }
 </style>

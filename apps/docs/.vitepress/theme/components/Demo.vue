@@ -22,7 +22,7 @@ const props = withDefaults(
   {
     id: undefined,
     title: undefined,
-    buttonText: "Show me an example",
+    buttonText: "Run",
     config: () => ({}),
     steps: undefined,
     highlight: undefined,

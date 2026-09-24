@@ -3,7 +3,6 @@ import { useDriver, DriverTour } from "driver-vue";
 
 /** Contextual help: focusing a field highlights it with a popover. */
 const { highlight, destroy, driver } = useDriver({
-  popoverClass: "driverjs-theme",
   stagePadding: 0,
   onDestroyed: () => {
     (document.activeElement as HTMLElement | null)?.blur?.();
@@ -11,9 +10,14 @@ const { highlight, destroy, driver } = useDriver({
 });
 
 const fields = [
-  { id: "name", placeholder: "Enter your name", title: "Name", description: "Enter your name here" },
-  { id: "education", placeholder: "Your education", title: "Education", description: "Enter your education here" },
-  { id: "age", placeholder: "Your age", title: "Age", description: "Enter your age here" },
+  { id: "name", placeholder: "Name", title: "Name", description: "Your full name, as it appears on invoices." },
+  { id: "email", placeholder: "Email", title: "Email", description: "Used for sign-in and receipts." },
+  {
+    id: "company",
+    placeholder: "Company",
+    title: "Company",
+    description: "Optional. Leave empty for a personal account.",
+  },
 ];
 
 const onFocus = (event: FocusEvent, title: string, description: string) => {
@@ -22,7 +26,7 @@ const onFocus = (event: FocusEvent, title: string, description: string) => {
 </script>
 
 <template>
-  <form class="demo-box" @submit.prevent @focusout="destroy()">
+  <form class="demo demo-box" @submit.prevent @focusout="destroy()">
     <input
       v-for="field in fields"
       :id="`form-${field.id}`"
@@ -32,7 +36,9 @@ const onFocus = (event: FocusEvent, title: string, description: string) => {
       :placeholder="field.placeholder"
       @focus="onFocus($event, field.title, field.description)"
     />
-    <button type="submit" class="demo-button">Submit</button>
+    <div class="demo-row">
+      <button type="submit" class="demo-button">Submit</button>
+    </div>
     <ClientOnly>
       <DriverTour :driver="driver" />
     </ClientOnly>

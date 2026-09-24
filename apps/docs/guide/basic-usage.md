@@ -1,24 +1,27 @@
 # Basic Usage
 
-There are three pieces:
+A tour is made of three pieces:
 
-- **`useDriver(config)`** (or `createDriver(config)`) creates the tour engine: it owns the config, the steps, the hooks, the keyboard control and the reactive state.
-- **`<DriverTour />`** renders that state: the overlay, the stage cutout and the popover. It teleports to `body` and is empty until a tour runs.
-- **`driver-vue/style.css`** is the default look.
+- `useDriver(config)` or `createDriver(config)` creates the driver. It holds the config, the steps, the hooks, the keyboard control and the reactive state.
+- `<DriverTour />` renders that state: the overlay, the cutout around the element (the stage) and the popover. It teleports to `body` and renders nothing while no tour is active.
+- `driver-vue/style.css` is the default look.
 
-The configuration is the driver.js configuration, documented in [Configuration](./configuration).
+[Installation](./installation) shows how to set them up. The config is the driver.js config, listed in [Configuration](./configuration).
 
-## A tour with several steps
+## A tour
+
+Pass the steps to `useDriver` and call `drive()`. A step with an `element` points at that element; a step without one is centered on the screen.
 
 <Demo
   id="basic-tour"
   title="Basic tour"
+  button-text="Start the tour"
   :config="{ showProgress: true }"
   :steps="[
-    { element: '#basic-box', popover: { title: 'Highlight anything', description: 'You can highlight anything on the page.' } },
-    { element: '#basic-summary', popover: { title: 'Control with keyboard', description: 'Use the arrow keys and Escape.' } },
-    { popover: { title: 'Centered steps', description: 'A step without an element is centered, like a modal.' } },
-    { element: '#basic-export', popover: { title: 'Control with code', description: 'Every step is a plain object.', side: 'bottom', align: 'start' } },
+    { element: '#basic-box', popover: { title: 'The panel', description: 'The first step highlights the whole panel.' } },
+    { element: '#basic-summary', popover: { title: 'Keyboard', description: 'The arrow keys move between steps, Escape closes the tour.' } },
+    { popover: { title: 'Centered step', description: 'This step has no element, so the popover is centered.' } },
+    { element: '#basic-export', popover: { title: 'Placement', description: 'This step sets side: bottom and align: start.', side: 'bottom', align: 'start' } },
   ]"
 >
   <DemoBox prefix="basic" />
@@ -26,14 +29,14 @@ The configuration is the driver.js configuration, documented in [Configuration](
 
 ```vue
 <script setup lang="ts">
-import { useDriver } from "driver-vue";
+import { useDriver, DriverTour } from "driver-vue";
 
 const { drive } = useDriver({
   showProgress: true,
   steps: [
     { element: ".page-header", popover: { title: "Title", description: "Description" } },
     { element: ".top-nav", popover: { title: "Title", description: "Description" } },
-    { popover: { title: "Centered", description: "No element, centered like a modal." } },
+    { popover: { title: "Centered", description: "A step without an element." } },
     { element: ".footer", popover: { title: "Title", description: "Description" } },
   ],
 });
@@ -41,71 +44,23 @@ const { drive } = useDriver({
 
 <template>
   <button @click="drive()">Start the tour</button>
+  <DriverTour />
 </template>
 ```
 
-`useDriver` merges the plugin's `defaults` under your config, destroys the tour when the component unmounts, and returns the driver plus reactive refs (`isActive`, `activeIndex`, `isFirstStep`, ...). It re-applies the config when you pass a ref or a getter.
+`useDriver`:
 
-## Render it with your own component
+- merges the plugin's `defaults` under your config,
+- re-applies the config when you pass a ref or a getter and it changes,
+- provides the driver to the component's subtree, so the `<DriverTour />` next to it renders it,
+- destroys the tour when the component unmounts,
+- returns the driver, its methods and reactive refs (see [The reactive state](#the-reactive-state)).
 
-That tour used the default popover. You are not stuck with it: the popover is a Vue component and its body is a slot, so `#popover` on `<DriverTour>` replaces the markup with yours — your card, your design system's buttons, your icons, your translations. The positioning, the arrow, the overlay and the keyboard control stay driver-vue's.
-
-<CustomPopoverDemo />
-
-```vue
-<DriverTour>
-  <template #popover="{ popover, index, total, isFirst, isLast, next, prev, close }">
-    <MyCard>
-      <MyIconButton icon="x" @click="close" />
-      <h3>{{ popover.title }}</h3>
-      <p>{{ popover.description }}</p>
-      <MyProgress :value="index + 1" :max="total" />
-      <MyButton variant="ghost" :disabled="isFirst" @click="prev">Back</MyButton>
-      <MyButton @click="next">{{ isLast ? "Finish" : "Continue" }}</MyButton>
-    </MyCard>
-  </template>
-</DriverTour>
-```
-
-The slot props are the resolved step (`popover`), its position in the tour (`index`, `total`, `isFirst`, `isLast`) and the three actions (`next`, `prev`, `close`) that run your hooks and the default behaviour.
-
-From there it scales in both directions: single parts have their own slots (`#title`, `#next`, `#progress`, ...), a step can name its own component with `popover.component`, `components.popover` swaps the body for the whole app, and `<DriverTour>` can be left out entirely so you render the tour from its reactive state. See [Custom Components](../styling/custom-components) and [Headless](../styling/headless).
-
-### Or restyle the default one
-
-If the stock popover suits you, every color, radius, font and spacing in it is a CSS custom property, and the class names are driver.js's:
-
-```css
-.driver-popover {
-  --driver-popover-bg: #18181b;
-  --driver-popover-color: #f4f4f5;
-  --driver-popover-btn-bg: #4f46e5;
-}
-```
-
-`popoverClass` scopes the variables to one tour or one step. The full list is in [Theming](./theming).
-
-## Which driver does `<DriverTour />` render?
-
-`<DriverTour>` renders the driver you pass as `:driver`. Without the prop it looks up the nearest provided driver:
-
-1. the driver of a `useDriver()` call in an ancestor component (`useDriver` provides its driver to its subtree, so a `<DriverTour />` in the same component renders it),
-2. a driver shared with `provideDriver()`,
-3. the app-wide driver installed by `DriverPlugin` (`useDriver(config, { shared: true })` drives that one).
-
-When in doubt, pass `:driver="driver"` explicitly; a `<DriverTour />` placed in a layout with the plugin installed renders the shared instance.
+`drive(index)` starts the tour at a given step.
 
 ## Highlighting a single element
 
-Pass one step to `highlight` to spotlight an element without a tour. By default the popover shows no buttons.
-
-<Demo
-  id="basic-highlight"
-  button-text="Highlight the element"
-  :highlight="{ element: '#basic-highlight .demo-box', popover: { title: 'Title for the popover', description: 'Description for it' } }"
->
-  <p>Some element to highlight.</p>
-</Demo>
+`highlight(step)` shows one step without a tour, as in the [Installation](./installation#setup) example. It takes the same step object as `steps`. The popover has no buttons unless you set `showButtons` on the step, and a click on the overlay or Escape closes it.
 
 ```ts
 const { highlight } = useDriver();
@@ -113,25 +68,30 @@ const { highlight } = useDriver();
 highlight({
   element: "#some-element",
   popover: {
-    title: "Title for the popover",
-    description: "Description for it",
+    title: "Title",
+    description: "Description",
+    showButtons: ["close"],
   },
 });
 ```
 
+More single-element cases are in [Simple highlight](../examples/simple-highlight).
+
 ## The reactive state
 
-Everything the tour knows is reactive. The buttons below are wired to the refs returned by `useDriver`:
+The refs returned by `useDriver` update as the tour moves. The buttons under the panel below use them:
 
 <ComposableDemo />
 
 ```vue
 <script setup lang="ts">
-import { useDriver } from "driver-vue";
+import { useDriver, DriverTour } from "driver-vue";
 
 const { drive, moveNext, movePrevious, destroy, isActive, activeIndex, isFirstStep, isLastStep } = useDriver({
   showButtons: ["close"],
-  steps: [/* ... */],
+  steps: [
+    /* ... */
+  ],
 });
 </script>
 
@@ -140,41 +100,41 @@ const { drive, moveNext, movePrevious, destroy, isActive, activeIndex, isFirstSt
   <button :disabled="!isActive || isFirstStep" @click="movePrevious()">Previous</button>
   <button :disabled="!isActive" @click="moveNext()">{{ isLastStep ? "Finish" : "Next" }}</button>
   <button :disabled="!isActive" @click="destroy()">Stop</button>
+  <span>Step {{ activeIndex }}</span>
+  <DriverTour />
 </template>
 ```
 
-## Without a component
+The refs are `isActive`, `activeIndex`, `activeStep`, `activeElement`, `previousStep`, `previousElement`, `stage`, `popover`, `transitioning`, `isFirstStep`, `isLastStep`, `hasNextStep` and `hasPreviousStep`. The same data is on `driver.state`; [Headless](../styling/headless) shows how to render a tour from it.
 
-`createDriver` (alias `driver`, as in driver.js) works anywhere, for example in a Pinia store or a plain module. Pass the instance to `<DriverTour :driver>` or share it through `provideDriver`.
+## Which driver `<DriverTour />` renders
+
+`<DriverTour>` renders the driver passed as `:driver`. Without the prop it uses the nearest provided driver:
+
+1. the driver of a `useDriver()` call in the same component or an ancestor,
+2. a driver shared with `provideDriver(driver)`,
+3. the app-wide driver created by `DriverPlugin`.
+
+A `<DriverTour />` in the root component is outside the components that call `useDriver()`, so it renders the app-wide driver. `useDriver(config, { shared: true })` sets the config on that driver instead of creating a new one, and does not destroy it on unmount (see [Installation](./installation#one-drivertour-for-the-app)).
+
+## Outside components
+
+`createDriver(config)` works anywhere, for example in a Pinia store or a plain module. `driver` is an alias, as in driver.js. The driver is not destroyed automatically; call `destroy()` when you are done with it.
 
 ```ts
 import { createDriver } from "driver-vue";
 
 export const onboarding = createDriver({
-  steps: [/* ... */],
-});
-```
-
-## Hints
-
-Beyond tours, driver-vue ships hints: pulsing beacons that open a popover when clicked, with no overlay and nothing blocked. See the [Hints example](../examples/hints).
-
-```vue
-<script setup lang="ts">
-import { useHints, DriverHints } from "driver-vue/hints";
-
-const { hints, show } = useHints({
-  hints: [
-    { element: "#export-btn", popover: { title: "Export your data", description: "Download as CSV or PDF." } },
-    { element: "#summary", popover: { title: "Auto-generated summary", description: "Written from the numbers." } },
+  steps: [
+    /* ... */
   ],
 });
-</script>
-
-<template>
-  <button @click="show()">Show hints</button>
-  <DriverHints :hints="hints" />
-</template>
 ```
 
-Find every option in [Configuration](./configuration), the ways to render the tour yourself under [Custom Components](../styling/custom-components), and the CSS route under [Styling Popover](../styling/styling-popover).
+Render it with `<DriverTour :driver="onboarding" />`, or call `provideDriver(onboarding)` in a parent component so a `<DriverTour />` below it picks it up.
+
+## Changing the look
+
+The popover can be restyled with CSS variables ([Styling popover](../styling/styling-popover)) or replaced with your own markup through slots and components ([Custom components](../styling/custom-components)).
+
+Hints, beacons that open a popover on click without blocking the page, are described in [Hints](../examples/hints).

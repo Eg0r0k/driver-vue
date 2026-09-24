@@ -1,17 +1,14 @@
 # Tour Progress
 
-Use `showProgress` to show the progress of the tour in the footer of the popover, and `progressText` to customize the text.
-
-`showProgress` is `false` by default. The default `progressText` is `{{current}} of {{total}}`; use `{{current}}` and `{{total}}` in your own template.
+`showProgress: true` shows the position in the tour, such as "2 of 3", on the left of the popover footer. It is `false` by default.
 
 <Demo
   id="progress-demo"
-  :config="{ showProgress: true, showButtons: ['next', 'previous'] }"
+  :config="{ showProgress: true }"
   :steps="[
-    { element: '#progress-demo .demo-box', popover: { title: 'Progress example', description: 'Notice the text at the bottom left of the popover showing the progress.', side: 'left', align: 'start' } },
-    { element: '#prog-title', popover: { title: 'Step two', description: 'The counter updates as you move.', side: 'bottom', align: 'start' } },
-    { element: '#prog-search', popover: { title: 'Step three', description: 'It counts every step, including skipped ones.', side: 'top', align: 'start' } },
-    { element: '#prog-export', popover: { title: 'Step four', description: 'Last one.', side: 'right', align: 'start' } },
+    { element: '#prog-title', popover: { title: 'Progress', description: 'The footer shows 1 of 3.' } },
+    { element: '#prog-search', popover: { title: 'Progress', description: 'The count goes up with each step.' } },
+    { element: '#prog-export', popover: { title: 'Progress', description: 'On the last step it reads 3 of 3.', side: 'right' } },
   ]"
 >
   <DemoBox prefix="prog" />
@@ -20,19 +17,22 @@ Use `showProgress` to show the progress of the tour in the footer of the popover
 ```ts
 const { drive } = useDriver({
   showProgress: true,
-  showButtons: ["next", "previous"],
   steps: [/* ... */],
 });
 ```
 
+The total is the length of `steps`, so steps skipped with `skipMissingElement` are still counted.
+
+## Progress text
+
+`progressText` is the template of the text. <code v-pre>{{current}}</code> is replaced with the step number and <code v-pre>{{total}}</code> with the number of steps. The default is <code v-pre>{{current}} of {{total}}</code>.
+
 <Demo
-  id="progress-text"
-  button-text="Different progress text"
-  :config="{ stagePadding: 5, progressText: 'Step {{current}} of {{total}}', showProgress: true, showButtons: ['next', 'previous'] }"
+  id="progress-text-demo"
+  :config="{ showProgress: true, progressText: 'Step {{current}} of {{total}}' }"
   :steps="[
-    { element: '#progress-text .demo-box', popover: { title: 'progressText', description: 'You can use progressText to modify the progress text template.', side: 'left', align: 'start' } },
-    { element: '#ptext-title', popover: { title: 'Step two', description: 'The template applies to every step.', side: 'bottom', align: 'start' } },
-    { element: '#ptext-export', popover: { title: 'Step three', description: 'Last one.', side: 'right', align: 'start' } },
+    { element: '#ptext-title', popover: { title: 'Progress text', description: 'progressText is set to Step {{current}} of {{total}}.' } },
+    { element: '#ptext-export', popover: { title: 'Progress text', description: 'The same template is used on every step.', side: 'right' } },
   ]"
 >
   <DemoBox prefix="ptext" />
@@ -40,24 +40,10 @@ const { drive } = useDriver({
 
 ```ts
 const { drive } = useDriver({
-  progressText: "Step {{current}} of {{total}}",
   showProgress: true,
+  progressText: "Step {{current}} of {{total}}",
   steps: [/* ... */],
 });
 ```
 
-## Your own progress indicator
-
-The `#progress` slot of `<DriverTour>` replaces the text with anything: dots, a bar, a fraction.
-
-```vue
-<DriverTour>
-  <template #progress="{ index, total }">
-    <span class="dots">
-      <i v-for="i in total" :key="i" :class="{ active: i - 1 <= index }" />
-    </span>
-  </template>
-</DriverTour>
-```
-
-See [Custom Components](../styling/custom-components).
+Both options are also accepted in a step's `popover`, to turn the progress on or change the text for that step only. To draw the progress as dots or a bar, replace it with the `#progress` slot of `<DriverTour>`, described in [Custom Components](../styling/custom-components).

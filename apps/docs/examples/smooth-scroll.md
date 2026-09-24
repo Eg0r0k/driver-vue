@@ -1,30 +1,27 @@
 # Smooth Scroll
 
-Steps rarely sit next to each other. When the next element is outside the viewport the tour scrolls it into view — instantly by default, exactly as in driver.js. Set `smoothScroll: true` and the scroll is animated instead:
+When the element of a step is not fully in the viewport, the tour scrolls it into view. The scroll is instant by default, as in driver.js. With `smoothScroll: true` it is animated.
 
 ```ts
 const { drive } = useDriver({
   smoothScroll: true,
   steps: [
-    { element: "#page-header", popover: { title: "Up here", description: "The tour starts at the top." } },
-    { element: "#page-footer", popover: { title: "Way down there", description: "The page scrolls to it." } },
-    { element: "#page-header", popover: { title: "And back", description: "Scrolling works in both directions." } },
+    { element: "#page-header", popover: { title: "Top", description: "The tour starts at the top of the page." } },
+    { element: "#page-footer", popover: { title: "Bottom", description: "The page scrolls down to this element." } },
   ],
 });
 ```
 
-## Try it
-
-The second step of this tour is the box at the very bottom of the page, and the third comes back up here.
+The second step of the demo below is a box at the bottom of this page, and the third step comes back up here.
 
 <Demo
   id="smooth-scroll-demo"
-  button-text="Run with smoothScroll"
-  :config="{ smoothScroll: true, showProgress: true }"
+  button-text="Run with smoothScroll: true"
+  :config="{ smoothScroll: true }"
   :steps="[
-    { element: '#smooth-top-title', popover: { title: 'Up here', description: 'The tour starts at the top of the page.' } },
-    { element: '#smooth-bottom-share', popover: { title: 'Way down there', description: 'The next element is a full screen below; the page scrolls to it smoothly.', side: 'top' } },
-    { element: '#smooth-top-export', popover: { title: 'And back up', description: 'Scrolling works in both directions.', side: 'right' } },
+    { element: '#smooth-top-title', popover: { title: 'Top', description: 'The next step is at the bottom of the page.' } },
+    { element: '#smooth-bottom-share', popover: { title: 'Bottom', description: 'The page scrolled down with an animation.', side: 'top' } },
+    { element: '#smooth-top-export', popover: { title: 'Top again', description: 'And back up.', side: 'right' } },
   ]"
 >
   <DemoBox prefix="smooth-top" />
@@ -32,37 +29,46 @@ The second step of this tour is the box at the very bottom of the page, and the 
 
 <Demo
   inline
-  button-text="Compare: the same tour without it"
-  :config="{ smoothScroll: false, showProgress: true }"
+  button-text="Run with smoothScroll: false"
   :steps="[
-    { element: '#smooth-top-title', popover: { title: 'Up here', description: 'The same tour with smoothScroll off.' } },
-    { element: '#smooth-bottom-share', popover: { title: 'Way down there', description: 'The page jumps instead of scrolling.', side: 'top' } },
-    { element: '#smooth-top-export', popover: { title: 'And back up', description: 'Instant again.', side: 'right' } },
+    { element: '#smooth-top-title', popover: { title: 'Top', description: 'The next step is at the bottom of the page.' } },
+    { element: '#smooth-bottom-share', popover: { title: 'Bottom', description: 'The page jumped here without an animation.', side: 'top' } },
+    { element: '#smooth-top-export', popover: { title: 'Top again', description: 'And back up.', side: 'right' } },
   ]"
 />
 
-## What it actually does
+## How the scroll works
 
-- The tour only scrolls when the element is **not already fully in view**. A step whose element is on screen never moves the page, with or without the option.
-- The scroll is a plain `element.scrollIntoView({ behavior: "smooth", inline: "center", block: "center" })`. An element taller than the viewport is aligned to `block: "start"` instead, so its top edge is visible.
-- **Elements inside a scrollable container still scroll instantly.** Smooth scrolling of a nested scroller races the highlight: the cutout is measured before the scroll settles and ends up in the wrong place. The engine detects a scrollable parent and falls back to `behavior: "auto"` for those elements.
-- The popover is brought into view the same way, so a popover that would land off-screen follows its element.
-- `smoothScroll` is a driver-level option. Like every other config key it can be changed between tours with `setConfig`, but not per step.
+- A step whose element is already fully in the viewport does not scroll the page.
+- The tour calls `element.scrollIntoView()` with `block: "center"` and `inline: "center"`. An element taller than the viewport is scrolled with `block: "start"`, so its top edge is visible.
+- If the direct parent of the element is a scroll container (its content is taller than its box), the scroll is always instant. A smooth scroll inside a nested container would finish after the highlight has been measured, and the highlight would end up in the wrong place.
+- `smoothScroll` applies to the whole tour and cannot be set per step. Change it between tours with `setConfig`.
 
-Users who have asked their system for reduced motion get no animation from `scrollIntoView`; browsers honour `prefers-reduced-motion` for it, so the option is safe to turn on globally.
+If the page layout keeps moving after the scroll (images loading, a sticky header settling), the highlight can end up offset. Call `driver.refresh()` once the layout is stable, or use `waitForElement` for content that renders late (see [Interactive Tour](./interactive-tour)). For what happens when the reader scrolls the element away during a step, see [Element Out of View](./scroll-away).
 
-## Related options
+## Blocking page scroll
 
-| Option | Effect |
-| --- | --- |
-| `smoothScroll` | animate the scroll that brings an element into view (default `false`) |
-| `allowScroll` | when `false`, the page cannot be scrolled by the user while the tour runs — the tour's own scrolling still works (default `true`) |
-| `disableActiveInteraction` | the highlighted element is not clickable |
+With `allowScroll: false` the reader cannot scroll the page while the tour runs: the tour adds the `driver-no-scroll` class to `<body>`, which sets `overflow: hidden` on it. The tour's own scrolling still works. The default is `true`.
 
-If the page keeps moving after the highlight (lazy images, a sticky header settling, an animation), the cutout can end up offset. Call `driver.refresh()` once the layout is stable, or give the step a `waitForElement` so the tour starts after the content has rendered — see [Interactive Tour](./interactive-tour).
+<Demo
+  inline
+  button-text="Run with allowScroll: false"
+  :config="{ allowScroll: false, smoothScroll: true }"
+  :steps="[
+    { element: '#smooth-top-title', popover: { title: 'Scroll blocked', description: 'The mouse wheel does not move the page now.' } },
+    { element: '#smooth-bottom-share', popover: { title: 'Bottom', description: 'The tour can still scroll the page.', side: 'top' } },
+  ]"
+/>
+
+```ts
+const { drive } = useDriver({
+  allowScroll: false,
+  steps: [/* ... */],
+});
+```
 
 <div class="smooth-spacer">
-  <p>Keep scrolling. This filler exists so the two demo boxes are a screen apart and the scrolling is actually visible.</p>
+  <p>Space between the two demo boxes, so the scroll is visible.</p>
 </div>
 
 <DemoBox prefix="smooth-bottom" />

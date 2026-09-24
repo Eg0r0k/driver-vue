@@ -1,20 +1,24 @@
 # Interactive Tour
 
-Sometimes the best way forward in a tour is the product itself: click the button you are pointing at, not a "Next" in the popover. Two options make this work without custom hooks:
+In some tours the reader moves forward by using the product: clicking the button the popover points at instead of a Next button in the popover. Two options cover this:
 
-- `advanceOnClick` advances the tour when the highlighted element is clicked, exactly as if the next button was pressed. The element's own click behavior still runs.
-- `waitForElement` makes a step wait up to the given number of milliseconds for its element to appear, staying on the current step in the meantime.
+- `advanceOnClick` moves the tour on when the highlighted element is clicked.
+- `waitForElement` makes a step wait for its element to appear in the DOM.
 
-Both can be set for the whole tour or per step. The tour below has `advanceOnClick` on, so you can click the highlighted elements to walk through it.
+Both can be set in the driver config (all steps) or on a single step. The step value wins.
+
+## Advancing on click
+
+With `advanceOnClick: true`, a click on the highlighted element does what the next button does: it moves to the next step, and on the last step it ends the tour. The element's own click handler still runs. If the step has an `onNextClick` hook (or `onDoneClick` on the last step), the click calls that hook instead.
 
 <Demo
   id="interactive-tour"
   title="Advance on click"
   :config="{ animate: true, showProgress: true, advanceOnClick: true }"
   :steps="[
-    { element: '#inter-title', popover: { title: 'Click to advance', description: 'This tour has advanceOnClick on. Click this highlighted heading to move on; the next button works too.', side: 'bottom', align: 'start' } },
-    { element: '#inter-search', popover: { title: 'Also per step', description: 'Like most options, it can be set for the whole tour or per step. Click the input to continue.', side: 'top', align: 'start' } },
-    { element: '#inter-export', popover: { title: 'Last step', description: 'On the last step, clicking the highlighted element ends the tour, like the done button.', side: 'right', align: 'start' } },
+    { element: '#inter-title', popover: { title: 'Click the heading', description: 'Clicking the highlighted element moves to the next step. The Next button still works.', side: 'bottom', align: 'start' } },
+    { element: '#inter-search', popover: { title: 'Click the input', description: 'Clicking the input also moves the tour on.', side: 'top', align: 'start' } },
+    { element: '#inter-export', popover: { title: 'Last step', description: 'On the last step, clicking the element ends the tour.', side: 'right', align: 'start' } },
   ]"
 >
   <DemoBox prefix="inter" />
@@ -26,17 +30,21 @@ const { drive } = useDriver({
   showProgress: true,
   steps: [
     { element: "#pick-plan", popover: { title: "Pick a plan", description: "Click the highlighted card to continue." } },
-    { element: "#billing-toggle", popover: { title: "Billing", description: "Clicking advances the tour; the toggle still flips." } },
+    { element: "#billing-toggle", popover: { title: "Billing", description: "The toggle flips and the tour moves on." } },
     { element: "#checkout-btn", popover: { title: "Checkout", description: "Clicking the last element ends the tour." } },
   ],
 });
 ```
 
-> For truly click-driven steps, hide the next button with `showButtons: ["close"]` on the step's popover so the highlighted element is the only way forward. `advanceOnClick` has no effect on steps where `disableActiveInteraction` blocks clicks on the element.
+To make the element the only way forward, hide the next button on that step with `popover.showButtons: ["close"]`.
 
-## Waiting for on-demand elements
+`advanceOnClick` has no effect on a step with `disableActiveInteraction: true`, because that option blocks clicks on the element.
 
-Click-driven tours usually lead somewhere new: the click opens a modal or a dropdown whose elements do not exist yet. Give the next step a `waitForElement` timeout and the tour waits instead of falling back. In the demo below, clicking the highlighted button renders the "modal" about a second later; watch the tour hold the current step, then follow.
+## Waiting for elements
+
+A click often opens something new, such as a modal or a dropdown, and the next step points at an element inside it that does not exist yet. Give that step a `waitForElement` timeout in milliseconds. When the step is driven and its element is not in the DOM, the tour stays on the current step and watches the DOM until the element appears or the timeout runs out. The default is `0` (no waiting).
+
+In the demo, the button renders the modal about a second after the click.
 
 <WaitForElementDemo />
 
@@ -48,24 +56,22 @@ const { drive } = useDriver({
       advanceOnClick: true,
       popover: {
         title: "Open the modal",
-        description: "Clicking this button opens the modal and moves the tour on.",
+        description: "Click this button.",
         showButtons: ["close"],
       },
     },
     {
-      // Rendered on demand: the tour waits up to 5 seconds for it,
-      // staying on the previous step in the meantime.
       element: "#modal-confirm",
       waitForElement: 5000,
       popover: {
         title: "Confirm",
-        description: "This step appeared once the modal rendered.",
+        description: "This step is shown once the modal has rendered.",
       },
     },
   ],
 });
 ```
 
-If the element never appears, the wait times out into the usual missing-element behavior: the centered fallback popover, or a skip when `skipMissingElement` is set.
+If the element does not appear before the timeout, the step behaves like any step with a missing element: the popover is shown centered on the page, or the step is skipped when `skipMissingElement` is set.
 
-For full manual control over navigation instead, see [Async Tour](./async-tour). For tours that continue across page navigations, see [Multi-Page Tour](./multi-page-tour).
+When you need to run your own code before the next step (fetch data, render the element yourself), see [Async Tour](./async-tour). Tours that continue on another route are covered in [Multi-Page Tour](./multi-page-tour).

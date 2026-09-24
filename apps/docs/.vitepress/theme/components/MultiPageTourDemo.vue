@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, onUnmounted } from "vue";
-import { useRoute, useRouter } from "vitepress";
+import { useData, useRoute, useRouter, withBase } from "vitepress";
 import { injectDriver, type Config } from "driver-vue";
 import { PAGE_ONE, PAGE_TWO, STORAGE_KEY, steps, tourState } from "./multiPageTour";
 
@@ -15,10 +15,19 @@ const props = defineProps<{ page: "one" | "two" }>();
 const driver = injectDriver();
 const router = useRouter();
 const route = useRoute();
+const { site } = useData();
 
 let navigating = false;
 
-const normalize = (path: string) => path.replace(/(index)?\.html$/, "").replace(/\/$/, "");
+// On GitHub Pages the site lives under a base (`/driver-vue/`): the route
+// path carries it, the step pages do not, so it is stripped before comparing
+// and added back when navigating.
+const normalize = (path: string) => {
+  const base = site.value.base.replace(/\/$/, "");
+  const local = base && path.startsWith(`${base}/`) ? path.slice(base.length) : path;
+
+  return local.replace(/(index)?\.html$/, "").replace(/\/$/, "");
+};
 const currentPage = computed(() => normalize(route.path));
 const currentStep = computed(() => steps[tourState.value.index]);
 
@@ -62,7 +71,7 @@ const goTo = (index: number) => {
 
   navigating = true;
   driver.value.destroy();
-  router.go(step.page);
+  router.go(withBase(step.page));
 };
 
 const config = computed<Config>(() => ({
@@ -106,7 +115,7 @@ const start = () => {
   }
 
   navigating = true;
-  router.go(steps[0].page);
+  router.go(withBase(steps[0].page));
 };
 
 onMounted(() => {
@@ -142,14 +151,14 @@ onUnmounted(() => {
     </DemoBox>
 
     <p class="mp-links">
-      <a v-if="props.page === 'one'" :href="PAGE_TWO">Page two of this example →</a>
-      <a v-else :href="PAGE_ONE">← Back to page one</a>
+      <a v-if="props.page === 'one'" :href="withBase(PAGE_TWO)">Page two of this example</a>
+      <a v-else :href="withBase(PAGE_ONE)">Back to page one</a>
     </p>
 
     <Teleport to="body">
       <div v-if="tourState.active" class="mp-progress driver-interactive">
-        <span>Tour · step {{ tourState.index + 1 }} of {{ steps.length }} · {{ currentStep?.label }}</span>
-        <button type="button" class="demo-button secondary" @click="finish">Exit</button>
+        <span>Tour step {{ tourState.index + 1 }} of {{ steps.length }}, {{ currentStep?.label }}</span>
+        <button type="button" class="demo-button" @click="finish">Exit</button>
       </div>
     </Teleport>
   </div>
@@ -173,7 +182,7 @@ onUnmounted(() => {
   border-radius: 999px;
   background: var(--vp-c-bg);
   border: 1px solid var(--vp-c-divider);
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.18);
+  box-shadow: var(--vp-shadow-2);
   font-size: 13px;
 }
 </style>

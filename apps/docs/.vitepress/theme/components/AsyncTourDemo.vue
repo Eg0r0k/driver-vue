@@ -2,9 +2,9 @@
 import { useDriver, DriverTour } from "driver-vue";
 
 /**
- * The element is created inside the demo box, in normal flow, right after the
- * summary paragraph, and it stays until the tour is destroyed, so stepping
- * backwards and forwards keeps showing it.
+ * The element is created inside the demo box, right after the summary
+ * paragraph, and stays until the tour is destroyed, so Previous and Next keep
+ * finding it.
  */
 const mountDynamicElement = () => {
   if (document.querySelector(".dynamic-el")) {
@@ -20,7 +20,7 @@ const mountDynamicElement = () => {
   el.className = "dynamic-el";
 
   const heading = document.createElement("strong");
-  heading.textContent = "Created on the fly ✨";
+  heading.textContent = "Created on the fly";
   const text = document.createElement("span");
   text.textContent = "This element did not exist when the tour started.";
 
@@ -32,6 +32,11 @@ const removeDynamicElement = () => {
   document.querySelector(".dynamic-el")?.remove();
 };
 
+// Stands in for a request or any other async work.
+const wait = (ms: number) => new Promise(resolve => window.setTimeout(resolve, ms));
+
+let loading = false;
+
 const { drive, driver } = useDriver({
   showProgress: true,
   onDestroyed: removeDynamicElement,
@@ -40,8 +45,21 @@ const { drive, driver } = useDriver({
       element: "#async-title",
       popover: {
         title: "Next step is async",
-        description: "The next element does not exist yet. onNextClick creates it and then calls moveNext().",
-        onNextClick: () => {
+        description:
+          "The next element does not exist yet. Next waits half a second, creates it, then calls moveNext().",
+        onNextClick: async () => {
+          if (loading) {
+            return;
+          }
+
+          loading = true;
+          await wait(500);
+          loading = false;
+
+          if (!driver.isActive()) {
+            return;
+          }
+
           mountDynamicElement();
           driver.moveNext();
         },
@@ -50,11 +68,11 @@ const { drive, driver } = useDriver({
     {
       element: ".dynamic-el",
       popover: {
-        title: "Async element",
-        description: "Created on demand, inside the box. It stays for the rest of the tour, so Previous works too.",
+        title: "Created element",
+        description: "It stays until the tour ends, so Previous and Next both work.",
       },
     },
-    { popover: { title: "Last step", description: "This is the last step." } },
+    { popover: { title: "Last step", description: "The created element is removed when the tour ends." } },
   ],
 });
 </script>

@@ -2,9 +2,10 @@
 import { useDriver, DriverTour } from "driver-vue";
 
 /**
- * The default popover with three parts swapped through slots: the title gets
- * an icon, the progress text becomes dots, and the next button is our own.
- * Everything else (layout, description, close, previous) stays as shipped.
+ * The default popover with three parts replaced through slots: the title gets
+ * a step label, the progress text becomes dots, and the next button is a
+ * plain button. Everything else (layout, description, close, previous) is the default.
+ * The slot content uses the popover's CSS variables, so it follows any theme.
  */
 const { drive, driver } = useDriver({
   showProgress: true,
@@ -12,21 +13,21 @@ const { drive, driver } = useDriver({
     {
       element: "#parts-title",
       popover: {
-        title: "Only three parts changed",
-        description: "Title, progress and the next button come from slots.",
+        title: "Three parts replaced",
+        description: "The title, the progress and the next button come from slots.",
       },
     },
     {
       element: "#parts-summary",
       popover: {
-        title: "The rest is the default",
-        description: "Close, previous and this description are untouched.",
+        title: "The rest is default",
+        description: "The close button, the previous button and this description are not slotted.",
         side: "top",
       },
     },
     {
       element: "#parts-export",
-      popover: { title: "Last step", description: "The next slot renders Finish on the last step.", side: "right" },
+      popover: { title: "Last step", description: "The next slot shows Finish on the last step.", side: "right" },
     },
   ],
 });
@@ -42,8 +43,11 @@ const { drive, driver } = useDriver({
 
     <ClientOnly>
       <DriverTour :driver="driver">
-        <template #title="{ popover }">
-          <header id="driver-popover-title" class="driver-popover-title parts-title">🧭 {{ popover.title }}</header>
+        <template #title="{ popover, index }">
+          <header id="driver-popover-title" class="driver-popover-title">
+            <span class="parts-label">Step {{ index + 1 }}</span>
+            {{ popover.title }}
+          </header>
         </template>
 
         <template #progress="{ index, total }">
@@ -53,7 +57,7 @@ const { drive, driver } = useDriver({
         </template>
 
         <template #next="{ next, isLast }">
-          <button type="button" class="parts-next" @click="next()">{{ isLast ? "Finish ✓" : "Next →" }}</button>
+          <button type="button" class="parts-next" @click="next()">{{ isLast ? "Finish" : "Next" }}</button>
         </template>
       </DriverTour>
     </ClientOnly>
@@ -61,10 +65,13 @@ const { drive, driver } = useDriver({
 </template>
 
 <style>
-.parts-title {
-  display: flex;
-  align-items: center;
-  gap: 6px;
+.parts-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--driver-popover-progress-color);
 }
 
 .parts-dots {
@@ -74,28 +81,29 @@ const { drive, driver } = useDriver({
 }
 
 .parts-dot {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
-  background: #d4d4d8;
+  background: var(--driver-popover-progress-color);
+  opacity: 0.35;
 }
 
 .parts-dot-on {
-  background: var(--vp-c-brand-1);
+  opacity: 1;
 }
 
 .parts-next {
-  padding: 4px 12px;
+  padding: 3px 10px;
   border: 0;
-  border-radius: 999px;
-  background: var(--vp-c-brand-1);
-  color: #fff;
+  border-radius: 4px;
+  background: var(--driver-popover-color);
+  color: var(--driver-popover-bg);
+  font: inherit;
   font-size: 12px;
-  font-weight: 600;
   cursor: pointer;
 }
 
 .parts-next:hover {
-  background: var(--vp-c-brand-2);
+  opacity: 0.85;
 }
 </style>

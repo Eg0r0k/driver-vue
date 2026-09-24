@@ -1,70 +1,80 @@
 # Driver methods
 
-The methods of a driver instance, as returned by `createDriver()` / `driver()` and exposed on `useDriver().driver`. They are the driver.js methods.
-
-> Configuration options are omitted here; see [Configuration](../guide/configuration).
+The methods of a driver instance, as returned by `createDriver()` (or its driver.js alias `driver()`) and as `driver` from `useDriver()`. They are the driver.js methods plus `state`. The options are listed in [Configuration](../guide/configuration).
 
 ```ts
 import { createDriver } from "driver-vue";
 
 const driver = createDriver({
-  /* ... */
+  /* config */
 });
 
-// --------------------------------------------------
-// driver is an object with the following methods
-// --------------------------------------------------
+// Start the tour with the configured steps
+driver.drive(); // at step 0
+driver.drive(4); // at step 4
 
-// Start the tour using `steps` given in the configuration
-driver.drive(); // Starts at step 0
-driver.drive(4); // Starts at step 4
+// Navigation
+driver.moveNext(); // go to the next step; on the last step, end the tour
+driver.movePrevious(); // go to the previous step; on the first step, end the tour
+driver.moveTo(4); // go to step 4; an index without a step ends the tour
 
-driver.moveNext(); // Move to the next step
-driver.movePrevious(); // Move to the previous step
-driver.moveTo(4); // Move to the step 4
-driver.hasNextStep(); // Is there a next step
-driver.hasPreviousStep(); // Is there a previous step
+// Position in the tour
+driver.hasNextStep();
+driver.hasPreviousStep();
+driver.isFirstStep();
+driver.isLastStep();
+driver.getActiveIndex(); // undefined when no step is active
 
-driver.isFirstStep(); // Is the current step the first step
-driver.isLastStep(); // Is the current step the last step
+// Steps and elements
+driver.getActiveStep(); // the active step, resolved with the config defaults
+driver.getPreviousStep();
+driver.getNextStep(); // the next step as configured
+driver.getActiveElement();
+driver.getPreviousElement();
 
-driver.getActiveIndex(); // Gets the active step index
+// Highlight one element without a tour
+driver.highlight({
+  element: "#some-element",
+  popover: { title: "Title", description: "Description" },
+});
 
-driver.getActiveStep(); // Gets the active step configuration
-driver.getPreviousStep(); // Gets the previous step configuration
-driver.getNextStep(); // Gets the next step configuration
-driver.getActiveElement(); // Gets the active HTML element
-driver.getPreviousElement(); // Gets the previous HTML element
-
-// Is the tour or highlight currently active
+// Is a tour or highlight running
 driver.isActive();
 
-// Recalculate and redraw the highlight
+// Measure and draw the highlight again, after a layout change
 driver.refresh();
 
-driver.getConfig();
+// Config
+driver.getConfig(); // the whole config
+driver.getConfig("steps"); // one option
 driver.setConfig({
-  /* ... */
+  /* config */
 });
-
 driver.setSteps([
-  /* ... */
-]); // Set the steps
+  /* steps */
+]);
 
-// The driver.js state shape (see Configuration > State)
-driver.getState();
+// State
+driver.getState(); // the driver.js state object
+driver.getState("activeIndex"); // one key
+driver.state; // the reactive state, see Headless
 
-// The reactive, Vue-facing state (see Headless)
-driver.state;
-
-driver.highlight({
-  /* ... */
-}); // Highlight an element
-
-driver.destroy(); // Destroy the tour
+// End the tour
+driver.destroy();
 ```
 
-> Each `createDriver()` call returns its own independent instance. Create as many as you need; their configuration, steps and state never overlap.
+Details that differ from what the names suggest:
+
+- `drive()` and `highlight()` do nothing on the server.
+- `hasNextStep()`, `hasPreviousStep()`, `isFirstStep()`, `isLastStep()` and `getNextStep()` skip the steps that `skipMissingElement` would skip.
+- `highlight()` hides the buttons and the progress text unless the step's `popover` sets `showButtons` or `showProgress`.
+- For a step without an element, `getActiveElement()` returns a placeholder element, as in driver.js. The `activeElement` ref of `useDriver()` is `undefined` in that case.
+- `setConfig()` replaces the config. Options you leave out go back to their defaults; they are not kept from the previous config. To change one option, spread the current config: `driver.setConfig({ ...driver.getConfig(), overlayOpacity: 0.5 })`.
+- `setSteps()` replaces the steps, keeps the other options and resets the tour state.
+- `destroy()` does not call `onDestroyStarted`. The close button, Escape and overlay clicks do, so a hook that asks for confirmation calls `destroy()` itself to end the tour.
+- `driver.state` is a `shallowReactive` object, `getState()` a plain one kept for driver.js compatibility. The reactive state is described in [Headless](../styling/headless#the-state).
+
+Each `createDriver()` call returns an independent instance. Several can exist at once; their config, steps and state are separate.
 
 ## `useDriver()`
 
@@ -72,7 +82,7 @@ driver.destroy(); // Destroy the tour
 const {
   driver, // the instance above
 
-  // reactive refs mirroring driver.state
+  // computed refs over driver.state
   isActive,
   activeIndex,
   activeStep,
@@ -87,7 +97,7 @@ const {
   hasNextStep,
   hasPreviousStep,
 
-  // bound methods
+  // the driver's methods
   drive,
   highlight,
   moveNext,
@@ -100,12 +110,12 @@ const {
 } = useDriver(config, { shared: false });
 ```
 
-`config` may be a plain object, a ref or a getter; a reactive config is re-applied with `setConfig` on change. With `shared: true` the plugin's app-wide driver is used instead of a new one (and not destroyed on unmount).
+`config` is a plain object, a ref or a getter. The plugin's `defaults` are merged under it, and a ref or getter is applied again with `setConfig` when it changes. With `shared: true` the plugin's app-wide driver is used instead of a new one, and it is not destroyed when the component unmounts. [Basic usage](../guide/basic-usage) explains how to use it.
 
 ## Hints
 
-See the [Hints example](../examples/hints#options) for the `Hints` methods.
+The methods of a hints instance are listed in the [Hints example](../examples/hints#instance-methods).
 
 ## Generated reference
 
-Every exported type and function is documented in the generated [Reference](./reference/), and the components in [Components](./components).
+Every exported type and function is in the generated [Reference](./reference/), and the components are in [Components](./components).

@@ -4,19 +4,19 @@ import { useDriver, DriverTour } from "driver-vue";
 /**
  * The `#overlay` slot replaces the SVG dim with four blurred panels around
  * the stage rect, so the page behind is frosted instead of darkened. The
- * slot receives the (interpolated) stage and the padding, so the panels
- * follow the animation frame by frame.
+ * slot receives the stage (interpolated during the slide) and the padding,
+ * so the panels follow the animation frame by frame.
  */
 const { drive, driver } = useDriver({
   stagePadding: 8,
   steps: [
     {
       element: "#ovl-title",
-      popover: { title: "Frosted overlay", description: "Four blurred panels instead of an SVG path." },
+      popover: { title: "Frosted overlay", description: "Four blurred panels instead of the SVG path." },
     },
     {
       element: "#ovl-export",
-      popover: { title: "Still animated", description: "The panels are driven by the same stage rect.", side: "right" },
+      popover: { title: "Same animation", description: "The panels follow the same stage rect.", side: "right" },
     },
   ],
 });
@@ -69,13 +69,8 @@ const panels = (stage: { x: number; y: number; width: number; height: number }, 
 
 .frost-panel {
   position: absolute;
-  pointer-events: auto;
-  background: rgba(255, 255, 255, 0.35);
-  backdrop-filter: blur(6px) saturate(0.8);
-  -webkit-backdrop-filter: blur(6px) saturate(0.8);
-}
-
-.dark .frost-panel {
-  background: rgba(0, 0, 0, 0.35);
+  background: color-mix(in srgb, var(--vp-c-bg) 40%, transparent);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
 }
 </style>

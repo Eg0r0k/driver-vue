@@ -19,6 +19,7 @@ import WaitForElementDemo from "./components/WaitForElementDemo.vue";
 import CustomButtonDemo from "./components/CustomButtonDemo.vue";
 import EventLogDemo from "./components/EventLogDemo.vue";
 import ConfirmExitDemo from "./components/ConfirmExitDemo.vue";
+import PositionDemo from "./components/PositionDemo.vue";
 import HintsDemo from "./components/HintsDemo.vue";
 import PartSlotsDemo from "./components/PartSlotsDemo.vue";
 import ComposableDemo from "./components/ComposableDemo.vue";
@@ -44,6 +45,7 @@ const theme: Theme = {
     app.component("CustomButtonDemo", CustomButtonDemo);
     app.component("EventLogDemo", EventLogDemo);
     app.component("ConfirmExitDemo", ConfirmExitDemo);
+    app.component("PositionDemo", PositionDemo);
     app.component("ComposableDemo", ComposableDemo);
     app.component("HintsDemo", HintsDemo);
     app.component("PartSlotsDemo", PartSlotsDemo);

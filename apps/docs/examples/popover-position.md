@@ -1,42 +1,61 @@
 # Popover Position
 
-Control the popover position with `side` and `align`. `side` is the side of the element the popover is placed on (`top`, `right`, `bottom`, `left`; default `bottom`). `align` is how the popover is aligned along that side: `start` lines its leading edge up with the element, `center` centers it, `end` lines up the trailing edges (default `start`).
+Two options in a step's `popover` place it:
 
-> The popover adjusts itself to fit the viewport: if `left` / `start` does not fit, it flips to the other side and shifts along the edge. The rendered side and alignment are exposed as `driver-popover-side-*` / `driver-popover-align-*` classes and `data-side` / `data-align` attributes. Scroll so the box is near an edge to see it in action.
+- `side` is the side of the element the popover goes on: `"top"`, `"right"`, `"bottom"` or `"left"`. The default is `"bottom"`.
+- `align` is the position along that side: `"start"` lines up the leading edges of the popover and the element, `"center"` centers the popover on the element, `"end"` lines up the trailing edges. The default is `"start"`.
+
+<PositionDemo />
 
 ```ts
 const { highlight } = useDriver();
 
 highlight({
-  element: "#sample-box",
+  element: "#position-target",
   popover: {
-    title: "Left start example",
-    description: "We have side set to <mark>left</mark> and align set to <mark>start</mark>.",
+    title: "left / start",
+    description: 'side: "left", align: "start"',
     side: "left",
     align: "start",
   },
 });
 ```
 
-<div id="sample-box" class="demo-box" style="align-items: center; padding: 48px">
-  <p>Use the buttons below to show the popover.</p>
-</div>
+## When the side does not fit
 
-<div style="margin-top: 12px">
-<Demo inline button-text="Left start" :highlight="{ element: '#sample-box', popover: { title: 'Left start example', description: 'We have side set to <mark>left</mark> and align set to <mark>start</mark>. PS, we can use HTML in the title and description.', side: 'left', align: 'start' } }" />
-<Demo inline button-text="Left center" :highlight="{ element: '#sample-box', popover: { title: 'Left center example', description: 'We have side set to <mark>left</mark> and align set to <mark>center</mark>.', side: 'left', align: 'center' } }" />
-<Demo inline button-text="Left end" :highlight="{ element: '#sample-box', popover: { title: 'Left end example', description: 'We have side set to <mark>left</mark> and align set to <mark>end</mark>.', side: 'left', align: 'end' } }" />
-<Demo inline button-text="Top start" :highlight="{ element: '#sample-box', popover: { title: 'Top start example', description: 'We have side set to <mark>top</mark> and align set to <mark>start</mark>.', side: 'top', align: 'start' } }" />
-<Demo inline button-text="Top center" :highlight="{ element: '#sample-box', popover: { title: 'Top center example', description: 'We have side set to <mark>top</mark> and align set to <mark>center</mark>.', side: 'top', align: 'center' } }" />
-<Demo inline button-text="Top end" :highlight="{ element: '#sample-box', popover: { title: 'Top end example', description: 'We have side set to <mark>top</mark> and align set to <mark>end</mark>.', side: 'top', align: 'end' } }" />
-<Demo inline button-text="Right start" :highlight="{ element: '#sample-box', popover: { title: 'Right start example', description: 'We have side set to <mark>right</mark> and align set to <mark>start</mark>.', side: 'right', align: 'start' } }" />
-<Demo inline button-text="Right center" :highlight="{ element: '#sample-box', popover: { title: 'Right center example', description: 'We have side set to <mark>right</mark> and align set to <mark>center</mark>.', side: 'right', align: 'center' } }" />
-<Demo inline button-text="Right end" :highlight="{ element: '#sample-box', popover: { title: 'Right end example', description: 'We have side set to <mark>right</mark> and align set to <mark>end</mark>.', side: 'right', align: 'end' } }" />
-<Demo inline button-text="Bottom start" :highlight="{ element: '#sample-box', popover: { title: 'Bottom start example', description: 'We have side set to <mark>bottom</mark> and align set to <mark>start</mark>.', side: 'bottom', align: 'start' } }" />
-<Demo inline button-text="Bottom center" :highlight="{ element: '#sample-box', popover: { title: 'Bottom center example', description: 'We have side set to <mark>bottom</mark> and align set to <mark>center</mark>.', side: 'bottom', align: 'center' } }" />
-<Demo inline button-text="Bottom end" :highlight="{ element: '#sample-box', popover: { title: 'Bottom end example', description: 'We have side set to <mark>bottom</mark> and align set to <mark>end</mark>.', side: 'bottom', align: 'end' } }" />
-</div>
+The popover goes on the requested `side` when the space between the element and the edge of the viewport on that side is large enough to hold it. If it is not, the opposite side is tried, then the two perpendicular sides: bottom and then top for `left` and `right`, left and then right for `top` and `bottom`. The `align` is kept.
+
+Only the space along that one axis is measured. A popover on the right of an element that has scrolled above the viewport stays on the right.
+
+When no side has room, for example for an element taller than a phone screen, the popover is centered at the bottom of the viewport and its arrow is hidden.
+
+The popover is also shifted to stay inside the viewport. While its element scrolls out of view, the popover sticks to the nearest edge and the arrow moves to the popover edge that faces the element. What else can happen at that point is described in [Element Out of View](./scroll-away).
+
+The side the popover ended up on is in its `data-side` attribute and in a `driver-popover-side-*` class (`data-align` and `driver-popover-align-*` for the alignment), so CSS can follow it.
 
 ## Offsets
 
-`popoverOffset` is the gap between the cutout and the popover (default `10`); `stagePadding` grows the cutout itself. Positioning is done by Floating UI; the composable behind it, `useDriverPosition`, is exported for [headless](../styling/headless) use.
+`popoverOffset` is the gap between the highlighted area and the popover, in pixels (default `10`). `stagePadding` is the space between the element and the edge of the highlighted area (default `10`); a larger value also moves the popover away, since the gap is measured from the highlighted area.
+
+<Demo
+  inline
+  button-text="popoverOffset: 40"
+  :config="{ popoverOffset: 40 }"
+  :highlight="{ element: '#position-target', popover: { title: 'popoverOffset: 40', description: 'The popover is 40 px from the highlighted area.' } }"
+/>
+<Demo
+  inline
+  button-text="stagePadding: 0"
+  :config="{ stagePadding: 0 }"
+  :highlight="{ element: '#position-target', popover: { title: 'stagePadding: 0', description: 'The highlighted area is the size of the element.' } }"
+/>
+
+```ts
+const { drive } = useDriver({
+  popoverOffset: 40,
+  stagePadding: 0,
+  steps: [/* ... */],
+});
+```
+
+The positioning is done by `useDriverPosition`, which is exported for popovers you render yourself; see [Headless](../styling/headless).

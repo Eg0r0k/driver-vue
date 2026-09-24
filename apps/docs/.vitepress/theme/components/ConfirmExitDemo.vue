@@ -1,28 +1,27 @@
 <script setup lang="ts">
 import { useDriver, DriverTour } from "driver-vue";
 
+/** Asks with `confirm()` before the tour ends early. */
 const { drive, driver } = useDriver({
-  showProgress: true,
-  showButtons: ["next", "previous"],
-  steps: [
-    {
-      element: "#confirm-title",
-      popover: {
-        title: "Confirm on exit",
-        description: "Try pressing Escape or clicking the overlay before the last step.",
-      },
-    },
-    {
-      element: "#confirm-export",
-      popover: { title: "Still here", description: "You confirmed you want to stay (or never tried).", side: "right" },
-    },
-    { popover: { title: "Last step", description: "On the last step the tour closes without asking." } },
-  ],
   onDestroyStarted: () => {
-    if (!driver.hasNextStep() || confirm("Are you sure you want to leave the tour?")) {
+    if (!driver.hasNextStep() || confirm("Leave the tour?")) {
       driver.destroy();
     }
   },
+  steps: [
+    {
+      element: "#confirm-title",
+      popover: { title: "Try to leave", description: "Press Escape or click the overlay to see the confirmation." },
+    },
+    {
+      element: "#confirm-search",
+      popover: { title: "Step 2", description: "Cancel in the dialog keeps the tour open." },
+    },
+    {
+      element: "#confirm-export",
+      popover: { title: "Last step", description: "Here the tour ends without asking.", side: "right" },
+    },
+  ],
 });
 </script>
 
@@ -30,7 +29,7 @@ const { drive, driver } = useDriver({
   <div class="demo">
     <DemoBox prefix="confirm">
       <template #footer>
-        <button type="button" class="demo-run" @click="drive()">Run with confirmation</button>
+        <button type="button" class="demo-run" @click="drive()">Run</button>
       </template>
     </DemoBox>
     <ClientOnly>

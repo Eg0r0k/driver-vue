@@ -1,22 +1,18 @@
 # Feature Hints
 
-Hints are pulsing beacons that sit on the page. The user clicks one to open a popover, in any order, with no overlay and nothing blocked, so the page stays interactive.
+Hints are small pulsing dots (beacons) placed on elements of the page. Clicking a beacon opens a popover about its element. The reader can open hints in any order, and by default there is no overlay, so the page stays usable.
 
-They ship as their own entry so tour-only apps never load them; the stylesheet is shared with tours:
+Hints come from the `driver-vue/hints` entry and use the same stylesheet as tours (see [Installation](../guide/installation)).
 
-```ts
-import { useHints, DriverHints } from "driver-vue/hints";
-import "driver-vue/style.css";
-```
+## A first hint
 
-Each hint points at an element and describes it with the same popover you know from tours. The demo below also turns on the optional overlay, which spotlights the element while its hint is open:
+Pass the hints to `useHints`, render `<DriverHints>` and call `show()` to put the beacons on the page. Each hint has an `element` and a `popover`, like a tour step.
 
 <HintsDemo
   prefix="hint"
-  :config="{ overlay: true, overlayOpacity: 0.5 }"
   :hints="[
-    { element: '#export', id: 'export', popover: { title: 'Export your data', description: 'Download this report as CSV or PDF.' } },
-    { element: '#summary', id: 'summary', beacon: { side: 'left', align: 'center' }, popover: { title: 'Auto-generated summary', description: 'This paragraph is written for you from the numbers of the quarter.', side: 'bottom' } },
+    { element: '#export', id: 'export', popover: { title: 'Export', description: 'Click outside or press Escape to close this popover. Got it removes the hint.' } },
+    { element: '#search', id: 'name', popover: { title: 'Project name', description: 'Hints can be opened in any order.' } },
   ]"
 />
 
@@ -25,26 +21,16 @@ Each hint points at an element and describes it with the same popover you know f
 import { useHints, DriverHints } from "driver-vue/hints";
 
 const { hints, show } = useHints({
-  overlay: true,
-  overlayOpacity: 0.5,
   hints: [
     {
       element: "#export-btn",
       id: "export",
-      popover: {
-        title: "Export your data",
-        description: "Download this report as CSV or PDF.",
-      },
+      popover: { title: "Export", description: "Downloads the project as a ZIP file." },
     },
     {
-      element: "#summary",
-      id: "summary",
-      beacon: { side: "left", align: "center" },
-      popover: {
-        title: "Auto-generated summary",
-        description: "This paragraph is written for you from the numbers of the quarter.",
-        side: "bottom",
-      },
+      element: "#project-name",
+      id: "name",
+      popover: { title: "Project name", description: "Shown in the sidebar and in shared links." },
     },
   ],
 });
@@ -56,20 +42,24 @@ const { hints, show } = useHints({
 </template>
 ```
 
-`useHints` creates the instance, hides it when the component unmounts, and returns `hints` (the instance) plus its methods and reactive refs (`isVisible`, `activeHint`). `createHints` is the plain factory for use outside components.
+`useHints` returns the instance as `hints`, its methods (`show`, `hide`, `open`, `close`, `toggle`, `dismiss`, `restore`, `restoreAll`, `setHints`, `refresh`) and the reactive refs `isVisible`, `active`, `activeId` and `mountedIds`. It hides the beacons when the component unmounts. If you pass a ref or a getter, changes to its `hints` are applied with `setHints()`. Outside components, use `createHints(config)` from the same entry.
 
-## Closing vs. dismissing
+A hint whose element is not on the page is skipped. The next `show()` tries it again.
 
-The two are deliberately different:
+## Closing and dismissing
 
-- **Closing**: clicking the beacon again, clicking anywhere outside, or pressing <kbd>Escape</kbd> closes the popover. The beacon stays, and the hint can be opened again.
-- **Dismissing**: clicking the _Got it_ button removes the beacon entirely and fires `onDismiss`. The hint is gone for the session. Provide `onButtonClick` to take over the button and decide yourself, the same way `onNextClick` takes over a tour's next button.
+A hint popover can be closed or dismissed:
 
-Only one hint popover is open at a time; opening another swaps it.
+- Clicking the beacon again, clicking anywhere outside the popover, or pressing <kbd>Escape</kbd> closes the popover. The beacon stays and the hint can be opened again.
+- The popover button (default text "Got it") dismisses the hint: its beacon is removed and `onDismiss` runs. A dismissed hint stays gone until `restore(id)`, `restoreAll()` or `setHints()`.
+
+Only one popover is open at a time. Opening another hint closes the current one.
+
+The button text is set with `buttonText`, for all hints in the config or per hint in `popover`. `popover.showButton: false` hides the button. To run your own code instead of dismissing, pass `onButtonClick`; it replaces the dismiss, so call `hints.dismiss(hint.id)` in it if the hint should also go away.
 
 ## Remembering dismissals
 
-driver-vue keeps dismissals in memory for the session and stays out of the storage business. `onDismiss` with stable `id`s is the hook, and storage is yours:
+Dismissals are kept in memory only. To keep them across visits, give each hint a stable `id`, store the ids in `onDismiss` and leave dismissed hints out of the config:
 
 ```ts
 const dismissed = new Set<string>(JSON.parse(localStorage.getItem("hints") ?? "[]"));
@@ -83,49 +73,62 @@ const { hints, show } = useHints({
 });
 ```
 
-## Beacon placement and styling
+Without an `id`, a hint is identified by its index in the array.
 
-A beacon sits on one of twelve anchor points of its element's box: a `side` (`top`, `right`, `bottom`, `left`) plus an `align` (`start`, `center`, `end`). The default is the top-right corner. Set `animate: false` for a static dot; the pulse also pauses automatically for users who prefer reduced motion.
+## Beacon position
 
-When an anchor point lands a little off, nudge the beacon in pixels with `offsetX` and `offsetY`. Positive `offsetX` moves it right and negative left; positive `offsetY` moves it down and negative up:
+A beacon sits on one of twelve points of its element's box: a `side` (`top`, `right`, `bottom`, `left`) plus an `align` (`start`, `center`, `end`). The default is `top` and `end`, the top-right corner. `offsetX` and `offsetY` move it by a number of pixels: positive values move it right and down, negative values left and up.
 
 ```ts
 const hint = {
   element: "#dashboard",
   beacon: { side: "top", align: "end", offsetX: -12, offsetY: 8 },
+  popover: { title: "Dashboard", description: "..." },
 };
 ```
 
-Size and colour come from CSS variables:
+The `beacon` option of the config sets defaults for every hint; a hint's own `beacon` values win. The popover has its own `side` and `align` (default `bottom` and `start`), relative to the beacon.
 
-```css
-.driver-hint {
-  --driver-hint-size: 32px;
-  --driver-hint-color: #e11d48;
-}
-```
-
-See [Styling Hints](../styling/styling-hints) for more, including the `#beacon` and `#popover` slots.
+Colors, size, the pulse animation and custom beacon or popover markup are covered in [Styling Hints](../styling/styling-hints).
 
 ## Dimming the page
 
-Pass `overlay: true` to dim the page while a hint is open. The hint reads exactly like a tour step: the element is cut out of the dim and stays interactive, the popover anchors to the element rather than the beacon, and the beacon itself steps aside while its popover is up. Everything else, including the other beacons, sits under the overlay; clicking the dimmed page closes the hint like any outside click.
+With `overlay: true`, an open hint looks like a tour step: the page is dimmed, the element is cut out of the overlay and stays interactive, and the popover is placed next to the element instead of the beacon. The beacon of the open hint is hidden while its popover is shown, and the other beacons are under the overlay. Clicking the dimmed page closes the hint.
+
+<HintsDemo
+  prefix="hint-dim"
+  :config="{ overlay: true, overlayOpacity: 0.5 }"
+  :hints="[
+    { element: '#export', id: 'export', popover: { title: 'Export', description: 'The page is dimmed while this hint is open.' } },
+    { element: '#summary', id: 'summary', beacon: { side: 'left', align: 'center' }, popover: { title: 'Summary', description: 'The beacon is placed on the left edge, centered.', side: 'bottom' } },
+  ]"
+/>
 
 ```ts
 useHints({
   overlay: true,
   overlayColor: "#000",
   overlayOpacity: 0.5,
-  hints: [/* ... */],
+  hints: [
+    /* ... */
+  ],
 });
 ```
 
-## Using hints alongside a tour
+`overlayColor` defaults to `#000` and `overlayOpacity` to `0.7`.
 
-Hints and tours coexist without any wiring: while a tour is running, the beacons hide and any open hint closes; when the tour ends, the beacons return on their own. A common pattern is a hint whose button launches the tour, using `onButtonClick` to take over the button:
+## Hints and tours
+
+Hints and tours do not need to know about each other. While a tour is running, the beacons are hidden and an open hint is closed. When the tour ends, the beacons come back.
+
+A hint can start a tour from its button with `onButtonClick`:
 
 ```ts
-const tour = useDriver({ steps: [/* ... */] });
+const tour = useDriver({
+  steps: [
+    /* ... */
+  ],
+});
 
 const { hints } = useHints({
   hints: [
@@ -134,7 +137,7 @@ const { hints } = useHints({
       id: "whats-new",
       popover: {
         title: "New dashboard",
-        description: "Want a quick walkthrough?",
+        description: "Want a short walkthrough?",
         buttonText: "Take the tour",
         onButtonClick: (element, hint, { hints: instance }) => {
           instance.close();
@@ -146,100 +149,28 @@ const { hints } = useHints({
 });
 ```
 
-Since hint popovers are regular popovers, `onPopoverRender` and the popover slots work too.
+Each hints instance is independent: its hints, dismissals and overlay do not affect another instance or a running tour.
 
-## Options
-
-Configuration passed to `useHints()` / `createHints()`:
+## Instance methods
 
 ```ts
-useHints({
-  // Array of hints, documented below.
-  hints: [],
-
-  // Defaults applied to every hint's beacon; a hint's own values win.
-  beacon: { side: "top", align: "end", offsetX: 0, offsetY: 0, animate: true, className: "" },
-
-  // Text of the dismiss button. Defaults to "Got it".
-  buttonText: "Got it",
-
-  // Class and offset for the hint popovers, same meaning as in tours.
-  popoverClass: "my-theme",
-  popoverOffset: 10,
-
-  // Dim the page while a hint is open. Off by default.
-  overlay: false,
-  overlayColor: "#000",
-  overlayOpacity: 0.7,
-
-  // Called when a hint popover is opened / a hint is dismissed.
-  onOpen: (element, hint, { config, hints }) => {},
-  onDismiss: (element, hint, { config, hints }) => {},
-
-  // Runs instead of dismissing when the button is clicked. Call
-  // hints.dismiss(hint.id) yourself to also remove the hint.
-  onButtonClick: (element, hint, { config, hints }) => {},
+const { hints } = useHints({
+  /* ... */
 });
-```
-
-Each hint in the `hints` array:
-
-```ts
-const hint = {
-  // Selector, element, or a function returning one. A hint whose element
-  // is missing is skipped and picked up again on the next show().
-  element: "#export-btn",
-
-  // Stable identity, used by open/dismiss/restore and in the hooks.
-  // Defaults to the hint's index.
-  id: "export",
-
-  // Where the beacon sits on the element's box, and how it looks.
-  beacon: { side: "top", align: "end", offsetX: 0, offsetY: 0, animate: true, className: "" },
-
-  popover: {
-    title: "Export your data",
-    description: "Download this report as CSV or PDF.",
-    side: "bottom",
-    align: "start",
-    popoverClass: "my-theme",
-
-    // The dismiss button; hide it for popovers you dismiss programmatically.
-    showButton: true,
-    buttonText: "Got it",
-
-    // Overrides the instance-level onButtonClick for this hint.
-    onButtonClick: (element, hint, { config, hints }) => {},
-
-    onPopoverRender: (popover, { hint, hints }) => {},
-  },
-
-  // Hint-level hooks, taking precedence over the global ones.
-  onOpen: (element, hint, opts) => {},
-  onDismiss: (element, hint, opts) => {},
-
-  // Anything you want to carry along; available wherever the hint is.
-  data: {},
-};
-```
-
-Methods on the instance:
-
-```ts
-const { hints } = useHints({ /* ... */ });
 
 hints.show(); // mount the beacons
-hints.hide(); // remove beacons and listeners; show() brings them back
-hints.open("export"); // open a hint's popover programmatically
+hints.hide(); // remove the beacons and listeners; show() brings them back
+hints.open("export"); // open a hint's popover
 hints.close(); // close the open popover, keeping its beacon
-hints.dismiss("export"); // dismiss a hint, firing onDismiss
-hints.restore("export"); // bring a dismissed hint back
-hints.restoreAll(); // bring every dismissed hint back
-hints.setHints([/* ... */]); // replace the hints; resets dismissals
+hints.toggle("export"); // open the hint, or close it if it is open
+hints.dismiss("export"); // dismiss a hint and run onDismiss
+hints.restore("export"); // bring back a dismissed hint
+hints.restoreAll(); // bring back every dismissed hint
+hints.setHints([]); // replace the hints and clear dismissals
 hints.getHints(); // the configured hints
 hints.getActive(); // the hint whose popover is open, if any
-hints.isVisible(); // whether the beacons are currently shown
-hints.refresh(); // reposition after layout changes
+hints.isVisible(); // whether the beacons are shown
+hints.refresh(); // reposition after a layout change
 ```
 
-> Like drivers, each hints instance is independent: its hints, dismissals and overlay never affect another instance or a running tour.
+All options, including `onOpen`, `popoverClass`, `popoverOffset`, the per-hint hooks and `data`, are listed in [Configuration](../guide/configuration#hints-configuration).

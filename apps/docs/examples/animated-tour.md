@@ -1,92 +1,92 @@
 # Animated Tour
 
-A tour with a few steps. Click the button under the box to see it in action.
+Tours are animated by default (`animate: true`). Between two steps the highlight slides from one element to the next, and the popover of the new step fades in halfway through the slide.
 
 <Demo
   id="animated-tour"
-  title="Basic animated tour"
-  :config="{ animate: true, showProgress: true, showButtons: ['next', 'previous'] }"
   :steps="[
-    { element: '#animated-tour .demo-box', popover: { title: 'Animated tour example', description: 'Here is the code example showing an animated tour. Let\'s walk you through it.', side: 'left', align: 'start' } },
-    { element: '#anim-title', popover: { title: 'Import the library', description: 'It works the same with useDriver in a component or createDriver anywhere.', side: 'bottom', align: 'start' } },
-    { element: '#anim-summary', popover: { title: 'Import the CSS', description: 'driver-vue/style.css gives you the default look for the popover and overlay.', side: 'bottom', align: 'start' } },
-    { element: '#anim-search', popover: { title: 'Create a driver', description: 'Call useDriver with your steps to create an instance.', side: 'top', align: 'start' } },
-    { element: '#anim-export', popover: { title: 'Start the tour', description: 'Call drive() and the tour starts.', side: 'right', align: 'start' } },
-    { popover: { title: 'Happy coding', description: 'And that is all, go ahead and start adding tours to your applications.' } },
+    { element: '#anim-title', popover: { title: 'Title', description: 'The first step highlights the heading.' } },
+    { element: '#anim-search', popover: { title: 'Name field', description: 'The highlight slid down from the heading.' } },
+    { element: '#anim-export', popover: { title: 'Export button', description: 'And from the field to this button.', side: 'right' } },
   ]"
 >
   <DemoBox prefix="anim" />
 </Demo>
 
-```vue
-<script setup lang="ts">
-import { useDriver } from "driver-vue";
-import "driver-vue/style.css";
-
+```ts
 const { drive } = useDriver({
-  showProgress: true,
   steps: [
-    { element: "#example", popover: { title: "Animated tour example", description: "Let's walk you through it.", side: "left", align: "start" } },
-    { element: "#title", popover: { title: "Import the library", description: "It works the same with useDriver in a component or createDriver anywhere.", side: "bottom", align: "start" } },
-    { element: "#summary", popover: { title: "Import the CSS", description: "driver-vue/style.css gives you the default look.", side: "bottom", align: "start" } },
-    { element: "#search", popover: { title: "Create a driver", description: "Call useDriver with your steps.", side: "top", align: "start" } },
-    { element: "#export", popover: { title: "Start the tour", description: "Call drive() and the tour starts.", side: "right", align: "start" } },
-    { popover: { title: "Happy coding", description: "And that is all, go ahead and start adding tours to your applications." } },
+    { element: "#title", popover: { title: "Title", description: "The first step highlights the heading." } },
+    { element: "#search", popover: { title: "Name field", description: "The highlight slid down from the heading." } },
+    { element: "#export", popover: { title: "Export button", description: "And from the field to this button.", side: "right" } },
   ],
 });
-</script>
 
-<template>
-  <button @click="drive()">Start</button>
-</template>
+drive();
 ```
 
 ## Animation duration
 
-`duration` controls how long the transition takes, in milliseconds: the highlight sliding between steps and the overlay/popover fade-in. It only applies when `animate` is `true` and defaults to `400`.
+`duration` is the length of the transition in milliseconds (default `400`). It sets both the slide between steps and the fade of the overlay and the popover. It has no effect when `animate` is `false`.
 
+<div class="demo">
+<DemoBox prefix="dur">
+<template #footer>
 <Demo
-  id="duration-fast"
-  title="Fast animation"
-  :config="{ animate: true, duration: 150, showProgress: true, showButtons: ['next', 'previous'] }"
+  inline
+  button-text="Run with duration: 150"
+  :config="{ duration: 150 }"
   :steps="[
-    { element: '#fast-title', popover: { title: 'Fast', description: 'Notice how quickly the highlight snaps over to this element.', side: 'bottom', align: 'start' } },
-    { element: '#fast-search', popover: { title: 'Snappy popover', description: 'The popover fades in almost instantly at this speed.', side: 'top', align: 'start' } },
-    { element: '#fast-export', popover: { title: 'Fast duration', description: 'A low duration makes the whole tour feel snappy.', side: 'right', align: 'start' } },
+    { element: '#dur-title', popover: { title: 'Fast', description: 'duration: 150' } },
+    { element: '#dur-search', popover: { title: 'Fast', description: 'The slide takes 150 ms.' } },
+    { element: '#dur-export', popover: { title: 'Fast', description: 'The slide takes 150 ms.', side: 'right' } },
   ]"
->
-  <DemoBox prefix="fast" />
-</Demo>
+/>
+<Demo
+  inline
+  button-text="Run with duration: 1200"
+  :config="{ duration: 1200 }"
+  :steps="[
+    { element: '#dur-title', popover: { title: 'Slow', description: 'duration: 1200' } },
+    { element: '#dur-search', popover: { title: 'Slow', description: 'The slide takes 1200 ms.' } },
+    { element: '#dur-export', popover: { title: 'Slow', description: 'The slide takes 1200 ms.', side: 'right' } },
+  ]"
+/>
+</template>
+</DemoBox>
+</div>
 
 ```ts
 const { drive } = useDriver({
-  // Speed the whole transition up to 150ms (default is 400ms)
   duration: 150,
-  showProgress: true,
   steps: [/* ... */],
 });
 ```
 
+To change the easing curve or style the moving highlight, see [Highlight Animation](../styling/highlight-animation).
+
+## Static tour
+
+With `animate: false` nothing slides or fades: the highlight and the popover jump to the next element at once. Keyboard navigation, buttons and hooks work the same.
+
 <Demo
-  id="duration-slow"
-  title="Slow animation"
-  :config="{ animate: true, duration: 1200, showProgress: true, showButtons: ['next', 'previous'] }"
+  id="static-tour"
+  button-text="Run with animate: false"
+  :config="{ animate: false }"
   :steps="[
-    { element: '#slow-title', popover: { title: 'Slow', description: 'Notice how slowly the highlight glides over to this element.', side: 'bottom', align: 'start' } },
-    { element: '#slow-search', popover: { title: 'Relaxed popover', description: 'The popover fade-in runs over the same duration as the slide.', side: 'top', align: 'start' } },
-    { element: '#slow-export', popover: { title: 'Slow duration', description: 'This is the duration option that controls the whole transition.', side: 'right', align: 'start' } },
+    { element: '#static-title', popover: { title: 'Title', description: 'animate: false' } },
+    { element: '#static-search', popover: { title: 'Name field', description: 'The highlight jumped here without a slide.' } },
+    { element: '#static-export', popover: { title: 'Export button', description: 'The popover appears without a fade.', side: 'right' } },
   ]"
 >
-  <DemoBox prefix="slow" />
+  <DemoBox prefix="static" />
 </Demo>
 
 ```ts
 const { drive } = useDriver({
-  // Slow the whole transition down to 1200ms (default is 400ms)
-  duration: 1200,
-  showProgress: true,
+  animate: false,
   steps: [/* ... */],
 });
 ```
 
-To change the easing curve or decorate the moving cutout, see [Highlight Animation](../styling/highlight-animation).
+The default fade rules are scoped to the `driver-fade` class, which a static tour does not set. Transition rules of your own that do not check for that class still run; see [Highlight Animation](../styling/highlight-animation).

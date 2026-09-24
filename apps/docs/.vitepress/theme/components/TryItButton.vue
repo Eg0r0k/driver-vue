@@ -17,27 +17,32 @@ const run = () => {
       {
         element: ".VPHero .name",
         popover: {
-          title: "Highlight anything",
-          description: "Any element on the page, by selector, element or function.",
+          title: "A highlighted element",
+          description: "A step points at an element, given as a selector, an element or a function.",
         },
       },
       {
         element: ".VPHero .image-container",
         popover: {
-          title: "Your components",
-          description: "This popover is the default one; every part is a slot.",
+          title: "The default popover",
+          description: "This is the default popover. Each of its parts can be replaced with a slot.",
           side: "left",
         },
       },
       {
         element: ".VPFeatures .items > :nth-child(1)",
         popover: {
-          title: "Render it yourself",
-          description: "Slots, a component per step, or fully headless.",
+          title: "Custom rendering",
+          description: "Use slots, a component per step, or render the tour from its state.",
           side: "top",
         },
       },
-      { popover: { title: "That was driver-vue", description: "Read on for the guides, or open the examples." } },
+      {
+        popover: {
+          title: "A centered step",
+          description: "A step without an element is shown in the middle of the screen.",
+        },
+      },
     ],
   });
   driver.drive();
@@ -45,15 +50,26 @@ const run = () => {
 </script>
 
 <template>
-  <div style="display: flex; gap: 8px">
-    <div class="action">
-      <VPButton tag="button" theme="brand" text="Try it" @click="run" />
-    </div>
-    <div class="action">
-      <VPButton theme="alt" text="Get started" href="/guide/installation" />
-    </div>
-    <div class="action">
-      <VPButton theme="alt" text="Your own components" href="/styling/custom-components" />
-    </div>
+  <div class="hero-actions">
+    <VPButton tag="button" theme="brand" text="Try it" @click="run" />
+    <VPButton theme="alt" text="Get started" href="/guide/installation" />
+    <VPButton theme="alt" text="Your own components" href="/styling/custom-components" />
   </div>
 </template>
+
+<style scoped>
+/* Rendered after VitePress's own (empty) .actions block, so it repeats its
+   layout: wrap on narrow screens, centered while the hero is stacked. */
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}
+
+@media (min-width: 960px) {
+  .hero-actions {
+    justify-content: flex-start;
+  }
+}
+</style>

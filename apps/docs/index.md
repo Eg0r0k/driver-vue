@@ -6,18 +6,17 @@ hero:
   image:
     src: /logo.svg
     alt: driver-vue
-  text: Product tours you render with your own Vue components
-  tagline: A port of driver.js whose popover, overlay, stage and hint beacons are Vue components. Same API, same class names, your markup.
+  text: Product tours rendered with your own Vue components
+  tagline: A Vue 3 port of driver.js. The popover, overlay, stage and hint beacons are Vue components; the driver.js API and class names stay the same.
   actions: []
 
 features:
-  - title: Your components, not ours
-    details: Replace one part of the popover with a slot, the whole body with your own component, or render the entire tour yourself from the reactive state.
-  - title: driver.js, unchanged
-    details: The same Config, DriveStep, Popover, hooks and Driver methods. A tour written for driver.js runs as-is.
-  - title: Defaults worth keeping
-    details: The driver.js look ships as CSS custom properties and the original class names, so restyling is a handful of variables when you do not want custom markup.
+  - title: Your own components
+    details: Replace one part of the popover with a slot, the whole popover body with a component, or render the tour yourself from its reactive state.
+  - title: The driver.js API
+    details: Config, DriveStep, Popover, the hooks and the Driver methods have the same names and members, so a driver.js tour config works without changes.
+  - title: Default styles
+    details: The driver.js look is included as CSS custom properties on the original class names. You can restyle it without writing any markup.
   - title: Vue 3 and Nuxt 4
-    details: A composable, a plugin, SSR-safe components, pluggable easing and a Nuxt module with auto-imports.
+    details: A composable, a plugin, components that render only on the client, and a Nuxt module with auto-imports.
 ---
-

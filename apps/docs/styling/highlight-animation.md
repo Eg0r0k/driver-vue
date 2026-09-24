@@ -1,18 +1,20 @@
 # Highlight Animation
 
-The highlight has three moving parts, each customizable on its own:
+Moving from one step to the next animates the highlight in three places, and each can be changed on its own:
 
-1. **The stage slide** – the cutout easing from one element to the next. Configured with `duration` and `easing`.
-2. **The stage box** – `.driver-stage`, an empty element that tracks the cutout and can carry any decoration.
-3. **The transitions** – Vue `<Transition>` classes on the overlay and the popover.
+- the stage slide: the cutout moves from one element to the next, timed by `duration` and `easing`;
+- the stage box: `.driver-stage`, an empty element that follows the cutout and can carry any decoration;
+- the transitions: Vue `<Transition>` classes on the overlay and the popover.
+
+The demo below changes all three: a custom easing, an outline on the stage box, a slide-up for the popover, and a step number rendered in the `#stage` slot.
 
 <GlowStageDemo />
 
 ## Duration and easing
 
-`duration` (ms) is the length of the slide and, through the `--driver-animation-duration` variable set on `<body>`, of the default fades. `easing` is any function from normalized time to normalized progress; driver.js's ease-in-out quad is the default.
+`duration` (ms, default `400`) is the length of the slide. It also sets the `--driver-animation-duration` variable on `<body>`, which the default fades use. `easing` is a function from normalized time to normalized progress; the default is driver.js's ease-in-out quad.
 
-The demo above uses a plain ease-out cubic: the cutout leaves quickly and settles into the next element without bouncing.
+The demo uses an ease-out cubic: the cutout starts fast and slows down as it reaches the next element.
 
 ```ts
 const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
@@ -23,7 +25,7 @@ useDriver({
 });
 ```
 
-Anything of the shape `(t: number) => number` with `f(0) === 0` and `f(1) === 1` works, so the usual curves are one-liners:
+Any `(t: number) => number` with `f(0) === 0` and `f(1) === 1` works:
 
 ```ts
 const easeInOutQuad = (t: number) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2); // the default
@@ -31,59 +33,74 @@ const easeOutQuint = (t: number) => 1 - Math.pow(1 - t, 5);
 const linear = (t: number) => t;
 ```
 
-Easings may also overshoot — return values above `1` before settling — for a springy arrival. It is a strong effect: the cutout visibly passes the element and comes back, so keep the duration short and reserve it for playful tours.
+An easing may overshoot, returning values above `1` before it settles. The cutout then passes the element and comes back. Keep the duration short if you use one.
 
 ```ts
 const easeOutBack = (t: number) => 1 + 2.7 * Math.pow(t - 1, 3) + 1.7 * Math.pow(t - 1, 2);
 ```
 
-`animate: false` disables the slide and the fades; the popover and the cutout then jump between steps.
+`animate: false` turns off the slide and the fades; the cutout and the popover then jump between steps. See [Animated tour](../examples/animated-tour).
 
 ## The stage box
 
-`.driver-stage` is positioned over the cutout (element box plus `stagePadding`, rounded by `stageRadius`), is `pointer-events: none`, and has no visual by default. While the slide runs it carries `data-transitioning`.
+`.driver-stage` covers the cutout (the element box plus `stagePadding`, with `stageRadius` corners). It ignores the pointer and has no visual by default. While the slide runs it carries the `data-transitioning` attribute. The demo draws an outline:
 
 ```css
 .driver-stage {
-  box-shadow:
-    0 0 0 2px rgba(99, 102, 241, 0.9),
-    0 0 24px 6px rgba(99, 102, 241, 0.55);
-  animation: stage-pulse 1.6s ease-in-out infinite;
+  box-shadow: 0 0 0 2px #3866e8;
 }
 
 .driver-stage[data-transitioning] {
-  animation: none;
-  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.4);
+  box-shadow: 0 0 0 1px #3866e8;
+}
+```
+
+The rect is also set as CSS variables on the element, for pseudo-elements and animations that need the numbers: `--driver-stage-x`, `--driver-stage-y`, `--driver-stage-width`, `--driver-stage-height` and `--driver-stage-radius`.
+
+Content for the stage box goes in the `#stage` slot of `<DriverTour>`; the step number in the demo is rendered there. The slot and its props are described in [Custom components](./custom-components#the-stage).
+
+### Per-tour classes
+
+Rules on `.driver-stage` apply to every tour. To style one tour only, `stageClass` adds a class to the stage box and `overlayClass` to the overlay root. The demo passes `stageClass: "docs-stage-ring"`:
+
+```ts
+useDriver({ stageClass: "ring", steps });
+```
+
+```css
+.driver-stage.ring {
+  box-shadow: 0 0 0 2px #3866e8;
+}
+```
+
+`data-transitioning` disappears when the stage arrives, so an arrival effect can start then:
+
+```css
+.driver-stage.ring::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 2px solid #3866e8;
+  border-radius: inherit;
+  animation: ripple 900ms ease-out forwards;
 }
 
-@keyframes stage-pulse {
-  50% {
-    box-shadow:
-      0 0 0 4px rgba(99, 102, 241, 0.6),
-      0 0 36px 12px rgba(99, 102, 241, 0.25);
+.driver-stage.ring[data-transitioning]::after {
+  animation: none;
+  opacity: 0;
+}
+
+@keyframes ripple {
+  to {
+    inset: -16px;
+    opacity: 0;
   }
 }
 ```
 
-The rect is also available as CSS variables on the element, for pseudo-elements and for animations that need the numbers: `--driver-stage-x`, `--driver-stage-y`, `--driver-stage-width`, `--driver-stage-height`, `--driver-stage-radius`.
-
-### The `#stage` slot
-
-Whatever you put in the `#stage` slot renders inside `.driver-stage`, positioned relative to it. The demo above adds a step badge in the corner:
-
-```vue
-<DriverTour>
-  <template #stage="{ index, total, transitioning }">
-    <span class="badge">{{ index + 1 }}/{{ total }}</span>
-  </template>
-</DriverTour>
-```
-
-The slot receives the tour scope (`driver`, `step`, `index`, `total`, `element`, `isFirst`, `isLast`, ...) plus `stage`, `padding`, `radius` and `transitioning`.
-
 ## Popover and overlay transitions
 
-The popover is wrapped in `<Transition name="driver-popover" appear>` and remounts on every step, so its enter transition plays per step. The overlay is wrapped in `<Transition name="driver-overlay" appear>` and enters once per tour. Override the Vue classes:
+The popover is wrapped in `<Transition name="driver-popover" appear>` and remounts on every step, so its enter transition plays on each step. The overlay is wrapped in `<Transition name="driver-overlay" appear>` and enters once per tour. Override the Vue classes to change them:
 
 ```css
 .driver-popover-enter-active {
@@ -94,7 +111,7 @@ The popover is wrapped in `<Transition name="driver-popover" appear>` and remoun
 
 .driver-popover-enter-from {
   opacity: 0;
-  transform: translateY(12px) scale(0.96);
+  transform: translateY(8px);
 }
 
 .driver-overlay-enter-active {
@@ -106,40 +123,17 @@ The popover is wrapped in `<Transition name="driver-popover" appear>` and remoun
 }
 ```
 
-The default rules only apply under `.driver-fade` (an animated tour) and respect `prefers-reduced-motion`. Write yours without the `.driver-fade` guard if you want them regardless of `animate`.
+The default rules apply only under `.driver-fade` (a tour with `animate` on) and are turned off for `prefers-reduced-motion: reduce`. Rules without the `.driver-fade` prefix apply whatever `animate` is. The transition classes are on the same element as `popoverClass`, so `.driver-popover.my-class.driver-popover-enter-active` limits a transition to one tour; the demo does this.
 
-Because the popover is positioned with `left` / `top`, `transform` is free for your transition.
+The popover is positioned with `left` and `top`, so `transform` is free for your transition. The exception is a centered popover (a step without an element), which uses `transform: translate(-50%, -50%)`.
 
 ## When the popover appears
 
-As in driver.js, the popover of the first step shows immediately; on later steps of an animated tour it appears halfway through the slide, so it fades in while the cutout is still settling. The engine drives this through `driver.state.popover`, which is `undefined` while hidden. If you need the popover to appear only after the slide, watch `driver.state.transitioning` in a custom popover and delay your own enter animation.
+As in driver.js, the popover of the first step shows immediately. On later steps of an animated tour it appears halfway through the slide, so it fades in while the cutout is still moving. The engine does this through `driver.state.popover`, which is `undefined` while the popover is hidden. To show a custom popover only after the slide, watch `driver.state.transitioning` and delay your own enter animation.
 
-## Per-tour classes: `stageClass` and `overlayClass`
+## Moving the box with CSS
 
-Effects are usually global CSS on `.driver-stage`. To vary them per tour, `stageClass` adds classes to the stage box and `overlayClass` to the overlay root:
-
-```ts
-useDriver({ stageClass: "fx-glow", overlayClass: "fx-spring", steps });
-```
-
-```css
-.driver-stage.fx-glow {
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.9), 0 0 24px 6px rgba(99, 102, 241, 0.55);
-  animation: glow-pulse 1.6s ease-in-out infinite;
-}
-```
-
-The stage box also carries `data-transitioning` while the engine slides it, so an "arrival" animation can start when the attribute disappears:
-
-```css
-.driver-stage::after { content: ""; position: absolute; inset: 0; border-radius: inherit; border: 2px solid #6366f1; animation: ripple 900ms ease-out forwards; }
-.driver-stage[data-transitioning]::after { animation: none; opacity: 0; }
-@keyframes ripple { to { inset: -22px; opacity: 0; } }
-```
-
-## Moving the box with CSS instead of JavaScript
-
-The default overlay is an SVG path, which only the engine can animate. `DriverBoxOverlay` is an alternative overlay whose cutout is a plain element with a huge `box-shadow`. Combine it with `animate: false`: the engine stops interpolating, the rect jumps to the next element, and CSS transitions carry both the cutout and `.driver-stage` there, with whatever timing function you like (springs, steps, anything `cubic-bezier` can express):
+The default overlay is an SVG path, which only the engine can animate. `DriverBoxOverlay` is an alternative overlay whose cutout is an element with a large `box-shadow`. Combine it with `animate: false`: the engine stops interpolating, the rect jumps to the next element, and CSS transitions move both the cutout and `.driver-stage` there, with any timing function CSS supports:
 
 ```ts
 import { DriverBoxOverlay } from "driver-vue";
@@ -160,10 +154,10 @@ useDriver({
 }
 ```
 
-Both the cutout (`.driver-box-overlay-cutout`) and the stage box read `--driver-animation-duration` (set by the engine from `duration`) and `--driver-animation-easing`. With `animate: true` the box overlay is driven by the engine like the SVG, and the CSS transition is disabled.
+The cutout (`.driver-box-overlay-cutout`) and the stage box both read `--driver-animation-duration` (set from `duration`) and `--driver-animation-easing`. With `animate: true` the engine moves the box overlay frame by frame like the SVG one, and the CSS transition is off.
 
-The Nuxt playground's "Highlight box animation" page combines all of the above with live controls.
+The Nuxt playground's "Highlight box animation" page combines these options with live controls.
 
-## Replacing the stage animation entirely
+## Replacing the stage animation
 
-The slide is computed by the engine and written to `driver.state.stage` every frame. A custom overlay (the `#overlay` slot) receives that rect and can render it however it likes, including with CSS transitions instead of the frame-by-frame values: set `animate: false` so the rect jumps, and add `transition: all 400ms` to your own cutout element. A `clip-path: polygon(evenodd, ...)` on a full-screen `backdrop-filter: blur()` layer makes a frosted overlay whose cutout stays sharp and clickable, and `clip-path` transitions too.
+The engine computes the slide and writes it to `driver.state.stage` on every frame. A [custom overlay](./custom-components#the-overlay) receives that rect and can draw it any way it likes. To animate with CSS instead of the per-frame values, set `animate: false` so the rect jumps, and put a `transition` on your own cutout element. For example, a `clip-path: polygon(evenodd, ...)` on a full-screen layer with `backdrop-filter: blur()` gives a blurred overlay with a sharp cutout, and `clip-path` can be transitioned.
